@@ -3,6 +3,7 @@ package com.shimnssso.breakthrougheng
 import android.app.Application
 import com.shimnssso.breakthrougheng.data.AppContainer
 import com.shimnssso.breakthrougheng.data.AppContainerImpl
+import timber.log.Timber
 
 class BreakThroughApplication : Application() {
     // AppContainer instance used by the rest of classes to obtain dependencies
@@ -11,5 +12,6 @@ class BreakThroughApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainerImpl(this)
+        Timber.plant(Timber.DebugTree())
     }
 }

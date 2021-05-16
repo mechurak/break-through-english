@@ -109,7 +109,7 @@ fun LectureScreen(
         }
     ) { innerPadding ->
         LectureContent(
-            post = lecture,
+            lecture = lecture,
             modifier = Modifier
                 // innerPadding takes into account the top and bottom bar
                 .padding(innerPadding)
