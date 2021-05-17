@@ -4,8 +4,12 @@ import com.shimnssso.breakthrougheng.data.Result
 import com.shimnssso.breakthrougheng.data.lecture.LectureRepository
 import com.shimnssso.breakthrougheng.model.Lecture
 import com.shimnssso.breakthrougheng.model.Row
+import com.shimnssso.breakthrougheng.network.RawDataResponse
+import com.shimnssso.breakthrougheng.network.RowDataItem
+import com.shimnssso.breakthrougheng.network.SheetNetwork
+import timber.log.Timber
 
-class FakeLectureRepository : LectureRepository {
+class MyLectureRepository : LectureRepository {
     private val rowsOne by lazy {
         listOf(
             Row(1, "Test spelling 1", "test meaning 1", ""),
@@ -46,5 +50,18 @@ class FakeLectureRepository : LectureRepository {
 
     override suspend fun getLecture(date: String): Result<Lecture> {
         return Result.Success(lectures[0])
+    }
+
+    override suspend fun getRawData(): RawDataResponse {
+        Timber.d("getRawData()")
+        val response = SheetNetwork.sheetApi.getRawData()
+        for (row: RowDataItem in response.sheets[0].data[0].rowData) {
+            val cells = row.values
+            val texts = cells.map {
+                it.formattedValue
+            }
+            Timber.d(texts.toString())
+        }
+        return response
     }
 }

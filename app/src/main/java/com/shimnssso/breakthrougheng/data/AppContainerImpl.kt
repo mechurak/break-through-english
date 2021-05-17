@@ -2,7 +2,7 @@ package com.shimnssso.breakthrougheng.data
 
 import android.content.Context
 import com.shimnssso.breakthrougheng.data.lecture.LectureRepository
-import com.shimnssso.breakthrougheng.data.lecture.impl.FakeLectureRepository
+import com.shimnssso.breakthrougheng.data.lecture.impl.MyLectureRepository
 
 
 /**
@@ -20,6 +20,6 @@ interface AppContainer {
 class AppContainerImpl(private val applicationContext: Context) : AppContainer {
 
     override val lectureRepository: LectureRepository by lazy {
-        FakeLectureRepository()
+        MyLectureRepository()
     }
 }

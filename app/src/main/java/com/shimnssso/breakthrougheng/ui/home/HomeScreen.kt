@@ -41,6 +41,7 @@ import com.shimnssso.breakthrougheng.ui.state.UiState
 import com.shimnssso.breakthrougheng.utils.produceUiState
 import com.shimnssso.breakthrougheng.utils.supportWideScreen
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * Stateful HomeScreen which manages state using [produceUiState]
@@ -58,6 +59,8 @@ fun HomeScreen(
     scaffoldState: ScaffoldState = rememberScaffoldState()
 ) {
     val (postUiState, refreshPost, clearError) = produceUiState(lectureRepository) {
+        Timber.i("invoke produceUiState block")
+        getRawData()
         getLectures()
     }
 
