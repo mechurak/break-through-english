@@ -13,15 +13,12 @@ import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.shimnssso.headonenglish.data.AppContainer
 import com.shimnssso.headonenglish.ui.theme.BreakThroughEnglishTheme
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun BreakThroughApp(
-    appContainer: AppContainer
-) {
+fun BreakThroughApp() {
     BreakThroughEnglishTheme {
         ProvideWindowInsets {
             val systemUiController = rememberSystemUiController()
@@ -50,7 +47,6 @@ fun BreakThroughApp(
                 }
             ) {
                 BreakThroughNavGraph(
-                    appContainer = appContainer,
                     navController = navController,
                     scaffoldState = scaffoldState
                 )

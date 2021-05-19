@@ -13,32 +13,27 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.toPaddingValues
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.shimnssso.headonenglish.R
-import com.shimnssso.headonenglish.data.lecture.LectureRepository
-import com.shimnssso.headonenglish.model.Lecture
+import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
-import com.shimnssso.headonenglish.ui.state.UiState
-import com.shimnssso.headonenglish.utils.produceUiState
 import com.shimnssso.headonenglish.utils.supportWideScreen
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -46,34 +41,34 @@ import timber.log.Timber
 /**
  * Stateful HomeScreen which manages state using [produceUiState]
  *
- * @param lectureRepository data source for this screen
  * @param navigateToArticle (event) request navigation to Article screen
  * @param openDrawer (event) request opening the app drawer
  * @param scaffoldState (state) state for the [Scaffold] component on this screen
  */
 @Composable
 fun HomeScreen(
-    lectureRepository: LectureRepository,
     navigateToArticle: (String) -> Unit,
     openDrawer: () -> Unit,
     scaffoldState: ScaffoldState = rememberScaffoldState()
 ) {
-    val (postUiState, refreshPost, clearError) = produceUiState(lectureRepository) {
-        Timber.i("invoke produceUiState block")
-        getRawData()
-        getLectures()
+    val viewModel = viewModel(HomeViewModel::class.java)
+    val lectures by viewModel.lectures.observeAsState(listOf())
+    val isLoading by viewModel.isLoading.observeAsState(false)
+
+    LaunchedEffect(Unit) {
+        Timber.e("LaunchedEffect")
+        viewModel.refresh(shouldCheckInterval = true)
     }
 
     HomeScreen(
-        lectures = postUiState.value,
-        onRefreshPosts = refreshPost,
-        onErrorDismiss = clearError,
+        lectures = lectures,
+        isLoading = isLoading,
+        onRefreshPosts = { viewModel.refresh() },
         navigateToArticle = navigateToArticle,
         openDrawer = openDrawer,
         scaffoldState = scaffoldState
     )
 }
-
 
 
 /**
@@ -90,38 +85,14 @@ fun HomeScreen(
  */
 @Composable
 fun HomeScreen(
-    lectures: UiState<List<Lecture>>,
+    lectures: List<DatabaseLecture>,
+    isLoading: Boolean,
     onRefreshPosts: () -> Unit,
-    onErrorDismiss: () -> Unit,
     navigateToArticle: (String) -> Unit,
     openDrawer: () -> Unit,
     scaffoldState: ScaffoldState
 ) {
     val coroutineScope = rememberCoroutineScope()
-
-    if (lectures.hasError) {
-        val errorMessage = "temp error msg"
-        val retryMessage = "temp retry msg"
-
-        // If onRefreshPosts or onErrorDismiss change while the LaunchedEffect is running,
-        // don't restart the effect and use the latest lambda values.
-        val onRefreshPostsState by rememberUpdatedState(onRefreshPosts)
-        val onErrorDismissState by rememberUpdatedState(onErrorDismiss)
-
-        // Show snackbar using a coroutine, when the coroutine is cancelled the snackbar will
-        // automatically dismiss. This coroutine will cancel whenever posts.hasError is false
-        // (thanks to the surrounding if statement) or if scaffoldState changes.
-        LaunchedEffect(scaffoldState) {
-            val snackbarResult = scaffoldState.snackbarHostState.showSnackbar(
-                message = errorMessage,
-                actionLabel = retryMessage
-            )
-            when (snackbarResult) {
-                SnackbarResult.ActionPerformed -> onRefreshPostsState()
-                SnackbarResult.Dismissed -> onErrorDismissState()
-            }
-        }
-    }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -142,16 +113,13 @@ fun HomeScreen(
     ) { innerPadding ->
         val modifier = Modifier.padding(innerPadding)
         LoadingContent(
-            empty = lectures.initialLoad,
+            empty = lectures.isEmpty(),
             emptyContent = { FullScreenLoading() },
-            loading = lectures.loading,
+            loading = isLoading,
             onRefresh = onRefreshPosts,
             content = {
                 HomeScreenErrorAndContent(
                     lectures = lectures,
-                    onRefresh = {
-                        onRefreshPosts()
-                    },
                     navigateToArticle = navigateToArticle,
                     modifier = modifier.supportWideScreen()
                 )
@@ -159,8 +127,6 @@ fun HomeScreen(
         )
     }
 }
-
-
 
 
 /**
@@ -202,18 +168,12 @@ private fun LoadingContent(
  */
 @Composable
 private fun HomeScreenErrorAndContent(
-    lectures: UiState<List<Lecture>>,
-    onRefresh: () -> Unit,
+    lectures: List<DatabaseLecture>,
     navigateToArticle: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    if (lectures.data != null) {
-        LectureList(lectures.data, navigateToArticle, modifier)
-    } else if (!lectures.hasError) {
-        // if there are no posts, and no error, let the user refresh manually
-        TextButton(onClick = onRefresh, modifier.fillMaxSize()) {
-            Text("Tap to load content", textAlign = TextAlign.Center)
-        }
+    if (lectures.isNotEmpty()) {
+        LectureList(lectures, navigateToArticle, modifier)
     } else {
         // there's currently an error showing, don't show any content
         Box(modifier.fillMaxSize()) { /* empty screen */ }
@@ -233,7 +193,7 @@ private fun HomeScreenErrorAndContent(
  */
 @Composable
 private fun LectureList(
-    lectures: List<Lecture>,
+    lectures: List<DatabaseLecture>,
     navigateToLecture: (postId: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -268,12 +228,12 @@ private fun FullScreenLoading() {
  */
 @Composable
 private fun LectureListMainSection(
-    lectures: List<Lecture>,
+    lectures: List<DatabaseLecture>,
     navigateToLecture: (String) -> Unit
 ) {
     Column {
-        lectures.forEach { post ->
-            LectureCard(post, navigateToLecture)
+        lectures.forEach { lecture ->
+            LectureCard(lecture, navigateToLecture)
             PostListDivider()
         }
     }

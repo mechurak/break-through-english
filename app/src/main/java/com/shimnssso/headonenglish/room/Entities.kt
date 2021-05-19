@@ -10,7 +10,7 @@ data class DatabaseLecture(
 
     val category: String,
     val title: String,
-    val url: String,
+    val url: String?,
 )
 
 @Entity(tableName = "card_table", primaryKeys = ["date", "id"])
@@ -20,4 +20,11 @@ data class DatabaseCard(
     val spelling: String?,
     val meaning: String?,
     val description: String?,
+)
+
+@Entity(tableName = "global_table")
+data class GlobalInfo(
+    @PrimaryKey
+    val id: Int = 0,
+    val lastUpdateTime: Long,
 )

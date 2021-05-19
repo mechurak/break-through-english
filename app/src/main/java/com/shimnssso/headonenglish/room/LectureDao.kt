@@ -6,11 +6,15 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface LectureDao {
-    @Query("select * from lecture_table")
+    @Query("select * from lecture_table order by date desc")
     fun getLectures(): LiveData<List<DatabaseLecture>>
+
+    @Query("select * from lecture_table where date = :date limit 1")
+    fun getLecture(date: String): LiveData<DatabaseLecture>
 
     @Query("select * from card_table where date = :date")
     fun getCards(date: String): LiveData<List<DatabaseCard>>
@@ -26,4 +30,13 @@ interface LectureDao {
 
     @Query("delete from card_table where date = :date")
     suspend fun deleteCards(date: String)
+
+    @Query("select * from global_table limit 1")
+    suspend fun getGlobalInfo(): GlobalInfo
+
+    @Insert
+    suspend fun insertGlobalInfo(globalInfo: GlobalInfo)
+
+    @Update
+    suspend fun updateGlobalInfo(globalInfo: GlobalInfo)
 }

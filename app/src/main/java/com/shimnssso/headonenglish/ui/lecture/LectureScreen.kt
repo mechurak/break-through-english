@@ -21,61 +21,33 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.navigationBarsPadding
-import com.shimnssso.headonenglish.data.lecture.LectureRepository
-import com.shimnssso.headonenglish.model.Lecture
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
-import com.shimnssso.headonenglish.utils.produceUiState
 import com.shimnssso.headonenglish.utils.supportWideScreen
-
-/**
- * Stateful Article Screen that manages state using [produceUiState]
- *
- * @param postId (state) the post to show
- * @param lecturesRepository data source for this screen
- * @param onBack (event) request back navigation
- */
-@Composable
-fun LectureScreen(
-    postId: String?,
-    lecturesRepository: LectureRepository,
-    onBack: () -> Unit
-) {
-    val (post) = produceUiState(lecturesRepository, postId) {
-        getLecture(postId!!)
-    }
-    // TODO: handle errors when the repository is capable of creating them
-    val postData = post.value.data ?: return
-
-    // Returns a [CoroutineScope] that is scoped to the lifecycle of [ArticleScreen]. When this
-    // screen is removed from composition, the scope will be cancelled.
-    val coroutineScope = rememberCoroutineScope()
-
-    LectureScreen(
-        lecture = postData,
-        onBack = onBack,
-    )
-}
 
 /**
  * Stateless Article Screen that displays a single post.
  *
- * @param lecture (state) item to display
+ * @param date (state) item to display
  * @param onBack (event) request navigate back
  */
 @Composable
 fun LectureScreen(
-    lecture: Lecture,
+    date: String?,
     onBack: () -> Unit
 ) {
+    val viewModel = viewModel(LectureViewModel::class.java, factory = LectureViewModel.Factory(date!!))
+    val cards by viewModel.cards.observeAsState(listOf())
+    val lecture by viewModel.lecture.observeAsState(null)
 
     var showDialog by rememberSaveable { mutableStateOf(false) }
     if (showDialog) {
@@ -87,7 +59,7 @@ fun LectureScreen(
             InsetAwareTopAppBar(
                 title = {
                     Text(
-                        text = lecture.title,
+                        text = lecture?.title ?: "",
                         color = LocalContentColor.current
                     )
                 },
@@ -103,13 +75,13 @@ fun LectureScreen(
         },
         bottomBar = {
             BottomBar(
-                lecture = lecture,
                 onUnimplementedAction = { showDialog = true },
             )
         }
     ) { innerPadding ->
         LectureContent(
             lecture = lecture,
+            cards = cards,
             modifier = Modifier
                 // innerPadding takes into account the top and bottom bar
                 .padding(innerPadding)
@@ -131,7 +103,6 @@ fun LectureScreen(
  */
 @Composable
 private fun BottomBar(
-    lecture: Lecture,
     onUnimplementedAction: () -> Unit,
 ) {
     Surface(elevation = 8.dp) {

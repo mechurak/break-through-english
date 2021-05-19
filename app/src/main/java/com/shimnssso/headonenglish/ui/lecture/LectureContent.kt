@@ -30,13 +30,18 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.shimnssso.headonenglish.model.Lecture
+import com.shimnssso.headonenglish.room.DatabaseCard
+import com.shimnssso.headonenglish.room.DatabaseLecture
 import timber.log.Timber
 
 private val defaultSpacerSize = 16.dp
 
 @Composable
-fun LectureContent(lecture: Lecture, modifier: Modifier = Modifier) {
+fun LectureContent(
+    lecture: DatabaseLecture?,
+    cards: List<DatabaseCard>,
+    modifier: Modifier = Modifier
+) {
 
     // This is the official way to access current context from Composable functions
     val context = LocalContext.current
@@ -85,21 +90,24 @@ fun LectureContent(lecture: Lecture, modifier: Modifier = Modifier) {
     // This effect will be executed at each commit phase if
     // [sourceUrl] has changed.
     LaunchedEffect(lecture) {
-        Timber.i("LaunchedEffect. lecture: %s", lecture.title)
-        val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-            context,
-            Util.getUserAgent(context, context.packageName)
-        )
-
-        val source = ProgressiveMediaSource.Factory(dataSourceFactory)
-            .createMediaSource(
-                Uri.parse(
-                    // Big Buck Bunny from Blender Project
-                    lecture.url
-                )
+        Timber.i("LaunchedEffect. lecture: %s", lecture)
+        Timber.i("LaunchedEffect. cards: %s", cards)
+        if (lecture?.url != null) {
+            val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
+                context,
+                Util.getUserAgent(context, context.packageName)
             )
 
-        exoPlayer.prepare(source)
+            val source = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(
+                    Uri.parse(
+                        // Big Buck Bunny from Blender Project
+                        lecture.url
+                    )
+                )
+
+            exoPlayer.prepare(source)
+        }
     }
 
     DisposableEffect(Unit) {
@@ -112,26 +120,27 @@ fun LectureContent(lecture: Lecture, modifier: Modifier = Modifier) {
     }
 
     Column {
-        // Gateway to traditional Android Views
-        AndroidView(
-            factory = { context ->
-                PlayerView(context).apply {
-                    player = exoPlayer
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        )
+        if (lecture?.url != null) {
+            // Gateway to traditional Android Views
+            AndroidView(
+                factory = { context ->
+                    PlayerView(context).apply {
+                        player = exoPlayer
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
         LazyColumn(
             modifier = modifier.padding(horizontal = defaultSpacerSize)
         ) {
-            item {
-                Text(text = lecture.title, style = MaterialTheme.typography.h4)
-                Spacer(Modifier.height(8.dp))
-            }
-            items(lecture.rows) { row ->
-                Text(text = row.spelling, style = MaterialTheme.typography.h5)
-                Text(text = row.meaning, style = MaterialTheme.typography.h5)
+            items(cards) { card ->
+                Text(text = card.spelling ?: "", style = MaterialTheme.typography.body1)
+                Text(
+                    text = card.meaning ?: "", style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
             }
             item {
                 Spacer(Modifier.height(48.dp))

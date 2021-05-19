@@ -10,8 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
-import com.shimnssso.headonenglish.data.AppContainer
-import com.shimnssso.headonenglish.ui.MainDestinations.LECTURE_ID_KEY
+import com.shimnssso.headonenglish.ui.MainDestinations.DATE_KEY
 import com.shimnssso.headonenglish.ui.home.HomeScreen
 import com.shimnssso.headonenglish.ui.lecture.LectureScreen
 import kotlinx.coroutines.launch
@@ -24,12 +23,14 @@ object MainDestinations {
     const val HOME_ROUTE = "home"
     const val LECTURE_ROUTE = "lecture"
     const val SIGN_IN_ROUTE = "sign-in"
-    const val LECTURE_ID_KEY = "postId"
+
+    const val DATE_KEY = "date"
+    const val TITLE_KEY = "title"
+    const val URL_KEY = "url"
 }
 
 @Composable
 fun BreakThroughNavGraph(
-    appContainer: AppContainer,
     navController: NavHostController = rememberNavController(),
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     startDestination: String = MainDestinations.HOME_ROUTE
@@ -44,15 +45,13 @@ fun BreakThroughNavGraph(
     ) {
         composable(MainDestinations.HOME_ROUTE) {
             HomeScreen(
-                lectureRepository = appContainer.lectureRepository,
                 navigateToArticle = actions.navigateToArticle,
                 openDrawer = openDrawer
             )
         }
-        composable("${MainDestinations.LECTURE_ROUTE}/{$LECTURE_ID_KEY}") { backStackEntry ->
+        composable("${MainDestinations.LECTURE_ROUTE}/{$DATE_KEY}") { backStackEntry ->
             LectureScreen(
-                postId = backStackEntry.arguments?.getString(LECTURE_ID_KEY),
-                lecturesRepository = appContainer.lectureRepository,
+                date = backStackEntry.arguments?.getString(DATE_KEY),
                 onBack = actions.upPress,
             )
         }

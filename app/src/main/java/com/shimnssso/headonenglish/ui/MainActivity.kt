@@ -11,9 +11,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        val appContainer = (application as HeadOnEnglishApplication).container
         setContent {
-            BreakThroughApp(appContainer)
+            BreakThroughApp()
         }
     }
 }
