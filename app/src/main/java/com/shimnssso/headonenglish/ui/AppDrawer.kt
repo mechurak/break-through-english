@@ -40,7 +40,7 @@ fun AppDrawer(
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(Modifier.height(24.dp))
-        BreakThroughEngLogo(Modifier.padding(16.dp), closeDrawer)
+        HeadOnEnglishLogo(Modifier.padding(16.dp), closeDrawer)
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
         DrawerButton(
             icon = Icons.Filled.Home,
@@ -55,7 +55,7 @@ fun AppDrawer(
 }
 
 @Composable
-private fun BreakThroughEngLogo(modifier: Modifier = Modifier, closeDrawer: () -> Unit) {
+private fun HeadOnEnglishLogo(modifier: Modifier = Modifier, closeDrawer: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,

@@ -9,7 +9,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "com.shimnssso.breakthrougheng"
+        applicationId "com.shimnssso.headonenglish"
         minSdk 23
         targetSdk 30
         versionCode 1

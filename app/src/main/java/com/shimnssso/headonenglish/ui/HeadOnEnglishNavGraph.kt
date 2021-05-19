@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 
 /**
- * Destinations used in the ([BreakThroughApp]).
+ * Destinations used in the ([HeadOnEnglishApp]).
  */
 object MainDestinations {
     const val HOME_ROUTE = "home"
@@ -30,7 +30,7 @@ object MainDestinations {
 }
 
 @Composable
-fun BreakThroughNavGraph(
+fun HeadOnEnglishNavGraph(
     navController: NavHostController = rememberNavController(),
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     startDestination: String = MainDestinations.HOME_ROUTE

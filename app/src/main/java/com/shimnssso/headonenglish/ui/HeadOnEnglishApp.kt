@@ -13,13 +13,13 @@ import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.shimnssso.headonenglish.ui.theme.BreakThroughEnglishTheme
+import com.shimnssso.headonenglish.ui.theme.HeadOnEnglishTheme
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun BreakThroughApp() {
-    BreakThroughEnglishTheme {
+fun HeadOnEnglishApp() {
+    HeadOnEnglishTheme {
         ProvideWindowInsets {
             val systemUiController = rememberSystemUiController()
             SideEffect {
@@ -46,7 +46,7 @@ fun BreakThroughApp() {
                     )
                 }
             ) {
-                BreakThroughNavGraph(
+                HeadOnEnglishNavGraph(
                     navController = navController,
                     scaffoldState = scaffoldState
                 )

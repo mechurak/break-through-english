@@ -11,13 +11,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.BreakThroughEnglish">
+        android:theme="@style/Theme.HeadOnEnglish">
         <activity
             android:name="com.shimnssso.headonenglish.ui.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.BreakThroughEnglish.NoActionBar">
+            android:theme="@style/Theme.HeadOnEnglish.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
