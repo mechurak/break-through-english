@@ -1,6 +1,7 @@
 package com.shimnssso.headonenglish.ui.lecture
 
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -139,6 +141,13 @@ fun LectureContent(
                 .fillMaxWidth()
         ) {
             items(cards) { card ->
+                if (card.id % 10 == 1 && card.id != 1) {
+                    Divider(
+                        thickness = 2.dp,
+                        modifier = Modifier.padding(vertical = 12.dp),
+                        color = MaterialTheme.colors.surface
+                    )
+                }
                 Text(text = card.spelling ?: "", style = MaterialTheme.typography.body1)
                 Text(
                     text = card.meaning ?: "", style = MaterialTheme.typography.body2,

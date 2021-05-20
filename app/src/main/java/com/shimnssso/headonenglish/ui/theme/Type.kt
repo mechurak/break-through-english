@@ -15,13 +15,19 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
+    body2 = TextStyle(
+        color = Color.Gray,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.sp,
+        letterSpacing = 0.25.sp
+    ),
     overline = TextStyle(
         color = Color.Gray,
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 10.sp,
         letterSpacing = 1.5.sp
-    )
+    ),
     /* Other default text styles to override
     button = TextStyle(
         fontFamily = FontFamily.Default,
