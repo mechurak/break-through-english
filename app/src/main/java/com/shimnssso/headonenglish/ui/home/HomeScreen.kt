@@ -1,5 +1,6 @@
 package com.shimnssso.headonenglish.ui.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Colors
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -24,6 +26,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -34,6 +37,7 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
+import com.shimnssso.headonenglish.utils.DateConverter
 import com.shimnssso.headonenglish.utils.supportWideScreen
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -198,7 +202,7 @@ private fun LectureList(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier,
+        modifier = modifier.background(MaterialTheme.colors.surface),
         contentPadding = LocalWindowInsets.current.systemBars.toPaddingValues(top = false)
     ) {
         item { LectureListMainSection(lectures, navigateToLecture) }
@@ -234,18 +238,15 @@ private fun LectureListMainSection(
     Column {
         lectures.forEach { lecture ->
             LectureCard(lecture, navigateToLecture)
-            PostListDivider()
+            val color = if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {
+                MaterialTheme.colors.surface
+            } else {
+                MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
+            }
+            Divider(
+                modifier = Modifier.padding(horizontal = 14.dp),
+                color = color
+            )
         }
     }
-}
-
-/**
- * Full-width divider with padding for [PostList]
- */
-@Composable
-private fun PostListDivider() {
-    Divider(
-        modifier = Modifier.padding(horizontal = 14.dp),
-        color = MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
-    )
 }

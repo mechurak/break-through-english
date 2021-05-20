@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.util.Util
 import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import timber.log.Timber
+import java.time.LocalDate
 
 private val defaultSpacerSize = 16.dp
 
@@ -133,7 +134,9 @@ fun LectureContent(
         }
 
         LazyColumn(
-            modifier = modifier.padding(horizontal = defaultSpacerSize)
+            modifier = modifier
+                .padding(horizontal = defaultSpacerSize)
+                .fillMaxWidth()
         ) {
             items(cards) { card ->
                 Text(text = card.spelling ?: "", style = MaterialTheme.typography.body1)
