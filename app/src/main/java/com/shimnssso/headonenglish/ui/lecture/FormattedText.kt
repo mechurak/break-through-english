@@ -66,3 +66,14 @@ fun TargetFormattedTextPreview() {
         append("uities")
     })
 }
+
+@Preview("FormattedText2", widthDp = 360, heightDp = 120, showBackground = true)
+@Composable
+fun TargetFormattedTextPreview2() {
+    Text(buildAnnotatedString {
+        append("invest in stock and equities")
+        addStyle(SpanStyle(background = Color.Yellow), 2, 6)
+        addStyle(SpanStyle(background = Color.Yellow), 9, 15)
+        addStyle(SpanStyle(background = Color.Yellow), 20, 22)
+    })
+}
