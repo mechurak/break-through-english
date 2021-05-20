@@ -6,6 +6,7 @@ import com.shimnssso.headonenglish.network.RowDataItem
 import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.room.LectureDatabase
+import com.shimnssso.headonenglish.utils.CellConverter
 import timber.log.Timber
 
 class LectureRepository(
@@ -46,7 +47,7 @@ class LectureRepository(
                     DatabaseCard(
                         cells[0].formattedValue,  // date
                         cells[1].formattedValue.toInt(),  // id
-                        cells[2].formattedValue,  // spelling,
+                        CellConverter.toJsonStr(cells[2]),  // spelling,
                         cells[3].formattedValue,  // meaning
                         description
                     )

@@ -17,7 +17,7 @@ data class DatabaseLecture(
 data class DatabaseCard(
     val date: String,
     val id: Int,
-    val spelling: String?,
+    val spelling: String?, // json formatted string that represent Cell. ex: {"formattedValue":"seasonal fruits","textFormatRuns":[{"format":{"underline":true}},{"startIndex":3,"format":{}}]}
     val meaning: String?,
     val description: String?,
 )

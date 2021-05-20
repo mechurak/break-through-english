@@ -1,7 +1,6 @@
 package com.shimnssso.headonenglish.ui.lecture
 
 import android.net.Uri
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,8 +33,8 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
+import com.shimnssso.headonenglish.utils.CellConverter
 import timber.log.Timber
-import java.time.LocalDate
 
 private val defaultSpacerSize = 16.dp
 
@@ -148,7 +147,8 @@ fun LectureContent(
                         color = MaterialTheme.colors.surface
                     )
                 }
-                Text(text = card.spelling ?: "", style = MaterialTheme.typography.body1)
+                val spellingCell = CellConverter.fromJson(card.spelling!!)
+                FormattedText(cell = spellingCell)
                 Text(
                     text = card.meaning ?: "", style = MaterialTheme.typography.body2,
                     modifier = Modifier.padding(bottom = 8.dp)
