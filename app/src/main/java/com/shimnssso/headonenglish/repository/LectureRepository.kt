@@ -16,15 +16,16 @@ class LectureRepository(
     val lectures: LiveData<List<DatabaseLecture>> = database.lectureDao.getLectures()
 
     suspend fun refresh(shouldCheckInterval: Boolean) {
-        val globalInfo = database.lectureDao.getGlobalInfo()
+        val globalInfo = database.globalDao.getGlobal()
+        val subject = database.subjectDao.getSubject(globalInfo.subjectId)
 
-        Timber.e("refresh(). shouldCheckInterval:%s, globalInfo: %s", shouldCheckInterval, globalInfo)
-        if (shouldCheckInterval && System.currentTimeMillis() - globalInfo.lastUpdateTime < 24 * 60 * 60 * 1000) {
+        Timber.e("refresh(). shouldCheckInterval:%s, subject: %s", shouldCheckInterval, subject)
+        if (shouldCheckInterval && System.currentTimeMillis() - subject.lastUpdateTime < 24 * 60 * 60 * 1000) {
             Timber.e("refreshOrSkip(). skip refresh")
             return
         }
 
-        val rawDataResponse = network.getRawData()
+        val rawDataResponse = network.getRawData(subject.sheetId)
         val newLectures = mutableListOf<DatabaseLecture>()
         val newCards = mutableListOf<DatabaseCard>()
         for (row: RowDataItem in rawDataResponse.sheets[0].data[0].rowData) {
@@ -38,7 +39,9 @@ class LectureRepository(
                         cells[0].formattedValue,  // date
                         cells[3].formattedValue,  // category
                         cells[2].formattedValue,  // title,
-                        url
+                        url,
+
+                        globalInfo.subjectId,
                     )
                 )
             } else {
@@ -49,7 +52,9 @@ class LectureRepository(
                         cells[1].formattedValue.toInt(),  // id
                         CellConverter.toJsonStr(cells[2]),  // spelling,
                         cells[3].formattedValue,  // meaning
-                        description
+                        description,
+
+                        globalInfo.subjectId,
                     )
                 )
             }
@@ -57,9 +62,9 @@ class LectureRepository(
         database.lectureDao.insertLectures(newLectures)
         database.lectureDao.insertCards(newCards)
 
-        val newGlobalInfo = globalInfo.copy(lastUpdateTime = System.currentTimeMillis())
-        Timber.i("update GlobalInfo to %s", newGlobalInfo)
-        database.lectureDao.updateGlobalInfo(newGlobalInfo)
+        val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
+        Timber.i("update current subject to %s", newSubject)
+        database.subjectDao.update(newSubject)
     }
 
     fun getCards(date: String): LiveData<List<DatabaseCard>> {
