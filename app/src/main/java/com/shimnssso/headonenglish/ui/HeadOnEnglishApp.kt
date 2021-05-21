@@ -5,15 +5,15 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
-import androidx.navigation.compose.KEY_ROUTE
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.shimnssso.headonenglish.Graph
+import com.shimnssso.headonenglish.room.DatabaseGlobal
 import com.shimnssso.headonenglish.ui.theme.HeadOnEnglishTheme
 import kotlinx.coroutines.launch
 
@@ -33,21 +33,19 @@ fun HeadOnEnglishApp() {
             // screen that needs it.
             val scaffoldState = rememberScaffoldState()
 
-            val navBackStackEntry by navController.currentBackStackEntryAsState()
-            val currentRoute = navBackStackEntry?.arguments?.getString(KEY_ROUTE)
-                ?: MainDestinations.HOME_ROUTE
+            val viewModel = viewModel(GlobalViewModel::class.java)
+            val globalData by viewModel.currentGlobal.observeAsState(DatabaseGlobal(0))
+            val subjects by viewModel.subjects.observeAsState(listOf())
+
             Scaffold(
                 scaffoldState = scaffoldState,
                 drawerContent = {
                     AppDrawer(
-                        currentRoute = currentRoute,
+                        selectedId = globalData.subjectId,
+                        subjects = subjects,
                         navigateToHome = { navController.navigate(MainDestinations.HOME_ROUTE) },
                         closeDrawer = { coroutineScope.launch { scaffoldState.drawerState.close() } },
-                        changeSubject = { subjectId ->
-                            coroutineScope.launch {
-                                Graph.lectureRepository.changeSubject(subjectId)
-                            }
-                        }
+                        changeSubject = { subjectId -> viewModel.changeSubject(subjectId) }
                     )
                 }
             ) {
