@@ -21,6 +21,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,7 +38,8 @@ import com.shimnssso.headonenglish.R
 fun AppDrawer(
     currentRoute: String,
     navigateToHome: () -> Unit,
-    closeDrawer: () -> Unit
+    closeDrawer: () -> Unit,
+    changeSubject: (Int) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(Modifier.height(24.dp))
@@ -48,6 +51,25 @@ fun AppDrawer(
             isSelected = currentRoute == MainDestinations.HOME_ROUTE,
             action = {
                 navigateToHome()
+                closeDrawer()
+            }
+        )
+        Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
+        DrawerButton(
+            icon = Icons.Filled.Favorite,
+            label = "정면돌파 스피킹",
+            isSelected = false,
+            action = {
+                changeSubject(0)
+                closeDrawer()
+            }
+        )
+        DrawerButton(
+            icon = Icons.Filled.Face,
+            label = "입트영 최고의 스피킹 60",
+            isSelected = false,
+            action = {
+                changeSubject(1)
                 closeDrawer()
             }
         )

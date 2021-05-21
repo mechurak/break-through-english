@@ -42,10 +42,12 @@ import com.shimnssso.headonenglish.utils.supportWideScreen
  */
 @Composable
 fun LectureScreen(
+    subject: String?,
     date: String?,
     onBack: () -> Unit
 ) {
-    val viewModel = viewModel(LectureViewModel::class.java, factory = LectureViewModel.Factory(date!!))
+    val subjectId = subject!!.toInt()
+    val viewModel = viewModel(LectureViewModel::class.java, factory = LectureViewModel.Factory(subjectId, date!!))
     val cards by viewModel.cards.observeAsState(listOf())
     val lecture by viewModel.lecture.observeAsState(null)
 
@@ -79,17 +81,31 @@ fun LectureScreen(
             )
         }
     ) { innerPadding ->
-        LectureContent(
-            lecture = lecture,
-            cards = cards,
-            modifier = Modifier
-                // innerPadding takes into account the top and bottom bar
-                .padding(innerPadding)
-                // offset content in landscape mode to account for the navigation bar
-                .navigationBarsPadding(bottom = false)
-                // center content in landscape mode
-                .supportWideScreen()
-        )
+        if (subjectId == 0) {
+            LectureContent(
+                lecture = lecture,
+                cards = cards,
+                modifier = Modifier
+                    // innerPadding takes into account the top and bottom bar
+                    .padding(innerPadding)
+                    // offset content in landscape mode to account for the navigation bar
+                    .navigationBarsPadding(bottom = false)
+                    // center content in landscape mode
+                    .supportWideScreen()
+            )
+        } else {
+            AudioLectureContent(
+                lecture = lecture,
+                cards = cards,
+                modifier = Modifier
+                    // innerPadding takes into account the top and bottom bar
+                    .padding(innerPadding)
+                    // offset content in landscape mode to account for the navigation bar
+                    .navigationBarsPadding(bottom = false)
+                    // center content in landscape mode
+                    .supportWideScreen()
+            )
+        }
     }
 }
 
@@ -136,7 +152,6 @@ private fun BottomBar(
         }
     }
 }
-
 
 /**
  * Display a popup explaining functionality not available.

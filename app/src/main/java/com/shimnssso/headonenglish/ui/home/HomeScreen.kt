@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Colors
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -26,7 +25,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -45,13 +43,13 @@ import timber.log.Timber
 /**
  * Stateful HomeScreen which manages state using [produceUiState]
  *
- * @param navigateToArticle (event) request navigation to Article screen
+ * @param navigateToLecture (event) request navigation to Article screen
  * @param openDrawer (event) request opening the app drawer
  * @param scaffoldState (state) state for the [Scaffold] component on this screen
  */
 @Composable
 fun HomeScreen(
-    navigateToArticle: (String) -> Unit,
+    navigateToLecture: (Int, String) -> Unit,
     openDrawer: () -> Unit,
     scaffoldState: ScaffoldState = rememberScaffoldState()
 ) {
@@ -68,12 +66,11 @@ fun HomeScreen(
         lectures = lectures,
         isLoading = isLoading,
         onRefreshPosts = { viewModel.refresh() },
-        navigateToArticle = navigateToArticle,
+        navigateToLecture = navigateToLecture,
         openDrawer = openDrawer,
         scaffoldState = scaffoldState
     )
 }
-
 
 /**
  * Responsible for displaying the Home Screen of this application.
@@ -83,7 +80,7 @@ fun HomeScreen(
  * @param lectures (state) the data to show on the screen
  * @param onRefreshPosts (event) request a refresh of posts
  * @param onErrorDismiss (event) request the current error be dismissed
- * @param navigateToArticle (event) request navigation to Article screen
+ * @param navigateToLecture (event) request navigation to Article screen
  * @param openDrawer (event) request opening the app drawer
  * @param scaffoldState (state) state for the [Scaffold] component on this screen
  */
@@ -92,7 +89,7 @@ fun HomeScreen(
     lectures: List<DatabaseLecture>,
     isLoading: Boolean,
     onRefreshPosts: () -> Unit,
-    navigateToArticle: (String) -> Unit,
+    navigateToLecture: (Int, String) -> Unit,
     openDrawer: () -> Unit,
     scaffoldState: ScaffoldState
 ) {
@@ -124,14 +121,13 @@ fun HomeScreen(
             content = {
                 HomeScreenErrorAndContent(
                     lectures = lectures,
-                    navigateToArticle = navigateToArticle,
+                    navigateToLecture = navigateToLecture,
                     modifier = modifier.supportWideScreen()
                 )
             }
         )
     }
 }
-
 
 /**
  * Display an initial empty state or swipe to refresh content.
@@ -161,29 +157,27 @@ private fun LoadingContent(
     }
 }
 
-
 /**
  * Responsible for displaying any error conditions around [PostList].
  *
  * @param posts (state) list of posts and error state to display
  * @param onRefresh (event) request to refresh data
- * @param navigateToArticle (event) request navigation to Article screen
+ * @param navigateToLecture (event) request navigation to Article screen
  * @param modifier modifier for root element
  */
 @Composable
 private fun HomeScreenErrorAndContent(
     lectures: List<DatabaseLecture>,
-    navigateToArticle: (String) -> Unit,
+    navigateToLecture: (Int, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (lectures.isNotEmpty()) {
-        LectureList(lectures, navigateToArticle, modifier)
+        LectureList(lectures, navigateToLecture, modifier)
     } else {
         // there's currently an error showing, don't show any content
         Box(modifier.fillMaxSize()) { /* empty screen */ }
     }
 }
-
 
 /**
  * Display a list of posts.
@@ -198,7 +192,7 @@ private fun HomeScreenErrorAndContent(
 @Composable
 private fun LectureList(
     lectures: List<DatabaseLecture>,
-    navigateToLecture: (postId: String) -> Unit,
+    navigateToLecture: (Int, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -223,7 +217,6 @@ private fun FullScreenLoading() {
     }
 }
 
-
 /**
  * Full-width list items that display "based on your history" for [PostList]
  *
@@ -233,13 +226,18 @@ private fun FullScreenLoading() {
 @Composable
 private fun LectureListMainSection(
     lectures: List<DatabaseLecture>,
-    navigateToLecture: (String) -> Unit
+    navigateToLecture: (Int, String) -> Unit,
 ) {
     Column {
         lectures.forEach { lecture ->
+            val isDateBase = lecture.date.startsWith("20")
             LectureCard(lecture, navigateToLecture)
-            val color = if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {
-                MaterialTheme.colors.surface
+            val color = if (isDateBase) {
+                if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {
+                    MaterialTheme.colors.surface
+                } else {
+                    MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
+                }
             } else {
                 MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
             }

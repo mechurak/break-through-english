@@ -19,7 +19,7 @@ object CellConverter {
     fun toSourceList(cell: Cell): List<FormattedToken> {
         val retList = mutableListOf<FormattedToken>()
         if (cell.textFormatRuns == null) {
-            retList.add(FormattedToken(false, cell.formattedValue))
+            retList.add(FormattedToken(false, cell.formattedValue ?: ""))
             return retList
         }
         var shouldAccent = false
@@ -35,7 +35,7 @@ object CellConverter {
                     retList.add(
                         FormattedToken(
                             shouldAccent,
-                            cell.formattedValue.substring(curIndex, prevEndIndex)
+                            cell.formattedValue!!.substring(curIndex, prevEndIndex)
                         )
                     )
                     curIndex = textFormat.startIndex
@@ -43,7 +43,7 @@ object CellConverter {
                 }
             }
         }
-        retList.add(FormattedToken(shouldAccent, cell.formattedValue.substring(curIndex)))
+        retList.add(FormattedToken(shouldAccent, cell.formattedValue!!.substring(curIndex)))
         return retList
     }
 }

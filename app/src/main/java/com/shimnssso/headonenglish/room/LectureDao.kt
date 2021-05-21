@@ -9,14 +9,14 @@ import androidx.room.Query
 
 @Dao
 interface LectureDao {
-    @Query("select * from lecture_table order by date desc")
-    fun getLectures(): LiveData<List<DatabaseLecture>>
+    @Query("select * from lecture_table where subjectId = :subjectId order by date desc")
+    fun getLectures(subjectId: Int): List<DatabaseLecture>
 
     @Query("select * from lecture_table where date = :date limit 1")
     fun getLecture(date: String): LiveData<DatabaseLecture>
 
-    @Query("select * from card_table where date = :date")
-    fun getCards(date: String): LiveData<List<DatabaseCard>>
+    @Query("select * from card_table where date = :date and subjectId = :subjectId")
+    fun getCards(subjectId: Int, date: String): LiveData<List<DatabaseCard>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCards(rows: List<DatabaseCard>)

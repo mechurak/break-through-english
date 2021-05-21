@@ -11,10 +11,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.shimnssso.headonenglish.ui.MainDestinations.DATE_KEY
+import com.shimnssso.headonenglish.ui.MainDestinations.SUBJECT_KEY
 import com.shimnssso.headonenglish.ui.home.HomeScreen
 import com.shimnssso.headonenglish.ui.lecture.LectureScreen
 import kotlinx.coroutines.launch
-
 
 /**
  * Destinations used in the ([HeadOnEnglishApp]).
@@ -24,6 +24,7 @@ object MainDestinations {
     const val LECTURE_ROUTE = "lecture"
     const val SIGN_IN_ROUTE = "sign-in"
 
+    const val SUBJECT_KEY = "subject"
     const val DATE_KEY = "date"
     const val TITLE_KEY = "title"
     const val URL_KEY = "url"
@@ -45,12 +46,13 @@ fun HeadOnEnglishNavGraph(
     ) {
         composable(MainDestinations.HOME_ROUTE) {
             HomeScreen(
-                navigateToArticle = actions.navigateToArticle,
+                navigateToLecture = actions.navigateToLecture,
                 openDrawer = openDrawer
             )
         }
-        composable("${MainDestinations.LECTURE_ROUTE}/{$DATE_KEY}") { backStackEntry ->
+        composable("${MainDestinations.LECTURE_ROUTE}?$DATE_KEY={$DATE_KEY}&$SUBJECT_KEY={$SUBJECT_KEY}") { backStackEntry ->
             LectureScreen(
+                subject = backStackEntry.arguments?.getString(SUBJECT_KEY),
                 date = backStackEntry.arguments?.getString(DATE_KEY),
                 onBack = actions.upPress,
             )
@@ -62,8 +64,8 @@ fun HeadOnEnglishNavGraph(
  * Models the navigation actions in the app.
  */
 class MainActions(navController: NavHostController) {
-    val navigateToArticle: (String) -> Unit = { postId: String ->
-        navController.navigate("${MainDestinations.LECTURE_ROUTE}/$postId")
+    val navigateToLecture: (Int, String) -> Unit = { subjectId, date: String ->
+        navController.navigate("${MainDestinations.LECTURE_ROUTE}?$DATE_KEY=$date&$SUBJECT_KEY=$subjectId")
     }
     val upPress: () -> Unit = {
         navController.navigateUp()

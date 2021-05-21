@@ -22,10 +22,15 @@ import com.shimnssso.headonenglish.utils.DateConverter
 @Composable
 fun LectureCard(
     lecture: DatabaseLecture,
-    navigateToLecture: (String) -> Unit,
+    navigateToArticle: (Int, String) -> Unit,
 ) {
-    val backgroundColor = if (DateConverter.weekInYear(lecture.date) % 2 == 0) {
-        MaterialTheme.colors.background
+    val isDateBase = lecture.date.startsWith("20")
+    val backgroundColor = if (isDateBase) {
+        if (DateConverter.weekInYear(lecture.date) % 2 == 0) {
+            MaterialTheme.colors.background
+        } else {
+            MaterialTheme.colors.surface
+        }
     } else {
         MaterialTheme.colors.surface
     }
@@ -35,11 +40,15 @@ fun LectureCard(
         modifier = Modifier
             .fillMaxWidth()
             .background(color = backgroundColor)
-            .clickable(onClick = { navigateToLecture(lecture.date) })
+            .clickable(onClick = { navigateToArticle(lecture.subjectId, lecture.date) })
             .padding(16.dp)
     ) {
         Column {
-            val dateStr = DateConverter.withDayName(lecture.date)
+            val dateStr = if (isDateBase) {
+                DateConverter.withDayName(lecture.date)
+            } else {
+                lecture.date
+            }
             Text(
                 text = dateStr,
                 style = MaterialTheme.typography.overline,

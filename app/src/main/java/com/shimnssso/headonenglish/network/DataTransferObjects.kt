@@ -32,9 +32,8 @@ data class SheetInfoProps(
 data class GridProps(
     val rowCount: Int,
     val columnCount: Int,
-    val frozenRowCount: Int,
+    val frozenRowCount: Int?,
 )
-
 
 @JsonClass(generateAdapter = true)
 data class RawDataResponse(
@@ -53,7 +52,7 @@ data class RowDataItem(
 
 @JsonClass(generateAdapter = true)
 data class Cell(
-    val formattedValue: String,
+    val formattedValue: String?,
     val textFormatRuns: List<TextFormat>?
 )
 

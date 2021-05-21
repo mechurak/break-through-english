@@ -13,9 +13,9 @@ import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import com.shimnssso.headonenglish.Graph
 import com.shimnssso.headonenglish.ui.theme.HeadOnEnglishTheme
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun HeadOnEnglishApp() {
@@ -42,7 +42,12 @@ fun HeadOnEnglishApp() {
                     AppDrawer(
                         currentRoute = currentRoute,
                         navigateToHome = { navController.navigate(MainDestinations.HOME_ROUTE) },
-                        closeDrawer = { coroutineScope.launch { scaffoldState.drawerState.close() } }
+                        closeDrawer = { coroutineScope.launch { scaffoldState.drawerState.close() } },
+                        changeSubject = { subjectId ->
+                            coroutineScope.launch {
+                                Graph.lectureRepository.changeSubject(subjectId)
+                            }
+                        }
                     )
                 }
             ) {

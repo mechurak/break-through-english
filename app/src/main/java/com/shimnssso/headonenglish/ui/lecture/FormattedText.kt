@@ -16,7 +16,7 @@ import com.shimnssso.headonenglish.utils.CellConverter
 @Composable
 fun FormattedText(cell: Cell) {
     if (cell.textFormatRuns.isNullOrEmpty()) {
-        Text(text = cell.formattedValue, style = MaterialTheme.typography.body1)
+        Text(text = cell.formattedValue ?: "", style = MaterialTheme.typography.body1)
     } else {
         val formattedStringSourceList = CellConverter.toSourceList(cell)
         val annotatedStr = buildAnnotatedString {
