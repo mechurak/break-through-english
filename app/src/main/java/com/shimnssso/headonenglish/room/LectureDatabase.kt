@@ -6,7 +6,7 @@ import androidx.room.RoomDatabase
 @Database(
     entities = [DatabaseSubject::class, DatabaseGlobal::class, DatabaseLecture::class, DatabaseCard::class],
     version = 4,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class LectureDatabase : RoomDatabase() {
     abstract val subjectDao: SubjectDao

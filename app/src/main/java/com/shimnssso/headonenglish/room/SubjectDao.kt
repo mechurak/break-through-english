@@ -19,5 +19,5 @@ interface SubjectDao {
     suspend fun insert(subject: DatabaseSubject)
 
     @Update
-    suspend fun update(subejct: DatabaseSubject)
+    suspend fun update(subject: DatabaseSubject)
 }

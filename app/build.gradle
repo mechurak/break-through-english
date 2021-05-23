@@ -21,6 +21,13 @@ android {
         }
 
         buildConfigField("String", "SHEET_API_KEY", "\"" + project.findProperty("sheet_api_key") + "\"")
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation":
+                                      "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     buildTypes {

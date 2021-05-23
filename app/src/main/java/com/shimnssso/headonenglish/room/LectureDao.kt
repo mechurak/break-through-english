@@ -10,7 +10,7 @@ import androidx.room.Query
 @Dao
 interface LectureDao {
     @Query("select * from lecture_table where subjectId = :subjectId order by date desc")
-    fun getLectures(subjectId: Int): List<DatabaseLecture>
+    suspend fun getLectures(subjectId: Int): List<DatabaseLecture>
 
     @Query("select * from lecture_table where date = :date limit 1")
     fun getLecture(date: String): LiveData<DatabaseLecture>
