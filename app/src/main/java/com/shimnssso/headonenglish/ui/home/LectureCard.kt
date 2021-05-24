@@ -60,7 +60,7 @@ fun LectureCard(
             )
         }
 
-        if (lecture.url != null) {
+        if (lecture.remoteUrl != null) {
             Icon(
                 Icons.Filled.PlayArrow,
                 contentDescription = null,

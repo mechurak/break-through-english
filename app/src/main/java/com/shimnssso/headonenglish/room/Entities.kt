@@ -23,7 +23,8 @@ data class DatabaseLecture(
 
     val category: String,
     val title: String,
-    val url: String?,
+    val remoteUrl: String?,
+    val localUrl: String?,
 
     val subjectId: Int,
 )

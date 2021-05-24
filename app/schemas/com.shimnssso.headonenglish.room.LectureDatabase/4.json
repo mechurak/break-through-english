@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "5d332a492996d7993c039416ee56cdd7",
+    "identityHash": "3e6d6470095446b1e1b75b2e76d0288f",
     "entities": [
       {
         "tableName": "subject_table",
@@ -82,7 +82,7 @@
       },
       {
         "tableName": "lecture_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`date` TEXT NOT NULL, `category` TEXT NOT NULL, `title` TEXT NOT NULL, `url` TEXT, `subjectId` INTEGER NOT NULL, PRIMARY KEY(`date`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`date` TEXT NOT NULL, `category` TEXT NOT NULL, `title` TEXT NOT NULL, `remoteUrl` TEXT, `localUrl` TEXT, `subjectId` INTEGER NOT NULL, PRIMARY KEY(`date`))",
         "fields": [
           {
             "fieldPath": "date",
@@ -103,8 +103,14 @@
             "notNull": true
           },
           {
-            "fieldPath": "url",
-            "columnName": "url",
+            "fieldPath": "remoteUrl",
+            "columnName": "remoteUrl",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "localUrl",
+            "columnName": "localUrl",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -180,7 +186,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5d332a492996d7993c039416ee56cdd7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3e6d6470095446b1e1b75b2e76d0288f')"
     ]
   }
 }

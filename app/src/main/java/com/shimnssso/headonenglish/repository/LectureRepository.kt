@@ -70,13 +70,14 @@ class LectureRepository(
             if (cells[1].formattedValue == "id") {
                 continue
             } else if (cells[1].formattedValue == "0") {  // title row
-                val url = if (cells.size > 4) cells[4].formattedValue else null
+                val remoteUrl = if (cells.size > 4) cells[4].formattedValue else null
                 newLectures.add(
                     DatabaseLecture(
                         cells[0].formattedValue!!,  // date
                         cells[3].formattedValue!!,  // category
                         cells[2].formattedValue!!,  // title,
-                        url,
+                        remoteUrl,
+                        null,
 
                         globalInfo.subjectId,
                     )

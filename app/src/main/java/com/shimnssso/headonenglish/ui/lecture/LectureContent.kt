@@ -94,7 +94,7 @@ fun LectureContent(
     LaunchedEffect(lecture) {
         Timber.i("LaunchedEffect. lecture: %s", lecture)
         Timber.i("LaunchedEffect. cards: %s", cards)
-        if (lecture?.url != null) {
+        if (lecture?.remoteUrl != null) {
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
                 context,
                 Util.getUserAgent(context, context.packageName)
@@ -104,7 +104,7 @@ fun LectureContent(
                 .createMediaSource(
                     Uri.parse(
                         // Big Buck Bunny from Blender Project
-                        lecture.url
+                        lecture.remoteUrl
                     )
                 )
 
@@ -122,7 +122,7 @@ fun LectureContent(
     }
 
     Column {
-        if (lecture?.url != null) {
+        if (lecture?.remoteUrl != null) {
             // Gateway to traditional Android Views
             AndroidView(
                 factory = { context ->

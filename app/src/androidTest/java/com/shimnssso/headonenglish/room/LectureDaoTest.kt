@@ -46,28 +46,32 @@ class LectureDaoTest : TestCase() {
             "2021-05-12",
             "Maintaining Our Health",
             "발음 강세 Unit 553. 체중",
-            "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210512_063000_6b6f5fd4_m10.mp4"
+            "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210512_063000_6b6f5fd4_m10.mp4",
+            null,
+            0,
         ),
         DatabaseLecture(
             "2021-05-13",
             "Maintaining Our Health",
             "발음 강세 Unit 554. 운동",
-            "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210513_063000_26343de3_m10.mp4"
+            "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210513_063000_26343de3_m10.mp4",
+            null,
+            0,
         ),
     )
 
     private val tempCards = listOf(
-        DatabaseCard("2021-05-12", 1, "test spelling1", "test meaning1", "test description1"),
-        DatabaseCard("2021-05-12", 2, "test spelling2", "test meaning2", "test description2"),
-        DatabaseCard("2021-05-13", 1, "13 test spelling1", "13 test meaning1", "13 test description1"),
-        DatabaseCard("2021-05-13", 2, "13 test spelling2", "13 test meaning2", "13 test description2"),
+        DatabaseCard("2021-05-12", 1, "test spelling1", "test meaning1", "test description1", 0),
+        DatabaseCard("2021-05-12", 2, "test spelling2", "test meaning2", "test description2", 0),
+        DatabaseCard("2021-05-13", 1, "13 test spelling1", "13 test meaning1", "13 test description1", 0),
+        DatabaseCard("2021-05-13", 2, "13 test spelling2", "13 test meaning2", "13 test description2", 0),
     )
 
     @Test
     fun insertLecturesTest()= runBlockingTest {
         lectureDao.insertLectures(tempLectures)
 
-        val lectures = lectureDao.getLectures().getOrAwaitValue()
+        val lectures = lectureDao.getLectures(0).getOrAwaitValue()
         Timber.d(lectures.toString())
         assertTrue(lectures.containsAll(tempLectures))
     }
@@ -76,7 +80,7 @@ class LectureDaoTest : TestCase() {
     fun insertCardsTest() = runBlockingTest {
         lectureDao.insertCards(tempCards)
 
-        val cards = lectureDao.getCards("2021-05-12").getOrAwaitValue()
+        val cards = lectureDao.getCards(0, "2021-05-12").getOrAwaitValue()
         Timber.d(cards.toString())
         assertTrue(cards.containsAll(tempCards.subList(0, 1)))
     }
@@ -85,8 +89,8 @@ class LectureDaoTest : TestCase() {
     fun deleteTest() = runBlockingTest {
         lectureDao.insertLectures(tempLectures)
         lectureDao.insertCards(tempCards)
-        val lecturesBefore = lectureDao.getLectures().getOrAwaitValue()
-        val cardsBefore = lectureDao.getCards("2021-05-12").getOrAwaitValue()
+        val lecturesBefore = lectureDao.getLectures(0).getOrAwaitValue()
+        val cardsBefore = lectureDao.getCards(0, "2021-05-12").getOrAwaitValue()
         Timber.d(lecturesBefore.toString())
         assertTrue(lecturesBefore.containsAll(tempLectures))
         Timber.d(cardsBefore.toString())
@@ -95,8 +99,8 @@ class LectureDaoTest : TestCase() {
         lectureDao.deleteCards(tempLectures[0].date)
         lectureDao.deleteLecture(tempLectures[0])
 
-        val lecturesAfter = lectureDao.getLectures().getOrAwaitValue()
-        val cardsAfter = lectureDao.getCards("2021-05-12").getOrAwaitValue()
+        val lecturesAfter = lectureDao.getLectures(0).getOrAwaitValue()
+        val cardsAfter = lectureDao.getCards(0, "2021-05-12").getOrAwaitValue()
         Timber.d(lecturesAfter.toString())
         assertTrue(lecturesAfter.containsAll(tempLectures.subList(1,1)))
         Timber.d(cardsAfter.toString())
