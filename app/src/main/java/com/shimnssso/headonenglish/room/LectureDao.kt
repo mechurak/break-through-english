@@ -24,6 +24,9 @@ interface LectureDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLectures(lectures: List<DatabaseLecture>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun updateLecture(lecture: DatabaseLecture)
+
     @Delete
     suspend fun deleteLecture(lecture: DatabaseLecture)
 

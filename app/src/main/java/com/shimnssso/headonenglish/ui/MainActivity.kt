@@ -1,9 +1,30 @@
 package com.shimnssso.headonenglish.ui
 
+import android.Manifest
+import android.app.Activity
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.provider.Settings
 import androidx.activity.compose.setContent
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import com.shimnssso.headonenglish.Graph
+import com.shimnssso.headonenglish.room.DatabaseLecture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,5 +34,74 @@ class MainActivity : AppCompatActivity() {
         setContent {
             HeadOnEnglishApp()
         }
+    }
+
+    private var currentLecture: DatabaseLecture? = null
+    fun launchAudioChooser(lecture: DatabaseLecture) {
+        Dexter.withContext(this)
+            .withPermissions(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            .withListener(object : MultiplePermissionsListener {
+                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+
+                    // Here after all the permission are granted launch the gallery to select and image.
+                    if (report!!.areAllPermissionsGranted()) {
+                        currentLecture = lecture
+                        val intent = Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+                        audioChooserLauncher.launch(intent)
+                    }
+                }
+
+                override fun onPermissionRationaleShouldBeShown(
+                    permissions: MutableList<PermissionRequest>?,
+                    token: PermissionToken?
+                ) {
+                    showRationalDialogForPermissions()
+                }
+            }).onSameThread()
+            .check()
+    }
+
+    private val audioChooserLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent = result.data // Handle the Intent //do stuff here
+                Timber.i("intent: %s", intent)
+                val uri = intent!!.data
+                Timber.i("uri: %s", uri)
+
+                currentLecture?.let {
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val newLecture = it.copy(localUrl = uri.toString())
+                        Timber.i("newLecture: %s", newLecture)
+                        Graph.database.lectureDao.updateLecture(newLecture)
+                    }
+                }
+            }
+        }
+
+    /**
+     * A function used to show the alert dialog when the permissions are denied and need to allow it from settings app info.
+     */
+    private fun showRationalDialogForPermissions() {
+        AlertDialog.Builder(this)
+            .setMessage("It Looks like you have turned off permissions required for this feature. It can be enabled under Application Settings")
+            .setPositiveButton(
+                "GO TO SETTINGS"
+            ) { _, _ ->
+                try {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                    val uri = Uri.fromParts("package", packageName, null)
+                    intent.data = uri
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                }
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }.show()
     }
 }
