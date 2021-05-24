@@ -16,28 +16,28 @@ data class DatabaseSubject(
 )
 
 
-@Entity(tableName = "lecture_table")
+@Entity(tableName = "lecture_table", primaryKeys = ["subjectId", "date"])
 data class DatabaseLecture(
-    @PrimaryKey
+    val subjectId: Int,
     val date: String,
 
-    val category: String,
     val title: String,
-    val remoteUrl: String?,
-    val localUrl: String?,
-
-    val subjectId: Int,
+    val category: String? = null,
+    val remoteUrl: String? = null,
+    val localUrl: String? = null,
+    val link1: String? = null,
+    val link2: String? = null,
 )
 
-@Entity(tableName = "card_table", primaryKeys = ["date", "id", "subjectId"])
+@Entity(tableName = "card_table", primaryKeys = ["subjectId", "date", "order"])
 data class DatabaseCard(
-    val date: String,
-    val id: Int,
-    val spelling: String?, // json formatted string that represent Cell. ex: {"formattedValue":"seasonal fruits","textFormatRuns":[{"format":{"underline":true}},{"startIndex":3,"format":{}}]}
-    val meaning: String?,
-    val description: String?,
-
     val subjectId: Int,
+    val date: String,
+    val order: Int,
+
+    val text: String?, // json formatted string that represent Cell. ex: {"formattedValue":"seasonal fruits","textFormatRuns":[{"format":{"underline":true}},{"startIndex":3,"format":{}}]}
+    val note: String?,
+    val memo: String?,
 )
 
 @Entity(tableName = "global_table")

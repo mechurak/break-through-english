@@ -24,7 +24,7 @@ import timber.log.Timber
 
 @Composable
 fun AudioLectureContent(
-    lecture: DatabaseLecture?,
+    lecture: DatabaseLecture,
     cards: List<DatabaseCard>,
     modifier: Modifier = Modifier
 ) {
@@ -55,17 +55,17 @@ fun AudioLectureContent(
                 .fillMaxWidth()
         ) {
             items(cards) { card ->
-                if (card.id % 10 == 1 && card.id != 1) {
+                if (card.order % 10 == 1 && card.order != 1) {
                     Divider(
                         thickness = 2.dp,
                         modifier = Modifier.padding(vertical = 12.dp),
                         color = MaterialTheme.colors.surface
                     )
                 }
-                val spellingCell = CellConverter.fromJson(card.spelling!!)
+                val spellingCell = CellConverter.fromJson(card.text!!)
                 FormattedText(cell = spellingCell)
                 Text(
-                    text = card.meaning ?: "", style = MaterialTheme.typography.body2,
+                    text = card.note ?: "", style = MaterialTheme.typography.body2,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
             }

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "3e6d6470095446b1e1b75b2e76d0288f",
+    "identityHash": "c372f1aef3b6adcd585e25d7f3d41ca7",
     "entities": [
       {
         "tableName": "subject_table",
@@ -82,17 +82,17 @@
       },
       {
         "tableName": "lecture_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`date` TEXT NOT NULL, `category` TEXT NOT NULL, `title` TEXT NOT NULL, `remoteUrl` TEXT, `localUrl` TEXT, `subjectId` INTEGER NOT NULL, PRIMARY KEY(`date`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subjectId` INTEGER NOT NULL, `date` TEXT NOT NULL, `title` TEXT NOT NULL, `category` TEXT, `remoteUrl` TEXT, `localUrl` TEXT, `link1` TEXT, `link2` TEXT, PRIMARY KEY(`subjectId`, `date`))",
         "fields": [
           {
-            "fieldPath": "date",
-            "columnName": "date",
-            "affinity": "TEXT",
+            "fieldPath": "subjectId",
+            "columnName": "subjectId",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "category",
-            "columnName": "category",
+            "fieldPath": "date",
+            "columnName": "date",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -101,6 +101,12 @@
             "columnName": "title",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "category",
+            "columnName": "category",
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "remoteUrl",
@@ -115,14 +121,21 @@
             "notNull": false
           },
           {
-            "fieldPath": "subjectId",
-            "columnName": "subjectId",
-            "affinity": "INTEGER",
-            "notNull": true
+            "fieldPath": "link1",
+            "columnName": "link1",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "link2",
+            "columnName": "link2",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
+            "subjectId",
             "date"
           ],
           "autoGenerate": false
@@ -132,8 +145,14 @@
       },
       {
         "tableName": "card_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`date` TEXT NOT NULL, `id` INTEGER NOT NULL, `spelling` TEXT, `meaning` TEXT, `description` TEXT, `subjectId` INTEGER NOT NULL, PRIMARY KEY(`date`, `id`, `subjectId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subjectId` INTEGER NOT NULL, `date` TEXT NOT NULL, `order` INTEGER NOT NULL, `text` TEXT, `note` TEXT, `memo` TEXT, PRIMARY KEY(`subjectId`, `date`, `order`))",
         "fields": [
+          {
+            "fieldPath": "subjectId",
+            "columnName": "subjectId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
           {
             "fieldPath": "date",
             "columnName": "date",
@@ -141,41 +160,35 @@
             "notNull": true
           },
           {
-            "fieldPath": "id",
-            "columnName": "id",
+            "fieldPath": "order",
+            "columnName": "order",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "spelling",
-            "columnName": "spelling",
+            "fieldPath": "text",
+            "columnName": "text",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "meaning",
-            "columnName": "meaning",
+            "fieldPath": "note",
+            "columnName": "note",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "description",
-            "columnName": "description",
+            "fieldPath": "memo",
+            "columnName": "memo",
             "affinity": "TEXT",
             "notNull": false
-          },
-          {
-            "fieldPath": "subjectId",
-            "columnName": "subjectId",
-            "affinity": "INTEGER",
-            "notNull": true
           }
         ],
         "primaryKey": {
           "columnNames": [
+            "subjectId",
             "date",
-            "id",
-            "subjectId"
+            "order"
           ],
           "autoGenerate": false
         },
@@ -186,7 +199,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3e6d6470095446b1e1b75b2e76d0288f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c372f1aef3b6adcd585e25d7f3d41ca7')"
     ]
   }
 }

@@ -55,7 +55,7 @@ fun LectureCard(
             )
             Text(lecture.title, style = MaterialTheme.typography.subtitle1)
             Text(
-                text = lecture.category,
+                text = lecture.category ?: "",
                 style = MaterialTheme.typography.overline,
             )
         }

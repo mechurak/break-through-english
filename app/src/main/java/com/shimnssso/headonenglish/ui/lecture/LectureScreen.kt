@@ -31,6 +31,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.navigationBarsPadding
+import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.utils.supportWideScreen
 
@@ -49,7 +50,7 @@ fun LectureScreen(
     val subjectId = subject!!.toInt()
     val viewModel = viewModel(LectureViewModel::class.java, factory = LectureViewModel.Factory(subjectId, date!!))
     val cards by viewModel.cards.observeAsState(listOf())
-    val lecture by viewModel.lecture.observeAsState(null)
+    val lecture by viewModel.lecture.observeAsState(FakeData.DEFAULT_LECTURE)
 
     var showDialog by rememberSaveable { mutableStateOf(false) }
     if (showDialog) {
@@ -61,7 +62,7 @@ fun LectureScreen(
             InsetAwareTopAppBar(
                 title = {
                     Text(
-                        text = lecture?.title ?: "",
+                        text = lecture.title,
                         color = LocalContentColor.current
                     )
                 },

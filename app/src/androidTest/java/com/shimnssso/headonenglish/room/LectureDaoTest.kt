@@ -43,28 +43,32 @@ class LectureDaoTest : TestCase() {
 
     private val tempLectures = listOf(
         DatabaseLecture(
-            "2021-05-12",
-            "Maintaining Our Health",
-            "발음 강세 Unit 553. 체중",
-            "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210512_063000_6b6f5fd4_m10.mp4",
-            null,
-            0,
+            subjectId = 0,
+            date = "2021-05-12",
+            title = "발음 강세 Unit 553. 체중",
+            category = "Maintaining Our Health",
+            remoteUrl = "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210512_063000_6b6f5fd4_m10.mp4",
+            localUrl = null,
+            link1 = null,
+            link2 = null
         ),
         DatabaseLecture(
-            "2021-05-13",
-            "Maintaining Our Health",
-            "발음 강세 Unit 554. 운동",
-            "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210513_063000_26343de3_m10.mp4",
-            null,
-            0,
+            subjectId = 0,
+            date = "2021-05-13",
+            title = "발음 강세 Unit 554. 운동",
+            category = "Maintaining Our Health",
+            remoteUrl = "https://m4strssl.ebse.co.kr/2021/er2017h0spe01zz/1m/20210513_063000_26343de3_m10.mp4",
+            localUrl = null,
+            link1 = null,
+            link2 = null
         ),
     )
 
     private val tempCards = listOf(
-        DatabaseCard("2021-05-12", 1, "test spelling1", "test meaning1", "test description1", 0),
-        DatabaseCard("2021-05-12", 2, "test spelling2", "test meaning2", "test description2", 0),
-        DatabaseCard("2021-05-13", 1, "13 test spelling1", "13 test meaning1", "13 test description1", 0),
-        DatabaseCard("2021-05-13", 2, "13 test spelling2", "13 test meaning2", "13 test description2", 0),
+        DatabaseCard(0, "2021-05-12", 1, "test spelling1", "test meaning1", "test description1"),
+        DatabaseCard(0, "2021-05-12", 2, "test spelling2", "test meaning2", "test description2"),
+        DatabaseCard(0, "2021-05-13", 1, "13 test spelling1", "13 test meaning1", "13 test description1"),
+        DatabaseCard(0, "2021-05-13", 2, "13 test spelling2", "13 test meaning2", "13 test description2"),
     )
 
     @Test

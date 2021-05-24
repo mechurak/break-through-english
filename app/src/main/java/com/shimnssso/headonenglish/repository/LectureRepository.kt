@@ -3,7 +3,6 @@ package com.shimnssso.headonenglish.repository
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.shimnssso.headonenglish.network.MyGoogleSheetService
-import com.shimnssso.headonenglish.network.RowDataItem
 import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseGlobal
 import com.shimnssso.headonenglish.room.DatabaseLecture
@@ -63,37 +62,99 @@ class LectureRepository(
         }
 
         val rawDataResponse = network.getRawData(subject.sheetId)
+        val gridProps = rawDataResponse.sheets[0].properties.gridProperties
         val newLectures = mutableListOf<DatabaseLecture>()
         val newCards = mutableListOf<DatabaseCard>()
-        for (row: RowDataItem in rawDataResponse.sheets[0].data[0].rowData) {
+
+        var idxDate = 0
+        var idxOrder = 1
+        var idxText = 2
+        var idxNote = 3
+        var idxMemo = 4
+
+        var idxMetaTitle = 2
+        var idxMetaCategory = -1  // optional
+        var idxMetaRemoteUrl = -1  // optional
+        var idxMetaLink1 = -1  // optional
+        var idxMetaLink2 = -1  // optional
+
+        rawDataResponse.sheets[0].data[0].rowData.forEachIndexed { rowIndex, row ->
             val cells = row.values
-            if (cells[1].formattedValue == "id") {
-                continue
-            } else if (cells[1].formattedValue == "0") {  // title row
-                val remoteUrl = if (cells.size > 4) cells[4].formattedValue else null
+            if (rowIndex < gridProps.frozenRowCount ?: 1) {
+                cells.forEachIndexed { i, cell ->
+                    when (cell.formattedValue) {
+                        "date", "day" -> {
+                            idxDate = i
+                        }
+                        "order" -> {
+                            idxOrder = i
+                        }
+                        "text" -> {
+                            idxText = i
+                        }
+                        "note" -> {
+                            idxNote = i
+                        }
+                        "memo" -> {
+                            idxMemo = i
+                        }
+                        "title" -> {
+                            idxMetaTitle = i
+                        }
+                        "category" -> {
+                            idxMetaCategory = i
+                        }
+                        "remoteUrl" -> {
+                            idxMetaRemoteUrl = i
+                        }
+                        "link1" -> {
+                            idxMetaLink1 = i
+                        }
+                        "link2" -> {
+                            idxMetaLink2 = i
+                        }
+                        else -> {
+                            Timber.w(
+                                "unknown keyword (%s). skip it. rowIndex:%d, cell[%d]",
+                                cell.formattedValue,
+                                rowIndex,
+                                i
+                            )
+                        }
+                    }
+                }
+            } else if (cells[idxOrder].formattedValue == "0") {  // title row
+                val category =
+                    if (idxMetaCategory > 0 && cells.size > idxMetaCategory) cells[idxMetaCategory].formattedValue else null
+                val remoteUrl =
+                    if (idxMetaRemoteUrl > 0 && cells.size > idxMetaRemoteUrl) cells[idxMetaRemoteUrl].formattedValue else null
+                val link1 =
+                    if (idxMetaLink1 > 0 && cells.size > idxMetaLink1) cells[idxMetaLink1].formattedValue else null
+                val link2 =
+                    if (idxMetaLink2 > 0 && cells.size > idxMetaLink2) cells[idxMetaLink2].formattedValue else null
                 newLectures.add(
                     DatabaseLecture(
-                        cells[0].formattedValue!!,  // date
-                        cells[3].formattedValue!!,  // category
-                        cells[2].formattedValue!!,  // title,
-                        remoteUrl,
-                        null,
-
-                        globalInfo.subjectId,
+                        subjectId = globalInfo.subjectId,
+                        date = cells[idxDate].formattedValue!!,
+                        title = cells[idxMetaTitle].formattedValue!!,
+                        category = category,
+                        remoteUrl = remoteUrl,
+                        localUrl = null,  // TODO: Update existing data
+                        link1 = link1,
+                        link2 = link2,
                     )
                 )
             } else {
-                val description = if (cells.size > 4) cells[4].formattedValue else null
-                val meaning = if (cells.size > 3) cells[3].formattedValue else null
+                val note = if (cells.size > idxNote) cells[idxNote].formattedValue else null
+                val memo = if (cells.size > idxMemo) cells[idxMemo].formattedValue else null
                 newCards.add(
                     DatabaseCard(
-                        cells[0].formattedValue!!,  // date
-                        cells[1].formattedValue!!.toInt(),  // id
-                        CellConverter.toJsonStr(cells[2]),  // spelling,
-                        meaning,  // meaning
-                        description,
-
-                        globalInfo.subjectId,
+                        subjectId = globalInfo.subjectId,
+                        date = cells[idxDate].formattedValue!!,
+                        order = cells[idxOrder].formattedValue!!.toInt(),
+                        text = CellConverter.toJsonStr(cells[idxText]),
+                        note = note,
+                        memo = memo,
                     )
                 )
             }

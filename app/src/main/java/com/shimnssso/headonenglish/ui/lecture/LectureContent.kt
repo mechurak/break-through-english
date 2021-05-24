@@ -40,7 +40,7 @@ private val defaultSpacerSize = 16.dp
 
 @Composable
 fun LectureContent(
-    lecture: DatabaseLecture?,
+    lecture: DatabaseLecture,
     cards: List<DatabaseCard>,
     modifier: Modifier = Modifier
 ) {
@@ -94,7 +94,7 @@ fun LectureContent(
     LaunchedEffect(lecture) {
         Timber.i("LaunchedEffect. lecture: %s", lecture)
         Timber.i("LaunchedEffect. cards: %s", cards)
-        if (lecture?.remoteUrl != null) {
+        if (lecture.remoteUrl != null) {
             val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
                 context,
                 Util.getUserAgent(context, context.packageName)
@@ -122,7 +122,7 @@ fun LectureContent(
     }
 
     Column {
-        if (lecture?.remoteUrl != null) {
+        if (lecture.remoteUrl != null) {
             // Gateway to traditional Android Views
             AndroidView(
                 factory = { context ->
@@ -140,17 +140,17 @@ fun LectureContent(
                 .fillMaxWidth()
         ) {
             items(cards) { card ->
-                if (card.id % 10 == 1 && card.id != 1) {
+                if (card.order % 10 == 1 && card.order != 1) {
                     Divider(
                         thickness = 2.dp,
                         modifier = Modifier.padding(vertical = 12.dp),
                         color = MaterialTheme.colors.surface
                     )
                 }
-                val spellingCell = CellConverter.fromJson(card.spelling!!)
+                val spellingCell = CellConverter.fromJson(card.text!!)
                 FormattedText(cell = spellingCell)
                 Text(
-                    text = card.meaning ?: "", style = MaterialTheme.typography.body2,
+                    text = card.note ?: "", style = MaterialTheme.typography.body2,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
             }
