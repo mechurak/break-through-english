@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.shimnssso.headonenglish.room.DatabaseGlobal
+import com.shimnssso.headonenglish.ui.home.HomeViewModel
 import com.shimnssso.headonenglish.ui.theme.HeadOnEnglishTheme
 import kotlinx.coroutines.launch
 
@@ -33,8 +34,8 @@ fun HeadOnEnglishApp() {
             // screen that needs it.
             val scaffoldState = rememberScaffoldState()
 
-            val viewModel = viewModel(GlobalViewModel::class.java)
-            val globalData by viewModel.currentGlobal.observeAsState(DatabaseGlobal(0))
+            val viewModel = viewModel(HomeViewModel::class.java)
+            val globalData by viewModel.global.observeAsState(DatabaseGlobal(0))
             val subjects by viewModel.subjects.observeAsState(listOf())
 
             Scaffold(

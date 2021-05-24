@@ -1,16 +1,16 @@
 package com.shimnssso.headonenglish.repository
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.shimnssso.headonenglish.network.MyGoogleSheetService
 import com.shimnssso.headonenglish.network.RowDataItem
 import com.shimnssso.headonenglish.room.DatabaseCard
+import com.shimnssso.headonenglish.room.DatabaseGlobal
 import com.shimnssso.headonenglish.room.DatabaseLecture
+import com.shimnssso.headonenglish.room.DatabaseSubject
 import com.shimnssso.headonenglish.room.LectureDatabase
 import com.shimnssso.headonenglish.utils.CellConverter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -18,24 +18,36 @@ class LectureRepository(
     private val database: LectureDatabase,
     private val network: MyGoogleSheetService,
 ) {
-    private var curSubjectId = 0
-    private var _lectures: MutableLiveData<List<DatabaseLecture>> = MutableLiveData(listOf())
-    val lectures: LiveData<List<DatabaseLecture>>
-        get() = _lectures
-
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            curSubjectId = database.globalDao.getGlobal().subjectId
-            _lectures.postValue(database.lectureDao.getLectures(curSubjectId))
+    private val _currentGlobal: LiveData<DatabaseGlobal?> = database.globalDao.currentData()
+    val currentGlobal: LiveData<DatabaseGlobal> =
+        Transformations.map(_currentGlobal) {
+            it ?: DatabaseGlobal(0, 0)
         }
-    }
+
+    val subjects = database.subjectDao.getSubjects()
+
+    private val _currentSubject: LiveData<DatabaseSubject?> =
+        Transformations.switchMap(currentGlobal) {
+            database.subjectDao.currentSubject(it.subjectId)
+            // DatabaseSubject(0, "", 0L, "", "", true)
+            // database.subjectDao.currentSubject(it.subjectId)
+        }
+
+    val currentSubject: LiveData<DatabaseSubject> =
+        Transformations.map(_currentSubject) {
+            it ?: DatabaseSubject(0, "Temp Subject", 0L, "", "", true)
+        }
+
+    val lectures: LiveData<List<DatabaseLecture>> =
+        Transformations.switchMap(currentGlobal) {
+            database.lectureDao.getLectures(it.subjectId)
+        }
 
     suspend fun changeSubject(newSubjectId: Int) {
         withContext(Dispatchers.IO) {
-            val globalInfo = database.globalDao.getGlobal()
-            curSubjectId = newSubjectId
-            database.globalDao.update(globalInfo.copy(subjectId = curSubjectId))
-            _lectures.postValue(database.lectureDao.getLectures(curSubjectId))
+            val newGlobalInfo = currentGlobal.value!!.copy(subjectId = newSubjectId)
+            Timber.e("newGlobalInfo: %s", newGlobalInfo)
+            database.globalDao.update(newGlobalInfo)
             refresh(true)
         }
     }
@@ -91,8 +103,6 @@ class LectureRepository(
         val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
         Timber.i("update current subject to %s", newSubject)
         database.subjectDao.update(newSubject)
-
-        _lectures.postValue(database.lectureDao.getLectures(globalInfo.subjectId))
     }
 
     fun getCards(subjectId: Int, date: String): LiveData<List<DatabaseCard>> {

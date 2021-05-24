@@ -32,7 +32,6 @@ object Graph {
 
         database = Room.databaseBuilder(context, LectureDatabase::class.java, "data.db")
             .createFromAsset("data.db")
-            .fallbackToDestructiveMigration()
             .build()
     }
 }

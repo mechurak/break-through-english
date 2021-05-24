@@ -25,15 +25,15 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.toPaddingValues
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseLecture
+import com.shimnssso.headonenglish.room.DatabaseSubject
+import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.utils.DateConverter
 import com.shimnssso.headonenglish.utils.supportWideScreen
@@ -56,6 +56,7 @@ fun HomeScreen(
     val viewModel = viewModel(HomeViewModel::class.java)
     val lectures by viewModel.lectures.observeAsState(listOf())
     val isLoading by viewModel.isLoading.observeAsState(false)
+    val subject by viewModel.subject.observeAsState(FakeData.DEFAULT_SUBJECT)
 
     LaunchedEffect(Unit) {
         Timber.e("LaunchedEffect")
@@ -63,6 +64,7 @@ fun HomeScreen(
     }
 
     HomeScreen(
+        subject = subject,
         lectures = lectures,
         isLoading = isLoading,
         onRefreshPosts = { viewModel.refresh() },
@@ -86,6 +88,7 @@ fun HomeScreen(
  */
 @Composable
 fun HomeScreen(
+    subject: DatabaseSubject,
     lectures: List<DatabaseLecture>,
     isLoading: Boolean,
     onRefreshPosts: () -> Unit,
@@ -98,7 +101,7 @@ fun HomeScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            val title = stringResource(id = R.string.app_name)
+            val title = subject.title
             InsetAwareTopAppBar(
                 title = { Text(text = title) },
                 navigationIcon = {

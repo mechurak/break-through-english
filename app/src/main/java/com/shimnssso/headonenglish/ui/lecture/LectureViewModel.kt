@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.shimnssso.headonenglish.Graph
 import com.shimnssso.headonenglish.repository.LectureRepository
+import timber.log.Timber
 
 class LectureViewModel(
     private val subjectId: Int,
@@ -12,6 +13,10 @@ class LectureViewModel(
 ) : ViewModel() {
     val cards = repository.getCards(subjectId, date)
     val lecture = repository.getLecture(date)
+
+    override fun onCleared() {
+        Timber.e("onCleared()!!")
+    }
 
     class Factory(
         private val subjectId: Int,
