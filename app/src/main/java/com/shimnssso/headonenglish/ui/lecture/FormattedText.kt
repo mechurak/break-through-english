@@ -3,6 +3,7 @@ package com.shimnssso.headonenglish.ui.lecture
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -14,9 +15,9 @@ import com.shimnssso.headonenglish.network.TextFormat
 import com.shimnssso.headonenglish.utils.CellConverter
 
 @Composable
-fun FormattedText(cell: Cell) {
+fun FormattedText(cell: Cell, modifier: Modifier = Modifier) {
     if (cell.textFormatRuns.isNullOrEmpty()) {
-        Text(text = cell.formattedValue ?: "", style = MaterialTheme.typography.body1)
+        Text(text = cell.formattedValue ?: "", style = MaterialTheme.typography.body1, modifier = modifier)
     } else {
         val formattedStringSourceList = CellConverter.toSourceList(cell)
         val annotatedStr = buildAnnotatedString {
@@ -30,7 +31,7 @@ fun FormattedText(cell: Cell) {
                 }
             }
         }
-        Text(text = annotatedStr, style = MaterialTheme.typography.body1)
+        Text(text = annotatedStr, style = MaterialTheme.typography.body1, modifier = modifier)
     }
 }
 

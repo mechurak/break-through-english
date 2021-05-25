@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -33,7 +31,6 @@ import com.google.android.exoplayer2.util.Util
 import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.ui.MainActivity
-import com.shimnssso.headonenglish.utils.CellConverter
 import timber.log.Timber
 
 @Composable
@@ -125,19 +122,7 @@ fun AudioLectureContent(
                 .fillMaxWidth()
         ) {
             items(cards) { card ->
-                if (card.order % 10 == 1 && card.order != 1) {
-                    Divider(
-                        thickness = 2.dp,
-                        modifier = Modifier.padding(vertical = 12.dp),
-                        color = MaterialTheme.colors.surface
-                    )
-                }
-                val spellingCell = CellConverter.fromJson(card.text!!)
-                FormattedText(cell = spellingCell)
-                Text(
-                    text = card.note ?: "", style = MaterialTheme.typography.body2,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
+                RowCard(card)
             }
             item {
                 Spacer(Modifier.height(48.dp))
