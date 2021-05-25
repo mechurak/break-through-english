@@ -4,12 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.TabRowDefaults.Divider
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -30,11 +31,7 @@ fun RowCard(
     card: DatabaseCard
 ) {
     if (card.order % 10 == 1 && card.order != 1) {
-        Divider(
-            thickness = 2.dp,
-            modifier = Modifier.padding(vertical = 12.dp),
-            color = MaterialTheme.colors.background
-        )
+        Spacer(Modifier.height(24.dp))
     }
     var showDescription by remember { mutableStateOf(true) }
 
