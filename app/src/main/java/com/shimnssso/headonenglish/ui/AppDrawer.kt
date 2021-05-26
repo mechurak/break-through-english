@@ -77,12 +77,33 @@ fun AppDrawer(
             )
         }
 
+        Divider(
+            color = MaterialTheme.colors.onSurface.copy(alpha = .2f),
+            modifier = Modifier.padding(top = 8.dp)
+        )
+
         val activity = LocalContext.current as MainActivity
         Button(
-            onClick = { activity.openFilePicker() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Open")
+            onClick = {
+                activity.requestSignIn()
+            },
+            modifier = Modifier
+                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                .fillMaxWidth()
+        )
+        {
+            Text("Sign-in with Google")
+        }
+        Button(
+            onClick = {
+                activity.openFilePicker()
+            },
+            modifier = Modifier
+                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                .fillMaxWidth()
+        )
+        {
+            Text("Add an item from google sheet")
         }
     }
 }
