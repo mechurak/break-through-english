@@ -61,6 +61,8 @@ android {
         kotlinCompilerExtensionVersion compose_version
     }
     packagingOptions {
+        exclude 'META-INF/DEPENDENCIES'
+
         // Multiple dependency bring these files in. Exclude them to enable
         // our test APK to build (has no effect on our AARs)
         excludes += "/META-INF/AL2.0"
@@ -119,6 +121,20 @@ dependencies {
 
     // lottie (http://airbnb.io/lottie/#/android-compose)
     implementation "com.airbnb.android:lottie-compose:1.0.0-beta07-1"
+
+    // google play service (https://developers.google.com/android/guides/setup)
+    implementation 'com.google.android.gms:play-services-auth:19.0.0'
+
+    implementation 'com.google.http-client:google-http-client-gson:1.26.0'
+    implementation('com.google.api-client:google-api-client-android:1.26.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    implementation('com.google.apis:google-api-services-drive:v3-rev197-1.25.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    implementation('com.google.apis:google-api-services-sheets:v4-rev612-1.25.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
 
 
     testImplementation 'junit:junit:4.13.2'

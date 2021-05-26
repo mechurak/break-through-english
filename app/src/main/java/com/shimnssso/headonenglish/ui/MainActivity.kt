@@ -14,19 +14,39 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.Scope
+import com.google.api.client.extensions.android.http.AndroidHttp
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
+import com.google.api.client.json.gson.GsonFactory
+import com.google.api.services.drive.Drive
+import com.google.api.services.drive.DriveScopes
+import com.google.api.services.sheets.v4.Sheets
+import com.google.api.services.sheets.v4.SheetsScopes
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.shimnssso.headonenglish.Graph
+import com.shimnssso.headonenglish.drive.DriveServiceHelper
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+
+
+
 class MainActivity : AppCompatActivity() {
+    private val REQUEST_CODE_SIGN_IN = 1
+    private val REQUEST_CODE_OPEN_DOCUMENT = 2
+    private var mDriveServiceHelper: DriveServiceHelper? = null
+    private val mOpenFileId: String? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -34,6 +54,10 @@ class MainActivity : AppCompatActivity() {
         setContent {
             HeadOnEnglishApp()
         }
+
+        // Authenticate the user. For most apps, this should be done when the user performs an
+        // action that requires Drive access rather than in onCreate.
+        requestSignIn()
     }
 
     private var currentLecture: DatabaseLecture? = null
@@ -103,5 +127,111 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
             }.show()
+    }
+
+    private fun check(title: String) {
+        if (mDriveServiceHelper != null) {
+            Timber.i("check $title")
+            mDriveServiceHelper!!.check(title)
+                .addOnSuccessListener {
+                    Timber.e("addOnSuccessListener. $it")
+                }
+                .addOnFailureListener { exception: java.lang.Exception? ->
+                    Timber.e(exception, "Couldn't get sheetId")
+                }
+        }
+    }
+
+    /**
+     * Opens the Storage Access Framework file picker using [.REQUEST_CODE_OPEN_DOCUMENT].
+     */
+    fun openFilePicker() {
+        if (mDriveServiceHelper != null) {
+            Timber.d("Opening file picker.")
+            val pickerIntent = mDriveServiceHelper!!.createFilePickerIntent()
+
+            // The result of the SAF Intent is handled in onActivityResult.
+            startActivityForResult(pickerIntent, REQUEST_CODE_OPEN_DOCUMENT)
+        }
+    }
+
+    private fun requestSignIn() {
+        Timber.i("Requesting sign-in")
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestScopes(Scope(DriveScopes.DRIVE_METADATA_READONLY), Scope(SheetsScopes.SPREADSHEETS_READONLY))
+            .build()
+        val client = GoogleSignIn.getClient(this, signInOptions)
+
+        // The result of the sign-in Intent is handled in onActivityResult.
+        startActivityForResult(client.signInIntent, REQUEST_CODE_SIGN_IN)
+    }
+
+    private val SCOPES = listOf(DriveScopes.DRIVE_METADATA_READONLY, SheetsScopes.SPREADSHEETS_READONLY)
+
+
+    private fun handleSignInResult(result: Intent) {
+        GoogleSignIn.getSignedInAccountFromIntent(result)
+            .addOnSuccessListener { googleAccount: GoogleSignInAccount ->
+                Timber.i("Signed in as %s", googleAccount.email)
+
+                // Use the authenticated account to sign in to the Drive service.
+                val credential = GoogleAccountCredential.usingOAuth2(
+                    this, SCOPES)
+                credential.selectedAccount = googleAccount.account
+                val googleDriveService = Drive.Builder(
+                    AndroidHttp.newCompatibleTransport(),
+                    GsonFactory(),
+                    credential
+                )
+                    .setApplicationName("Drive API Migration")
+                    .build()
+
+                val googleSheetService = Sheets.Builder(
+                    AndroidHttp.newCompatibleTransport(),
+                    GsonFactory(),
+                    credential
+                )
+                    .setApplicationName("Drive API Migration")
+                    .build()
+
+                // The DriveServiceHelper encapsulates all REST API and SAF functionality.
+                // Its instantiation is required before handling any onClick actions.
+                mDriveServiceHelper = DriveServiceHelper(googleDriveService, googleSheetService)
+            }
+            .addOnFailureListener { exception: Exception? ->
+                Timber.e(exception, "Unable to sign in.")
+            }
+    }
+
+    private var sheetTitle = ""
+    private fun openFileFromFilePicker(uri: Uri) {
+        if (mDriveServiceHelper != null) {
+            Timber.i("Opening %s", uri.path)
+            mDriveServiceHelper!!.openFileUsingStorageAccessFramework(contentResolver, uri)
+                .addOnSuccessListener { name: String ->
+                    Timber.i(name)
+                    sheetTitle = name
+                    check(sheetTitle)
+                }
+                .addOnFailureListener { exception: Exception? ->
+                    Timber.e(exception, "Unable to open file from picker.")
+                }
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        when (requestCode) {
+            REQUEST_CODE_SIGN_IN -> if (resultCode == RESULT_OK && resultData != null) {
+                handleSignInResult(resultData)
+            }
+            REQUEST_CODE_OPEN_DOCUMENT -> if (resultCode == RESULT_OK && resultData != null) {
+                Timber.i("resultData $resultData")
+                val uri = resultData.data
+                Timber.i("uri $uri")
+                uri?.let { openFileFromFilePicker(it) }
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, resultData)
     }
 }
