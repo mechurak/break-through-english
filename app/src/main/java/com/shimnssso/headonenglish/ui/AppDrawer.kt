@@ -1,14 +1,13 @@
 package com.shimnssso.headonenglish.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,13 +23,16 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieAnimationSpec
+import com.airbnb.lottie.compose.rememberLottieAnimationState
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseSubject
 
@@ -43,8 +45,12 @@ fun AppDrawer(
     changeSubject: (Int) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Spacer(Modifier.height(24.dp))
-        HeadOnEnglishLogo(Modifier.padding(16.dp), closeDrawer)
+        // Spacer(Modifier.height(24.dp))
+        HeadOnEnglishLogo(
+            Modifier
+                .background(MaterialTheme.colors.primary)
+                .padding(16.dp), closeDrawer
+        )
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
         DrawerButton(
             icon = Icons.Filled.Home,
@@ -73,25 +79,20 @@ fun AppDrawer(
 
 @Composable
 private fun HeadOnEnglishLogo(modifier: Modifier = Modifier, closeDrawer: () -> Unit) {
+    val animationSpec = remember { LottieAnimationSpec.RawRes(R.raw.walking_broccoli) }
+    val animationState = rememberLottieAnimationState(autoPlay = true, repeatCount = Integer.MAX_VALUE)
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier.fillMaxWidth()
     ) {
-        Box {
-            Image(
-                painter = painterResource(R.drawable.ic_launcher_background),
-                contentDescription = null, // decorative
-                modifier = Modifier.size(64.dp)
-            )
-            Image(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = null, // decorative
-                modifier = Modifier.size(64.dp)
-            )
-        }
+        LottieAnimation(
+            spec = animationSpec,
+            modifier = Modifier.size(200.dp),
+            animationState = animationState,
+        )
         IconButton(onClick = { closeDrawer() }) {
-            Icon(Icons.Filled.ArrowBack, contentDescription = "close drawer")
+            Icon(Icons.Filled.ArrowBack, contentDescription = "close drawer", tint = MaterialTheme.colors.onPrimary)
         }
     }
 }
