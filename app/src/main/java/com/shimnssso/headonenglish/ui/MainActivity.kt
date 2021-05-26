@@ -42,8 +42,6 @@ import timber.log.Timber
 
 
 class MainActivity : AppCompatActivity() {
-    private val REQUEST_CODE_SIGN_IN = 1
-    private val REQUEST_CODE_OPEN_DOCUMENT = 2
     private var mDriveServiceHelper: DriveServiceHelper? = null
     private val mOpenFileId: String? = null
 
@@ -106,6 +104,32 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+    private val signInResultLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val resultData = result.data // Handle the Intent //do stuff here
+                Timber.i("resultData: %s", resultData)
+                resultData?.let {
+                    handleSignInResult(resultData)
+                }
+            }
+        }
+
+
+    private val selectDocLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                val intent = result.data // Handle the Intent //do stuff here
+                Timber.i("intent: %s", intent)
+                val uri = intent!!.data
+                Timber.i("uri: %s", uri)
+                uri?.let {
+                    openFileFromFilePicker(uri!!)
+                }
+            }
+        }
+
     /**
      * A function used to show the alert dialog when the permissions are denied and need to allow it from settings app info.
      */
@@ -149,9 +173,7 @@ class MainActivity : AppCompatActivity() {
         if (mDriveServiceHelper != null) {
             Timber.d("Opening file picker.")
             val pickerIntent = mDriveServiceHelper!!.createFilePickerIntent()
-
-            // The result of the SAF Intent is handled in onActivityResult.
-            startActivityForResult(pickerIntent, REQUEST_CODE_OPEN_DOCUMENT)
+            selectDocLauncher.launch(pickerIntent)
         }
     }
 
@@ -162,9 +184,7 @@ class MainActivity : AppCompatActivity() {
             .requestScopes(Scope(DriveScopes.DRIVE_METADATA_READONLY), Scope(SheetsScopes.SPREADSHEETS_READONLY))
             .build()
         val client = GoogleSignIn.getClient(this, signInOptions)
-
-        // The result of the sign-in Intent is handled in onActivityResult.
-        startActivityForResult(client.signInIntent, REQUEST_CODE_SIGN_IN)
+        signInResultLauncher.launch(client.signInIntent)
     }
 
     private val SCOPES = listOf(DriveScopes.DRIVE_METADATA_READONLY, SheetsScopes.SPREADSHEETS_READONLY)
@@ -218,20 +238,5 @@ class MainActivity : AppCompatActivity() {
                     Timber.e(exception, "Unable to open file from picker.")
                 }
         }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        when (requestCode) {
-            REQUEST_CODE_SIGN_IN -> if (resultCode == RESULT_OK && resultData != null) {
-                handleSignInResult(resultData)
-            }
-            REQUEST_CODE_OPEN_DOCUMENT -> if (resultCode == RESULT_OK && resultData != null) {
-                Timber.i("resultData $resultData")
-                val uri = resultData.data
-                Timber.i("uri $uri")
-                uri?.let { openFileFromFilePicker(it) }
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, resultData)
     }
 }
