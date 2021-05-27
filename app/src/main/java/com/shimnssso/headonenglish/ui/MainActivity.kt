@@ -109,6 +109,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+    private var curSheetId: String? = null
     private val selectDocLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -119,10 +120,19 @@ class MainActivity : AppCompatActivity() {
                 uri?.let {
                     SheetHelper.requestSheetId(contentResolver, uri) { sheetId ->
                         Timber.i("sheetId: $sheetId")
+                        curSheetId = sheetId
                     }
                 }
             }
         }
+
+    fun refreshValues() {
+        if (curSheetId == null) return
+
+        SheetHelper.getSheetData(curSheetId!!) {
+            Timber.i("in callback")
+        }
+    }
 
     /**
      * A function used to show the alert dialog when the permissions are denied and need to allow it from settings app info.

@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import com.google.api.services.drive.Drive
 import com.google.api.services.sheets.v4.Sheets
+import com.google.api.services.sheets.v4.model.Spreadsheet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,6 +71,34 @@ object SheetHelper {
                 }
                 callback(spreadsheetId)
             }
+        }
+    }
+
+    fun getSheetData(sheetId: String, callback: ()->Unit) {
+        if (!isInitialized()) {
+            throw IOException("SheetHelper has not been initialized yet!!")
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val spreadsheet: Spreadsheet = sheets!!.spreadsheets()
+                .get(sheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
+                .setFields("sheets.properties,sheets.data.rowData.values.formattedValue,sheets.data.rowData.values.textFormatRuns")
+                .execute()
+            Timber.e("spreadsheet: $spreadsheet")
+            val values = spreadsheet.values
+            Timber.d("values(${values::class.simpleName}): $values")
+
+            val data0 = spreadsheet.sheets[0].data[0]
+            Timber.e("data[0](${data0::class.simpleName}): $data0")
+
+            val properties = spreadsheet.sheets[0].properties
+            Timber.e("properties(${properties::class.simpleName}): $properties")
+
+            val rowData = data0.rowData
+            for (row in rowData) {
+                Timber.e("row(${row::class.simpleName}): $row")
+            }
+            callback()
         }
     }
 }

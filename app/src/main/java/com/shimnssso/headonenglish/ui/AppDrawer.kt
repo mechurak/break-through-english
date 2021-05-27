@@ -105,6 +105,17 @@ fun AppDrawer(
         {
             Text("Add an item from google sheet")
         }
+        Button(
+            onClick = {
+                activity.refreshValues()
+            },
+            modifier = Modifier
+                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                .fillMaxWidth()
+        )
+        {
+            Text("refreshValues() test")
+        }
     }
 }
 
