@@ -52,7 +52,7 @@ data class RowDataItem(
 
 @JsonClass(generateAdapter = true)
 data class Cell(
-    val formattedValue: String?,
+    var formattedValue: String?,
     val textFormatRuns: List<TextFormat>?
 )
 

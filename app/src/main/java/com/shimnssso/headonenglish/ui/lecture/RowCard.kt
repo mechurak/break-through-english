@@ -48,7 +48,10 @@ fun RowCard(
         Box(
             modifier = Modifier.fillMaxWidth()
         ) {
-            FormattedText(cell = spellingCell, modifier = Modifier.padding(horizontal = 8.dp))
+            FormattedText(
+                cell = spellingCell,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            ) { showDescription = !showDescription }
             if (!showDescription && (hasNote || hasMemo)) {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
@@ -69,10 +72,18 @@ fun RowCard(
         }
         if (showDescription) {
             if (hasNote) {
-                Text(text = card.note!!, style = MaterialTheme.typography.body2, modifier = Modifier.padding(horizontal = 16.dp))
+                Text(
+                    text = card.note!!,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
             if (hasMemo) {
-                Text(text = card.memo!!, style = MaterialTheme.typography.body2, modifier = Modifier.padding(horizontal = 16.dp))
+                Text(
+                    text = card.memo!!,
+                    style = MaterialTheme.typography.body2,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
             }
         }
     }
