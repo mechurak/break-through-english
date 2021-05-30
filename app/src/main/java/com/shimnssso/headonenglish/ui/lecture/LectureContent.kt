@@ -1,37 +1,33 @@
 package com.shimnssso.headonenglish.ui.lecture
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.upstream.DataSource
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.util.Util
+import com.google.accompanist.insets.navigationBarsPadding
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
-import timber.log.Timber
+import com.shimnssso.headonenglish.ui.MainActivity
 
 @Composable
 fun LectureContent(
@@ -43,11 +39,7 @@ fun LectureContent(
 ) {
     Scaffold(
         scaffoldState = scaffoldState,
-        bottomBar = {
-            BottomBar(
-                onUnimplementedAction = { },
-            )
-        }
+        bottomBar = { AudioBottomBar() }
     ) {
         LectureRealContent(
             lecture = lecture,
@@ -58,7 +50,6 @@ fun LectureContent(
     }
 }
 
-
 @Composable
 fun LectureRealContent(
     lecture: DatabaseLecture,
@@ -66,94 +57,22 @@ fun LectureRealContent(
     modifier: Modifier = Modifier,
     onUpdateCard: (card: DomainCard) -> Unit,
 ) {
+    val activity = LocalContext.current as MainActivity
 
-    // This is the official way to access current context from Composable functions
-    val context = LocalContext.current
-
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-
-    val autoPlay = rememberSaveable { mutableStateOf(true) }
-    val window = rememberSaveable { mutableStateOf(0) }
-    val position = rememberSaveable { mutableStateOf(0L) }
-
-    // Do not recreate the player everytime this Composable commits
-    val exoPlayer = remember {
-        Timber.d("SimpleExoPlayer build")
-        SimpleExoPlayer.Builder(context).build()
-    }
-
-    fun updateState() {
-        autoPlay.value = exoPlayer.playWhenReady
-        window.value = exoPlayer.currentWindowIndex
-        position.value = 0L.coerceAtLeast(exoPlayer.contentPosition)
-    }
-
-    val playerView = remember {
-        val playerView = PlayerView(context)
-        lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
-                Timber.i("onStart()")
-                exoPlayer.playWhenReady = autoPlay.value
-                // exoPlayer.seekTo(window.value, position.value)
-                playerView.onResume()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (lecture.remoteUrl == null && lecture.localUrl == null) {
+            Button(
+                onClick = { activity.launchAudioChooser(lecture) },
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text("Set Media file")
             }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
-                Timber.i("onStop()")
-                updateState()
-                playerView.onPause()
-                exoPlayer.playWhenReady = false
-            }
-        })
-        playerView
-    }
-
-    // We only want to react to changes in sourceUrl.
-    // This effect will be executed at each commit phase if
-    // [sourceUrl] has changed.
-    LaunchedEffect(lecture) {
-        Timber.i("LaunchedEffect. lecture: %s", lecture)
-        Timber.i("LaunchedEffect. cards: %s", cards)
-        if (lecture.remoteUrl != null) {
-            val dataSourceFactory: DataSource.Factory = DefaultDataSourceFactory(
-                context,
-                Util.getUserAgent(context, context.packageName)
-            )
-
-            val source = ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(
-                    Uri.parse(
-                        // Big Buck Bunny from Blender Project
-                        lecture.remoteUrl
-                    )
-                )
-
-            exoPlayer.prepare(source)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        Timber.d("DisposableEffect setup")
-        onDispose {
-            Timber.i("onDispose!!")
-            updateState()
-            exoPlayer.release()
-        }
-    }
-
-    Column() {
-        if (lecture.remoteUrl != null) {
-            // Gateway to traditional Android Views
-            AndroidView(
-                factory = { context ->
-                    PlayerView(context).apply {
-                        player = exoPlayer
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
-            )
+        } else if (lecture.localUrl != null) {
+            ExoPlayerView(url = lecture.localUrl)
+        } else if (lecture.remoteUrl != null) {
+            ExoPlayerView(url = lecture.remoteUrl)
         }
 
         Column(
@@ -166,6 +85,40 @@ fun LectureRealContent(
                 }
             }
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun AudioBottomBar(
+) {
+    Surface(elevation = 8.dp) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .navigationBarsPadding()
+                .height(56.dp)
+                .fillMaxWidth()
+        ) {
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    contentDescription = "temp thumb up"
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "temp settings"
+                )
+            }
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "temp settings"
+                )
+            }
         }
     }
 }

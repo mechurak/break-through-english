@@ -81,35 +81,19 @@ fun LectureScreen(
             )
         },
     ) { innerPadding ->
-        if (subjectId == 0) {
-            LectureContent(
-                lecture = lecture,
-                cards = cards,
-                modifier = Modifier
-                    // innerPadding takes into account the top and bottom bar
-                    .padding(innerPadding)
-                    // offset content in landscape mode to account for the navigation bar
-                    .navigationBarsPadding(bottom = false)
-                    // center content in landscape mode
-                    .supportWideScreen(),
-                scaffoldState = scaffoldState,
-                onUpdateCard = { card ->  viewModel.update(card)}
-            )
-        } else {
-            AudioLectureContent(
-                lecture = lecture,
-                cards = cards,
-                modifier = Modifier
-                    // innerPadding takes into account the top and bottom bar
-                    .padding(innerPadding)
-                    // offset content in landscape mode to account for the navigation bar
-                    .navigationBarsPadding(bottom = false)
-                    // center content in landscape mode
-                    .supportWideScreen(),
-                scaffoldState = scaffoldState,
-                onUpdateCard = { card ->  viewModel.update(card)}
-            )
-        }
+        LectureContent(
+            lecture = lecture,
+            cards = cards,
+            modifier = Modifier
+                // innerPadding takes into account the top and bottom bar
+                .padding(innerPadding)
+                // offset content in landscape mode to account for the navigation bar
+                .navigationBarsPadding(bottom = false)
+                // center content in landscape mode
+                .supportWideScreen(),
+            scaffoldState = scaffoldState,
+            onUpdateCard = { card ->  viewModel.update(card)}
+        )
     }
 }
 
