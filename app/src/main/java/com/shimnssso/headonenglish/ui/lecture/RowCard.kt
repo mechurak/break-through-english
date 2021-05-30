@@ -16,30 +16,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.shimnssso.headonenglish.room.DatabaseCard
+import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.utils.CellConverter
 
 @Composable
 fun RowCard(
-    card: DatabaseCard
+    card: DomainCard,
+    onUpdateCard: (card: DomainCard) -> Unit,
 ) {
     if (card.order % 10 == 1 && card.order != 1) {
         Spacer(Modifier.height(24.dp))
     }
-    var showDescription by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.surface)
-            .clickable { showDescription = !showDescription }
+            .clickable { onUpdateCard(card) }
             .padding(bottom = 16.dp)
     ) {
         val spellingCell = CellConverter.fromJson(card.text!!)
@@ -51,8 +47,8 @@ fun RowCard(
             FormattedText(
                 cell = spellingCell,
                 modifier = Modifier.padding(horizontal = 8.dp)
-            ) { showDescription = !showDescription }
-            if (!showDescription && (hasNote || hasMemo)) {
+            ) { onUpdateCard(card) }
+            if (!card.showDescription && (hasNote || hasMemo)) {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
                     contentDescription = "temp description",
@@ -60,7 +56,7 @@ fun RowCard(
                         .size(16.dp)
                         .align(Alignment.TopEnd)
                 )
-            } else if (showDescription && (hasNote || hasMemo)) {
+            } else if (card.showDescription && (hasNote || hasMemo)) {
                 Icon(
                     Icons.Filled.KeyboardArrowUp,
                     contentDescription = "temp description",
@@ -70,7 +66,7 @@ fun RowCard(
                 )
             }
         }
-        if (showDescription) {
+        if (card.showDescription) {
             if (hasNote) {
                 Text(
                     text = card.note!!,

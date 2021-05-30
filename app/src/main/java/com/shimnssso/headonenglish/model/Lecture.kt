@@ -13,3 +13,14 @@ data class Row(
     val meaning: String,
     val description: String
 )
+
+data class DomainCard(
+    val date: String,
+    val order: Int,
+
+    val text: String,
+    val note: String?,
+    val memo: String?,
+
+    var showDescription: Boolean = true,
+)

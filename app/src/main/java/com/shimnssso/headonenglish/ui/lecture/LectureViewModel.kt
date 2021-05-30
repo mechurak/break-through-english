@@ -1,9 +1,14 @@
 package com.shimnssso.headonenglish.ui.lecture
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.shimnssso.headonenglish.Graph
+import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.repository.LectureRepository
+import com.shimnssso.headonenglish.room.asDomainCard
 import timber.log.Timber
 
 class LectureViewModel(
@@ -11,8 +16,38 @@ class LectureViewModel(
     private val date: String,
     private val repository: LectureRepository = Graph.lectureRepository,
 ) : ViewModel() {
-    val cards = repository.getCards(subjectId, date)
+    private val _originCards: LiveData<List<DomainCard>> = Transformations.map(repository.getCards(subjectId, date)) {
+        it.asDomainCard()
+    }
+
+    private val _cards: MutableLiveData<List<DomainCard>> = MutableLiveData(mutableListOf())
+
+    val cards: LiveData<List<DomainCard>>
+        get() = _cards
+
+    init {
+        _originCards.observeForever {
+            _cards.value = it!!.toMutableList()
+        }
+    }
+
     val lecture = repository.getLecture(date)
+
+    fun update(card: DomainCard) {
+        Timber.e("update $card")
+        var targetIndex = -1
+        val newCards = _cards.value!!.toMutableList()
+        _cards.value!!.forEachIndexed { index, originCard ->
+            if (card.order == originCard.order) {
+                Timber.e("found!!")
+                targetIndex = index
+                Timber.e("found!! targetIndex $targetIndex")
+                return@forEachIndexed
+            }
+        }
+        newCards[targetIndex] = card.copy(showDescription = !card.showDescription)
+        _cards.value = newCards
+    }
 
     override fun onCleared() {
         Timber.e("onCleared()!!")

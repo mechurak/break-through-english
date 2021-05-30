@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -27,17 +29,42 @@ import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.shimnssso.headonenglish.room.DatabaseCard
+import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import timber.log.Timber
-
-private val defaultSpacerSize = 16.dp
 
 @Composable
 fun LectureContent(
     lecture: DatabaseLecture,
-    cards: List<DatabaseCard>,
-    modifier: Modifier = Modifier
+    cards: List<DomainCard>,
+    modifier: Modifier = Modifier,
+    scaffoldState: ScaffoldState,
+    onUpdateCard: (card: DomainCard) -> Unit,
+) {
+    Scaffold(
+        scaffoldState = scaffoldState,
+        bottomBar = {
+            BottomBar(
+                onUnimplementedAction = { },
+            )
+        }
+    ) {
+        LectureRealContent(
+            lecture = lecture,
+            cards = cards,
+            modifier = modifier,
+            onUpdateCard = { card -> onUpdateCard(card) },
+        )
+    }
+}
+
+
+@Composable
+fun LectureRealContent(
+    lecture: DatabaseLecture,
+    cards: List<DomainCard>,
+    modifier: Modifier = Modifier,
+    onUpdateCard: (card: DomainCard) -> Unit,
 ) {
 
     // This is the official way to access current context from Composable functions
@@ -134,7 +161,9 @@ fun LectureContent(
         ) {
             Spacer(Modifier.height(24.dp))
             cards.forEach { card ->
-                RowCard(card)
+                RowCard(card) { the_card ->
+                    onUpdateCard(the_card)
+                }
             }
             Spacer(Modifier.height(24.dp))
         }

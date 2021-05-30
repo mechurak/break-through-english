@@ -2,6 +2,7 @@ package com.shimnssso.headonenglish.ui.lecture
 
 import android.net.Uri
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -9,7 +10,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -22,13 +32,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.google.accompanist.insets.navigationBarsPadding
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.upstream.DataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.shimnssso.headonenglish.room.DatabaseCard
+import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.ui.MainActivity
 import timber.log.Timber
@@ -36,8 +47,30 @@ import timber.log.Timber
 @Composable
 fun AudioLectureContent(
     lecture: DatabaseLecture,
-    cards: List<DatabaseCard>,
-    modifier: Modifier = Modifier
+    cards: List<DomainCard>,
+    modifier: Modifier = Modifier,
+    scaffoldState: ScaffoldState,
+    onUpdateCard: (card: DomainCard) -> Unit,
+) {
+    Scaffold(
+        scaffoldState = scaffoldState,
+        bottomBar = { AudioBottomBar() }
+    ) {
+        AudioLectureRealContent(
+            lecture = lecture,
+            cards = cards,
+            modifier = modifier,
+            onUpdateCard = { card -> onUpdateCard(card) }
+        )
+    }
+}
+
+@Composable
+fun AudioLectureRealContent(
+    lecture: DatabaseLecture,
+    cards: List<DomainCard>,
+    modifier: Modifier = Modifier,
+    onUpdateCard: (card: DomainCard) -> Unit,
 ) {
     // This is the official way to access current context from Composable functions
     val context = LocalContext.current
@@ -121,9 +154,53 @@ fun AudioLectureContent(
         ) {
             Spacer(Modifier.height(24.dp))
             cards.forEach { card ->
-                RowCard(card)
+                RowCard(card) { the_card ->
+                    onUpdateCard(the_card)
+                }
             }
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+/**
+ * Bottom bar for Article screen
+ *
+ * @param lecture (state) used in share sheet to share the post
+ * @param onUnimplementedAction (event) called when the user performs an unimplemented action
+ * @param isFavorite (state) if this post is currently a favorite
+ * @param onToggleFavorite (event) request this post toggle it's favorite status
+ */
+@Composable
+private fun AudioBottomBar(
+) {
+    Surface(elevation = 8.dp) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .navigationBarsPadding()
+                .height(56.dp)
+                .fillMaxWidth()
+        ) {
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Filled.AddCircle,
+                    contentDescription = "temp thumb up"
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = "temp settings"
+                )
+            }
+            IconButton(onClick = { }) {
+                Icon(
+                    imageVector = Icons.Filled.Done,
+                    contentDescription = "temp settings"
+                )
+            }
         }
     }
 }

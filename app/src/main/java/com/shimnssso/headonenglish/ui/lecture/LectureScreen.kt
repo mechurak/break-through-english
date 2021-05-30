@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -57,7 +58,10 @@ fun LectureScreen(
         FunctionalityNotAvailablePopup { showDialog = false }
     }
 
+    val scaffoldState = rememberScaffoldState()
+
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             InsetAwareTopAppBar(
                 title = {
@@ -76,11 +80,6 @@ fun LectureScreen(
                 }
             )
         },
-        bottomBar = {
-            BottomBar(
-                onUnimplementedAction = { showDialog = true },
-            )
-        }
     ) { innerPadding ->
         if (subjectId == 0) {
             LectureContent(
@@ -92,7 +91,9 @@ fun LectureScreen(
                     // offset content in landscape mode to account for the navigation bar
                     .navigationBarsPadding(bottom = false)
                     // center content in landscape mode
-                    .supportWideScreen()
+                    .supportWideScreen(),
+                scaffoldState = scaffoldState,
+                onUpdateCard = { card ->  viewModel.update(card)}
             )
         } else {
             AudioLectureContent(
@@ -104,7 +105,9 @@ fun LectureScreen(
                     // offset content in landscape mode to account for the navigation bar
                     .navigationBarsPadding(bottom = false)
                     // center content in landscape mode
-                    .supportWideScreen()
+                    .supportWideScreen(),
+                scaffoldState = scaffoldState,
+                onUpdateCard = { card ->  viewModel.update(card)}
             )
         }
     }
@@ -119,7 +122,7 @@ fun LectureScreen(
  * @param onToggleFavorite (event) request this post toggle it's favorite status
  */
 @Composable
-private fun BottomBar(
+fun BottomBar(
     onUnimplementedAction: () -> Unit,
 ) {
     Surface(elevation = 8.dp) {

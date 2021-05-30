@@ -2,6 +2,7 @@ package com.shimnssso.headonenglish.room
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.shimnssso.headonenglish.model.DomainCard
 
 @Entity(tableName = "subject_table")
 data class DatabaseSubject(
@@ -14,7 +15,6 @@ data class DatabaseSubject(
     val sheetId: String,
     val isVideoBased: Boolean,
 )
-
 
 @Entity(tableName = "lecture_table", primaryKeys = ["subjectId", "date"])
 data class DatabaseLecture(
@@ -47,3 +47,15 @@ data class DatabaseGlobal(
     @PrimaryKey
     val id: Int = 0,
 )
+
+fun List<DatabaseCard>.asDomainCard(): MutableList<DomainCard> {
+    return map {
+        DomainCard(
+            date = it.date,
+            order = it.order,
+            text = it.text!!,
+            note = it.note,
+            memo = it.memo,
+        )
+    }.toMutableList()
+}
