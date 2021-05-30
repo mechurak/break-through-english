@@ -1,7 +1,10 @@
 package com.shimnssso.headonenglish.ui.lecture
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -16,8 +19,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.utils.CellConverter
@@ -31,11 +36,15 @@ fun RowCard(
         Spacer(Modifier.height(24.dp))
     }
 
+    val interactionSource = remember { MutableInteractionSource() }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colors.surface)
-            .clickable { onUpdateCard(card) }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current
+            ) { onUpdateCard(card) }
             .padding(bottom = 16.dp)
     ) {
         val spellingCell = CellConverter.fromJson(card.text!!)
@@ -47,7 +56,13 @@ fun RowCard(
             FormattedText(
                 cell = spellingCell,
                 modifier = Modifier.padding(horizontal = 8.dp)
-            ) { onUpdateCard(card) }
+            ) {
+                // Trigger ripple effect
+                val press = PressInteraction.Press(Offset.Zero)
+                interactionSource.tryEmit(press)
+                interactionSource.tryEmit(PressInteraction.Release(press))
+                onUpdateCard(card)
+            }
             if (!card.showDescription && (hasNote || hasMemo)) {
                 Icon(
                     Icons.Filled.KeyboardArrowDown,
