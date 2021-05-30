@@ -32,4 +32,11 @@ interface LectureDao {
 
     @Query("delete from card_table where date = :date")
     suspend fun deleteCards(date: String)
+
+
+    @Query("delete from lecture_table where subjectId = :subjectId")
+    suspend fun clearLectures(subjectId: Int)
+
+    @Query("delete from card_table where subjectId = :subjectId")
+    suspend fun clearCards(subjectId: Int)
 }

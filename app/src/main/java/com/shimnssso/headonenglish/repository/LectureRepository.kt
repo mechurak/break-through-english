@@ -159,12 +159,21 @@ class LectureRepository(
                 )
             }
         }
-        database.lectureDao.insertLectures(newLectures)
-        database.lectureDao.insertCards(newCards)
 
-        val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
-        Timber.i("update current subject to %s", newSubject)
-        database.subjectDao.update(newSubject)
+        if (newLectures.isNotEmpty() && newCards.isNotEmpty()) {
+            database.lectureDao.clearLectures(globalInfo.subjectId)
+            database.lectureDao.clearCards(globalInfo.subjectId)
+            database.lectureDao.insertLectures(newLectures)
+            database.lectureDao.insertCards(newCards)
+
+            val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
+            Timber.i("update current subject to %s", newSubject)
+            database.subjectDao.update(newSubject)
+        } else {
+            Timber.e("empty lectures or empty cards")
+            Timber.e("newLectures.size: ${newLectures.size}")
+            Timber.e("newCards.size: ${newCards.size}")
+        }
     }
 
     fun getCards(subjectId: Int, date: String): LiveData<List<DatabaseCard>> {
