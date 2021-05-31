@@ -8,9 +8,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
+import com.shimnssso.headonenglish.ui.MainActivity
 import timber.log.Timber
 
 @Composable
@@ -18,15 +19,16 @@ fun ExoPlayerView(
     url: String
 ) {
     val app = LocalContext.current.applicationContext as Application
-    val viewModel = viewModel(MediaViewModel::class.java,  factory = MediaViewModel.Factory(app))
+    val activity = LocalContext.current as MainActivity
+    val viewModel = ViewModelProvider(activity, MediaViewModel.Factory(app)).get(MediaViewModel::class.java)
 
     LaunchedEffect(url) {
-        Timber.e("LaunchedEffect. url: %s", url)
+        Timber.d("LaunchedEffect. url: %s", url)
         viewModel.prepare(url)
     }
 
     DisposableEffect(Unit) {
-        Timber.e("DisposableEffect setup")
+        Timber.d("DisposableEffect setup")
         onDispose {
             Timber.i("onDispose!!")
             viewModel.release()
