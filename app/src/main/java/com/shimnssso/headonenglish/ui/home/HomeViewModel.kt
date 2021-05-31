@@ -1,27 +1,38 @@
 package com.shimnssso.headonenglish.ui.home
 
+import android.content.ContentResolver
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.api.services.drive.model.File
+import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.shimnssso.headonenglish.Graph
+import com.shimnssso.headonenglish.googlesheet.SheetHelper
 import com.shimnssso.headonenglish.repository.LectureRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class HomeViewModel(
     private val repository: LectureRepository = Graph.lectureRepository,
-): ViewModel() {
+) : ViewModel() {
     val lectures = repository.lectures
     val subject = repository.currentSubject
     val subjects = repository.subjects
     val global = repository.currentGlobal
 
-
     private var _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
+    private var _showDialog = MutableLiveData<Boolean>(false)
+    val showDialog: LiveData<Boolean>
+        get() = _showDialog
+
+    private var _sheetFiles = MutableLiveData<List<File>>(listOf())
+    val sheetFiles: LiveData<List<File>>
+        get() = _sheetFiles
 
     fun changeSubject(subjectId: Int) {
         viewModelScope.launch {
@@ -33,6 +44,36 @@ class HomeViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             repository.refresh(shouldCheckInterval)
+            _isLoading.value = false
+        }
+    }
+
+    fun getSheetIdAndShowDialog(contentResolver: ContentResolver, uri: Uri) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val sheetFiles = SheetHelper.getFilesFromUri(contentResolver, uri)
+            Timber.i("sheetFiles: $sheetFiles")
+            _sheetFiles.value = sheetFiles
+            _showDialog.value = true
+            _isLoading.value = false
+        }
+    }
+
+    fun dismissSheetFetchDialog() {
+        viewModelScope.launch {
+            _showDialog.value = false
+        }
+    }
+
+    fun fetchSheet(name: String, sheetId: String) {
+        viewModelScope.launch {
+            _showDialog.value = false
+            _isLoading.value = true
+            val spreadsheet:Spreadsheet = SheetHelper.fetchSpreadsheet(sheetId)
+            val subjectId = repository.createSubject(name, sheetId)
+
+            repository.importSpreadsheet(spreadsheet, subjectId)
+
             _isLoading.value = false
         }
     }

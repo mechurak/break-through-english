@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -33,12 +34,20 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.shimnssso.headonenglish.Graph
 import com.shimnssso.headonenglish.googlesheet.SheetHelper
 import com.shimnssso.headonenglish.room.DatabaseLecture
+import com.shimnssso.headonenglish.ui.home.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
+    private val viewmodel: HomeViewModel by lazy {
+        val activity = requireNotNull(this) {
+            "You can only access the viewModel after onActivityCreated()"
+        }
+        ViewModelProvider(activity).get(HomeViewModel::class.java)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -109,7 +118,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-    private var curSheetId: String? = null
     private val selectDocLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result: ActivityResult ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -118,21 +126,10 @@ class MainActivity : AppCompatActivity() {
                 val uri = intent!!.data
                 Timber.i("uri: %s", uri)
                 uri?.let {
-                    SheetHelper.requestSheetId(contentResolver, uri) { sheetId ->
-                        Timber.i("sheetId: $sheetId")
-                        curSheetId = sheetId
-                    }
+                    viewmodel.getSheetIdAndShowDialog(contentResolver, uri)
                 }
             }
         }
-
-    fun refreshValues() {
-        if (curSheetId == null) return
-
-        SheetHelper.getSheetData(curSheetId!!) {
-            Timber.i("in callback")
-        }
-    }
 
     /**
      * A function used to show the alert dialog when the permissions are denied and need to allow it from settings app info.

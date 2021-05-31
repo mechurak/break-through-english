@@ -1,12 +1,15 @@
 package com.shimnssso.headonenglish.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -15,6 +18,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
@@ -22,18 +26,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.ViewModelProvider
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.toPaddingValues
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.api.services.drive.model.File
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.room.DatabaseSubject
 import com.shimnssso.headonenglish.room.FakeData
+import com.shimnssso.headonenglish.ui.MainActivity
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.utils.DateConverter
 import com.shimnssso.headonenglish.utils.supportWideScreen
@@ -53,10 +63,22 @@ fun HomeScreen(
     openDrawer: () -> Unit,
     scaffoldState: ScaffoldState = rememberScaffoldState()
 ) {
-    val viewModel = viewModel(HomeViewModel::class.java)
+    val activity = LocalContext.current as MainActivity
+    val viewModel = ViewModelProvider(activity).get(HomeViewModel::class.java)
+
     val lectures by viewModel.lectures.observeAsState(listOf())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val subject by viewModel.subject.observeAsState(FakeData.DEFAULT_SUBJECT)
+    val showDialog by viewModel.showDialog.observeAsState(false)
+    val sheetFiles by viewModel.sheetFiles.observeAsState(listOf())
+
+    if (showDialog) {
+        ConfirmFetchPopup(
+            files = sheetFiles,
+            onConfirm = { name, sheetId -> viewModel.fetchSheet(name, sheetId) },
+            onDismiss = { viewModel.dismissSheetFetchDialog() }
+        )
+    }
 
     LaunchedEffect(Unit) {
         Timber.e("LaunchedEffect")
@@ -250,4 +272,53 @@ private fun LectureListMainSection(
             )
         }
     }
+}
+
+@Composable
+private fun ConfirmFetchPopup(
+    files: List<File>,
+    onConfirm: (String, String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    var selectedIdx by remember { mutableStateOf(0) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Import the selected sheet?",
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                files.forEachIndexed { index, file ->
+                    val modifier = if (selectedIdx == index) Modifier
+                        .fillMaxWidth()
+                        .border(
+                            2.dp,
+                            MaterialTheme.colors.primaryVariant
+                        ) else Modifier
+
+                    TextButton(
+                        onClick = { selectedIdx = index },
+                        modifier = modifier
+                    ) {
+                        Text("${file.name} : ${file.owners[0].displayName}")
+                    }
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = "Cancel")
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onConfirm(files[selectedIdx].name, files[selectedIdx].id) }) {
+                Text(text = "Confirm")
+            }
+        }
+    )
 }

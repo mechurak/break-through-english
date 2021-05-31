@@ -6,14 +6,13 @@ import com.shimnssso.headonenglish.model.DomainCard
 
 @Entity(tableName = "subject_table")
 data class DatabaseSubject(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     val subjectId: Int,
 
     val title: String,
-    val lastUpdateTime: Long,
-    val link: String,
     val sheetId: String,
-    val isVideoBased: Boolean,
+    val lastUpdateTime: Long,
+    val link: String?,
 )
 
 @Entity(tableName = "lecture_table", primaryKeys = ["subjectId", "date"])

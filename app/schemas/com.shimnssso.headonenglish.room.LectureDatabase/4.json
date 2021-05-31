@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "c372f1aef3b6adcd585e25d7f3d41ca7",
+    "identityHash": "39a4e606a47022f3918815b479fc2071",
     "entities": [
       {
         "tableName": "subject_table",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subjectId` INTEGER NOT NULL, `title` TEXT NOT NULL, `lastUpdateTime` INTEGER NOT NULL, `link` TEXT NOT NULL, `sheetId` TEXT NOT NULL, `isVideoBased` INTEGER NOT NULL, PRIMARY KEY(`subjectId`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`subjectId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `sheetId` TEXT NOT NULL, `lastUpdateTime` INTEGER NOT NULL, `link` TEXT)",
         "fields": [
           {
             "fieldPath": "subjectId",
@@ -21,6 +21,12 @@
             "notNull": true
           },
           {
+            "fieldPath": "sheetId",
+            "columnName": "sheetId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
             "fieldPath": "lastUpdateTime",
             "columnName": "lastUpdateTime",
             "affinity": "INTEGER",
@@ -30,26 +36,14 @@
             "fieldPath": "link",
             "columnName": "link",
             "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "sheetId",
-            "columnName": "sheetId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isVideoBased",
-            "columnName": "isVideoBased",
-            "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           }
         ],
         "primaryKey": {
           "columnNames": [
             "subjectId"
           ],
-          "autoGenerate": false
+          "autoGenerate": true
         },
         "indices": [],
         "foreignKeys": []
@@ -199,7 +193,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c372f1aef3b6adcd585e25d7f3d41ca7')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '39a4e606a47022f3918815b479fc2071')"
     ]
   }
 }

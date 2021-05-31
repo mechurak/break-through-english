@@ -35,6 +35,7 @@ class SheetHelperTest {
     fun fromJsonTest() {
         val cellData = gson.fromJson(CELL_JSON_STR, CellData::class.java)
         println("cellData(${cellData::class.simpleName}): $cellData")
+        println("cellData(${cellData::class.simpleName}).toPrettyString(): ${cellData.toPrettyString()}")
     }
 
     @Test
