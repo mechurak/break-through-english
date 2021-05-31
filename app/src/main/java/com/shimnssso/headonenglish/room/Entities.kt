@@ -48,7 +48,7 @@ data class DatabaseGlobal(
     val id: Int = 0,
 )
 
-fun List<DatabaseCard>.asDomainCard(): MutableList<DomainCard> {
+fun List<DatabaseCard>.asDomainCard(): List<DomainCard> {
     return map {
         DomainCard(
             date = it.date,
@@ -57,5 +57,5 @@ fun List<DatabaseCard>.asDomainCard(): MutableList<DomainCard> {
             note = it.note,
             memo = it.memo,
         )
-    }.toMutableList()
+    }
 }

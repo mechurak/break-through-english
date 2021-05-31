@@ -1,11 +1,16 @@
 package com.shimnssso.headonenglish.ui.lecture
 
+import android.app.Application
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.AlertDialog
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
@@ -13,26 +18,28 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Subtitles
+import androidx.compose.material.icons.filled.SubtitlesOff
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.navigationBarsPadding
 import com.shimnssso.headonenglish.room.FakeData
+import com.shimnssso.headonenglish.ui.MainActivity
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.utils.supportWideScreen
 
@@ -53,15 +60,10 @@ fun LectureScreen(
     val cards by viewModel.cards.observeAsState(listOf())
     val lecture by viewModel.lecture.observeAsState(FakeData.DEFAULT_LECTURE)
 
-    var showDialog by rememberSaveable { mutableStateOf(false) }
-    if (showDialog) {
-        FunctionalityNotAvailablePopup { showDialog = false }
-    }
-
-    val scaffoldState = rememberScaffoldState()
+    val defaultShowDescription = remember { mutableStateOf(true) }
+    val defaultShowKeyword = remember { mutableStateOf(false) }
 
     Scaffold(
-        scaffoldState = scaffoldState,
         topBar = {
             InsetAwareTopAppBar(
                 title = {
@@ -80,6 +82,12 @@ fun LectureScreen(
                 }
             )
         },
+        bottomBar = {
+            BottomBar(
+                setDefaultShowDescription = { showDescription -> defaultShowDescription.value = showDescription },
+                setDefaultShowKeyword = { showKeyword -> defaultShowKeyword.value = showKeyword },
+            )
+        }
     ) { innerPadding ->
         LectureContent(
             lecture = lecture,
@@ -91,75 +99,111 @@ fun LectureScreen(
                 .navigationBarsPadding(bottom = false)
                 // center content in landscape mode
                 .supportWideScreen(),
-            scaffoldState = scaffoldState,
-            onUpdateCard = { card ->  viewModel.update(card)}
+            defaultShowDescription = defaultShowDescription.value,
+            defaultShowKeyword = defaultShowKeyword.value,
         )
     }
 }
 
-/**
- * Bottom bar for Article screen
- *
- * @param lecture (state) used in share sheet to share the post
- * @param onUnimplementedAction (event) called when the user performs an unimplemented action
- * @param isFavorite (state) if this post is currently a favorite
- * @param onToggleFavorite (event) request this post toggle it's favorite status
- */
 @Composable
-fun BottomBar(
-    onUnimplementedAction: () -> Unit,
+private fun BottomBar(
+    setDefaultShowDescription: (Boolean) -> Unit,
+    setDefaultShowKeyword: (Boolean) -> Unit,
 ) {
+    val app = LocalContext.current.applicationContext as Application
+    val activity = LocalContext.current as MainActivity
+    val viewModel = ViewModelProvider(activity, MediaViewModel.Factory(app)).get(MediaViewModel::class.java)
+
+    val showSetting = remember { mutableStateOf(false) }
+    val speed by viewModel.speed.observeAsState(initial = 1.0f)
+
     Surface(elevation = 8.dp) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
+        Column(
             modifier = Modifier
                 .navigationBarsPadding()
-                .height(56.dp)
                 .fillMaxWidth()
         ) {
-            IconButton(onClick = onUnimplementedAction) {
-                Icon(
-                    imageVector = Icons.Filled.ThumbUp,
-                    contentDescription = "temp thumb up"
-                )
+            if (showSetting.value) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showSetting.value = !showSetting.value }
+                ) {
+                    Text(
+                        "play speed",
+                        modifier = Modifier.padding(16.dp)
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    ) {
+                        IconButton(onClick = { viewModel.speedDown() }) {
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowDown,
+                                contentDescription = "temp thumb up"
+                            )
+                        }
+                        Text(text = "${speed}x")
+                        IconButton(onClick = { viewModel.speedUp() }) {
+                            Icon(
+                                imageVector = Icons.Filled.KeyboardArrowUp,
+                                contentDescription = "temp thumb up"
+                            )
+                        }
+                    }
+                    Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
+                }
             }
-            val context = LocalContext.current
-            IconButton(onClick = { }) {
-                Icon(
-                    imageVector = Icons.Filled.Share,
-                    contentDescription = "temp share"
-                )
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = onUnimplementedAction) {
-                Icon(
-                    imageVector = Icons.Filled.Settings,
-                    contentDescription = "temp settings"
-                )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                IconButton(onClick = { setDefaultShowKeyword(false) }) {
+                    Icon(
+                        imageVector = Icons.Filled.VisibilityOff,
+                        contentDescription = "temp settings"
+                    )
+                }
+                IconButton(onClick = { setDefaultShowKeyword(true) }) {
+                    Icon(
+                        imageVector = Icons.Filled.Visibility,
+                        contentDescription = "temp settings"
+                    )
+                }
+                IconButton(onClick = { showSetting.value = !showSetting.value }) {
+                    Box(
+                        modifier = Modifier.fillMaxHeight()
+                    ) {
+                        val iconVector =
+                            if (showSetting.value) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp
+                        Icon(
+                            imageVector = iconVector,
+                            contentDescription = "temp settings",
+                            modifier = Modifier
+                                .size(16.dp)
+                                .align(Alignment.TopStart)
+                        )
+                    }
+                    Text(text = "${speed}x")
+                }
+                IconButton(onClick = { setDefaultShowDescription(false) }) {
+                    Icon(
+                        imageVector = Icons.Filled.SubtitlesOff,
+                        contentDescription = "temp settings"
+                    )
+                }
+                IconButton(onClick = { setDefaultShowDescription(true) }) {
+                    Icon(
+                        imageVector = Icons.Filled.Subtitles,
+                        contentDescription = "temp settings"
+                    )
+                }
             }
         }
     }
-}
-
-/**
- * Display a popup explaining functionality not available.
- *
- * @param onDismiss (event) request the popup be dismissed
- */
-@Composable
-private fun FunctionalityNotAvailablePopup(onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        text = {
-            Text(
-                text = "Functionality not available \uD83D\uDE48",
-                style = MaterialTheme.typography.body2
-            )
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = "CLOSE")
-            }
-        }
-    )
 }

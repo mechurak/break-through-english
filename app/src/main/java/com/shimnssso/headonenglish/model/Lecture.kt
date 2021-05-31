@@ -21,6 +21,4 @@ data class DomainCard(
     val text: String,
     val note: String?,
     val memo: String?,
-
-    var showDescription: Boolean = true,
 )

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -23,6 +24,7 @@ import timber.log.Timber
 fun FormattedText(
     cell: Cell,
     modifier: Modifier = Modifier,
+    defaultShowKeyword: Boolean = false,
     toggleDescription: () -> Unit = {},
 ) {
     val (text, itemList) = CellConverter.getStyleItemPair(cell)
@@ -45,6 +47,17 @@ fun FormattedText(
             }
         }
     }
+
+    LaunchedEffect(defaultShowKeyword) {
+        showStartList.clear()
+        if (defaultShowKeyword) {
+            val sections = annotatedText.getStringAnnotations("Section", 0, annotatedText.length)
+            sections.forEach {
+                showStartList.add(it.start)
+            }
+        }
+    }
+
     ClickableText(
         text = annotatedText,
         onClick = { offset ->
