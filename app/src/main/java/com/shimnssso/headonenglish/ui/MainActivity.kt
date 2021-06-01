@@ -55,10 +55,6 @@ class MainActivity : AppCompatActivity() {
         setContent {
             HeadOnEnglishApp()
         }
-
-        // Authenticate the user. For most apps, this should be done when the user performs an
-        // action that requires Drive access rather than in onCreate.
-        requestSignIn()
     }
 
     private var currentLecture: DatabaseLecture? = null
@@ -170,13 +166,35 @@ class MainActivity : AppCompatActivity() {
             .requestScopes(Scope(DriveScopes.DRIVE_METADATA_READONLY), Scope(SheetsScopes.SPREADSHEETS_READONLY))
             .build()
         val client = GoogleSignIn.getClient(this, signInOptions)
+        GoogleSignIn.getLastSignedInAccount(this)
         signInResultLauncher.launch(client.signInIntent)
     }
+
+    fun requestSignOut() {
+        Timber.i("Requesting sign-out")
+
+        // val client = GoogleSignIn.getLastSignedInAccount(this)
+
+        val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestScopes(Scope(DriveScopes.DRIVE_METADATA_READONLY), Scope(SheetsScopes.SPREADSHEETS_READONLY))
+            .build()
+        val client = GoogleSignIn.getClient(this, signInOptions)
+        client.signOut().addOnSuccessListener {
+            Timber.i("signOut(). succeeded")
+            viewmodel.setLogIn(false)
+        }.addOnFailureListener {
+            Timber.i("signOut(). failed")
+        }
+    }
+
+
 
     private fun handleSignInResult(result: Intent) {
         GoogleSignIn.getSignedInAccountFromIntent(result)
             .addOnSuccessListener { googleAccount: GoogleSignInAccount ->
                 Timber.i("Signed in as %s", googleAccount.email)
+                viewmodel.setLogIn(true)
 
                 // Use the authenticated account to sign in to the Drive service.
                 val credential = GoogleAccountCredential.usingOAuth2(
@@ -200,9 +218,12 @@ class MainActivity : AppCompatActivity() {
                     .build()
 
                 SheetHelper.init(googleDriveService, googleSheetService)
+
+                viewmodel.refresh(true)
             }
             .addOnFailureListener { exception: Exception? ->
                 Timber.e(exception, "Unable to sign in.")
+                viewmodel.setLogIn(false)
             }
     }
 }

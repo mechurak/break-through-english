@@ -2,6 +2,7 @@ package com.shimnssso.headonenglish.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -39,6 +41,7 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.toPaddingValues
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.services.drive.model.File
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.room.DatabaseSubject
@@ -71,6 +74,7 @@ fun HomeScreen(
     val subject by viewModel.subject.observeAsState(FakeData.DEFAULT_SUBJECT)
     val showDialog by viewModel.showDialog.observeAsState(false)
     val sheetFiles by viewModel.sheetFiles.observeAsState(listOf())
+    val isLogIn by viewModel.isLogIn.observeAsState(false)
 
     if (showDialog) {
         ConfirmFetchPopup(
@@ -82,13 +86,19 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         Timber.e("LaunchedEffect")
-        viewModel.refresh(shouldCheckInterval = true)
+        if (GoogleSignIn.getLastSignedInAccount(activity) != null) {
+            viewModel.setLogIn(true)
+            viewModel.refresh(shouldCheckInterval = true)
+        } else {
+            viewModel.setLogIn(false)
+        }
     }
 
     HomeScreen(
         subject = subject,
         lectures = lectures,
         isLoading = isLoading,
+        isLogIn = isLogIn,
         onRefreshPosts = { viewModel.refresh() },
         navigateToLecture = navigateToLecture,
         openDrawer = openDrawer,
@@ -113,6 +123,7 @@ fun HomeScreen(
     subject: DatabaseSubject,
     lectures: List<DatabaseLecture>,
     isLoading: Boolean,
+    isLogIn: Boolean,
     onRefreshPosts: () -> Unit,
     navigateToLecture: (Int, String) -> Unit,
     openDrawer: () -> Unit,
@@ -142,6 +153,7 @@ fun HomeScreen(
             empty = lectures.isEmpty(),
             emptyContent = { FullScreenLoading() },
             loading = isLoading,
+            isLogIn = isLogIn,
             onRefresh = onRefreshPosts,
             content = {
                 HomeScreenErrorAndContent(
@@ -168,17 +180,32 @@ private fun LoadingContent(
     empty: Boolean,
     emptyContent: @Composable () -> Unit,
     loading: Boolean,
+    isLogIn: Boolean,
     onRefresh: () -> Unit,
     content: @Composable () -> Unit
 ) {
-    if (empty) {
-        emptyContent()
+    if (isLogIn) {
+        if (empty) {
+            emptyContent()
+        } else {
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(loading),
+                onRefresh = onRefresh,
+                content = content,
+            )
+        }
     } else {
-        SwipeRefresh(
-            state = rememberSwipeRefreshState(loading),
-            onRefresh = onRefresh,
-            content = content,
-        )
+        val activity = LocalContext.current as MainActivity
+        Column(
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Text("Google sign-in is required to access your google sheets.")
+            Button(onClick = { activity.requestSignIn() }) {
+                Text("Sign in")
+            }
+        }
     }
 }
 

@@ -22,8 +22,9 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,20 +33,25 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModelProvider
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieAnimationSpec
 import com.airbnb.lottie.compose.rememberLottieAnimationState
 import com.shimnssso.headonenglish.R
-import com.shimnssso.headonenglish.room.DatabaseSubject
+import com.shimnssso.headonenglish.room.DatabaseGlobal
+import com.shimnssso.headonenglish.ui.home.HomeViewModel
 
 @Composable
 fun AppDrawer(
-    selectedId: Int,
-    subjects: List<DatabaseSubject>,
-    navigateToHome: () -> Unit,
     closeDrawer: () -> Unit,
-    changeSubject: (Int) -> Unit,
 ) {
+
+    val activity = LocalContext.current as MainActivity
+    val viewModel = ViewModelProvider(activity).get(HomeViewModel::class.java)
+    val globalData by viewModel.global.observeAsState(DatabaseGlobal(0))
+    val subjects by viewModel.subjects.observeAsState(listOf())
+    val isLogIn by viewModel.isLogIn.observeAsState(false)
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Spacer(Modifier.height(24.dp))
         HeadOnEnglishLogo(
@@ -54,24 +60,14 @@ fun AppDrawer(
                 .padding(16.dp), closeDrawer
         )
         Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
-        DrawerButton(
-            icon = Icons.Filled.Home,
-            label = "Home",
-            isSelected = false,
-            action = {
-                navigateToHome()
-                closeDrawer()
-            }
-        )
-        Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
 
         subjects.forEach { subject ->
             DrawerButton(
                 icon = Icons.Filled.Favorite,
                 label = subject.title,
-                isSelected = subject.subjectId == selectedId,
+                isSelected = subject.subjectId == globalData.subjectId,
                 action = {
-                    changeSubject(subject.subjectId)
+                    viewModel.changeSubject(subject.subjectId)
                     closeDrawer()
                 }
             )
@@ -82,29 +78,30 @@ fun AppDrawer(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        val activity = LocalContext.current as MainActivity
-        Button(
-            onClick = {
-                activity.requestSignIn()
-            },
-            modifier = Modifier
-                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                .fillMaxWidth()
-        )
-        {
-            Text("Sign-in with Google")
-        }
-        Button(
-            onClick = {
-                activity.openFilePicker()
-                closeDrawer()
-            },
-            modifier = Modifier
-                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                .fillMaxWidth()
-        )
-        {
-            Text("Add an item from google sheet")
+        if (isLogIn) {
+            Button(
+                onClick = {
+                    activity.openFilePicker()
+                    closeDrawer()
+                },
+                modifier = Modifier
+                    .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                    .fillMaxWidth()
+            )
+            {
+                Text("Add an item from google sheet")
+            }
+            Button(
+                onClick = {
+                    activity.requestSignOut()
+                },
+                modifier = Modifier
+                    .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                    .fillMaxWidth()
+            )
+            {
+                Text("Sign out")
+            }
         }
     }
 }

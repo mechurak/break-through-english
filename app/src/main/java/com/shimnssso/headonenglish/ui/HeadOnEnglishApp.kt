@@ -4,16 +4,11 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import com.shimnssso.headonenglish.room.DatabaseGlobal
-import com.shimnssso.headonenglish.ui.home.HomeViewModel
 import com.shimnssso.headonenglish.ui.theme.HeadOnEnglishTheme
 import kotlinx.coroutines.launch
 
@@ -33,19 +28,11 @@ fun HeadOnEnglishApp() {
             // screen that needs it.
             val scaffoldState = rememberScaffoldState()
 
-            val viewModel = viewModel(HomeViewModel::class.java)
-            val globalData by viewModel.global.observeAsState(DatabaseGlobal(0))
-            val subjects by viewModel.subjects.observeAsState(listOf())
-
             Scaffold(
                 scaffoldState = scaffoldState,
                 drawerContent = {
                     AppDrawer(
-                        selectedId = globalData.subjectId,
-                        subjects = subjects,
-                        navigateToHome = { navController.navigate(MainDestinations.HOME_ROUTE) },
                         closeDrawer = { coroutineScope.launch { scaffoldState.drawerState.close() } },
-                        changeSubject = { subjectId -> viewModel.changeSubject(subjectId) }
                     )
                 }
             ) {

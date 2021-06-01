@@ -34,6 +34,14 @@ class HomeViewModel(
     val sheetFiles: LiveData<List<File>>
         get() = _sheetFiles
 
+    private var _isLogIn = MutableLiveData<Boolean>(false)
+    val isLogIn: LiveData<Boolean>
+        get() = _isLogIn
+
+    fun setLogIn(isLogIn: Boolean) {
+        _isLogIn.value = isLogIn
+    }
+
     fun changeSubject(subjectId: Int) {
         viewModelScope.launch {
             repository.changeSubject(subjectId)

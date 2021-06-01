@@ -113,5 +113,7 @@ class LectureRepository(
         val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
         Timber.i("importSpreadsheet() %s", newSubject)
         database.subjectDao.update(newSubject)
+
+        changeSubject(subjectId)
     }
 }
