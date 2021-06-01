@@ -27,8 +27,14 @@ interface LectureDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun updateLecture(lecture: DatabaseLecture)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateLectures(lectures: List<DatabaseLecture>)
+
     @Delete
     suspend fun deleteLecture(lecture: DatabaseLecture)
+
+    @Delete
+    suspend fun deleteLectures(lectures: List<DatabaseLecture>)
 
     @Query("delete from card_table where date = :date")
     suspend fun deleteCards(date: String)

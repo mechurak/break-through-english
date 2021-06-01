@@ -59,20 +59,50 @@ class LectureRepository(
             Timber.e("refreshOrSkip(). skip refresh")
             return
         }
+
+        val remainedLectureMap = mutableMapOf<String, DatabaseLecture>()
+        val newLectures = mutableListOf<DatabaseLecture>()
+        val updateLectures = mutableListOf<DatabaseLecture>()
+
+        lectures.value?.forEach {
+            remainedLectureMap[it.date] = it
+        }
+
         val spreadsheet:Spreadsheet = SheetHelper.fetchSpreadsheet(subject.sheetId)
-        val (newLectures, newCards) = SheetHelper.getLectureCardListPair(spreadsheet, subject.subjectId)
+        val newCards = SheetHelper.getLectureCardListPair(spreadsheet, subject.subjectId, remainedLectureMap, newLectures, updateLectures)
 
-        if (newLectures.isNotEmpty() && newCards.isNotEmpty()) {
-            database.lectureDao.clearLectures(globalInfo.subjectId)
-            database.lectureDao.clearCards(globalInfo.subjectId)
+        Timber.d("remainedLectureMap.size: ${remainedLectureMap.size}")
+        Timber.d("newLectures.size: ${newLectures.size}")
+        Timber.d("updateLectures.size: ${updateLectures.size}")
+
+        var isUpdated = false
+
+        val remainedLectures = remainedLectureMap.values.toList()
+        if (remainedLectures.isNotEmpty()) {
+            database.lectureDao.deleteLectures(remainedLectures)
+            isUpdated = true
+        }
+        if (updateLectures.isNotEmpty()) {
+            database.lectureDao.updateLectures(updateLectures)
+            isUpdated = true
+        }
+        if (newLectures.isNotEmpty()) {
             database.lectureDao.insertLectures(newLectures)
-            database.lectureDao.insertCards(newCards)
+            isUpdated = true
+        }
 
+        if (newCards.isNotEmpty()) {
+            database.lectureDao.clearCards(globalInfo.subjectId)
+            database.lectureDao.insertCards(newCards)
+            isUpdated = true
+        }
+
+        if (isUpdated) {
             val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
             Timber.i("update current subject to %s", newSubject)
             database.subjectDao.update(newSubject)
         } else {
-            Timber.e("empty lectures or empty cards")
+            Timber.e("no update")
             Timber.e("newLectures.size: ${newLectures.size}")
             Timber.e("newCards.size: ${newCards.size}")
         }
@@ -104,10 +134,17 @@ class LectureRepository(
     }
 
     suspend fun importSpreadsheet(spreadsheet: Spreadsheet, subjectId: Int) {
-        val (lectures, cards) = SheetHelper.getLectureCardListPair(spreadsheet, subjectId)
+        val remainedLectureMap = mutableMapOf<String, DatabaseLecture>()
+        val newLectures = mutableListOf<DatabaseLecture>()
+        val updateLectures = mutableListOf<DatabaseLecture>()
+        val newCards = SheetHelper.getLectureCardListPair(spreadsheet, subjectId, remainedLectureMap, newLectures, updateLectures)
 
-        database.lectureDao.insertLectures(lectures)
-        database.lectureDao.insertCards(cards)
+        Timber.d("remainedLectureMap.size: ${remainedLectureMap.size}")
+        Timber.d("newLectures.size: ${newLectures.size}")
+        Timber.d("updateLectures.size: ${updateLectures.size}")
+
+        database.lectureDao.insertLectures(newLectures)
+        database.lectureDao.insertCards(newCards)
 
         val subject = database.subjectDao.getSubject(subjectId)
         val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())

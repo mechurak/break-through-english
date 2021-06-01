@@ -112,8 +112,13 @@ object SheetHelper {
         return spreadsheet
     }
 
-    fun getLectureCardListPair(spreadsheet: Spreadsheet, subjectId: Int): Pair<List<DatabaseLecture>, List<DatabaseCard>> {
-        val newLectures = mutableListOf<DatabaseLecture>()
+    fun getLectureCardListPair(
+        spreadsheet: Spreadsheet,
+        subjectId: Int,
+        remainedLectureMap: MutableMap<String, DatabaseLecture>,
+        newLectures: MutableList<DatabaseLecture>,
+        updateLectures: MutableList<DatabaseLecture>
+    ): List<DatabaseCard> {
         val newCards = mutableListOf<DatabaseCard>()
 
         for (sheet: Sheet in spreadsheet.sheets) {
@@ -137,14 +142,26 @@ object SheetHelper {
                     idxHolder.setColumnIndices(rowData)
                 } else if (cells[idxHolder.order].formattedValue == "0") {
                     val lecture = getLecture(idxHolder, cells, subjectId)
-                    newLectures.add(lecture)
+                    val originLecture = remainedLectureMap[lecture.date]
+                    if (originLecture == null) {
+                        newLectures.add(lecture)
+                    } else {
+                        val updateLecture: DatabaseLecture = originLecture.copy(title = lecture.title,
+                            category = lecture.category,
+                            remoteUrl = lecture.remoteUrl,
+                            link1 = lecture.link1,
+                            link2 = lecture.link2,
+                        )
+                        updateLectures.add(updateLecture)
+                        remainedLectureMap.remove(lecture.date)
+                    }
                 } else {
                     val card = getCard(idxHolder, cells, subjectId)
                     newCards.add(card)
                 }
             }
         }
-        return Pair(newLectures, newCards)
+        return newCards
     }
 
     private fun getLecture(idx: IndexHolder, cells: List<CellData>, subjectId: Int): DatabaseLecture {
