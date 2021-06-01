@@ -52,6 +52,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        if (GoogleSignIn.getLastSignedInAccount(this) != null) {
+            requestSignIn()
+        } else {
+            viewmodel.setLogIn(false)
+        }
+
         setContent {
             HeadOnEnglishApp()
         }

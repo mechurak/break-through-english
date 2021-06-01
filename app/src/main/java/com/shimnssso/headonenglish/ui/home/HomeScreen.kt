@@ -41,7 +41,6 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.toPaddingValues
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.api.services.drive.model.File
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.room.DatabaseSubject
@@ -86,12 +85,6 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         Timber.e("LaunchedEffect")
-        if (GoogleSignIn.getLastSignedInAccount(activity) != null) {
-            viewModel.setLogIn(true)
-            viewModel.refresh(shouldCheckInterval = true)
-        } else {
-            viewModel.setLogIn(false)
-        }
     }
 
     HomeScreen(
