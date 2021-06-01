@@ -4,8 +4,8 @@ import com.google.api.services.sheets.v4.model.RowData
 import timber.log.Timber
 
 data class IndexHolder(
-    var date: Int = 0,
-    var order: Int = 1,
+    var date: Int = 0, // both
+    var order: Int = 1,  // both
     var text: Int = 2,
     var note: Int = 3,
     var memo: Int = 4,
@@ -20,7 +20,7 @@ data class IndexHolder(
         val cells = rowData.getValues()
         for ((i, cell) in cells.withIndex()) {
             when (cell.formattedValue) {
-                "date", "day" -> {
+                "date", "day", "lecture" -> {
                     date = i
                 }
                 "order" -> {

@@ -45,9 +45,9 @@ object CellConverter {
             retList.add(curItem!!)
         }
 
-        var end = tempStr.lastIndexOf(")")
+        var end = tempStr.lastIndexOf("]")
         while (end > 0) {
-            val start = tempStr.lastIndexOf("(")
+            val start = tempStr.lastIndexOf("[")
             if (start < 0) {
                 throw Exception("mis-matched parentheses")
             }
@@ -67,7 +67,7 @@ object CellConverter {
             tempStr = tempStr.replaceRange(start, start + 1, "")
             retList.add(StyleItem(SpanStyle(background = Color.DarkGray, color = Color.DarkGray), start, end - 1, true))  // for annotation
 
-            end = tempStr.lastIndexOf(')')
+            end = tempStr.lastIndexOf(']')
         }
         return Pair(tempStr, retList)
     }
