@@ -54,7 +54,20 @@ class MediaViewModel(
     fun release() {
         viewModelScope.launch {
             updateState()
-            // exoPlayer.release()
+            exoPlayer.stop()
+        }
+    }
+
+    fun pause() {
+        viewModelScope.launch {
+            updateState()
+            exoPlayer.pause()
+        }
+    }
+
+    fun resume() {
+        viewModelScope.launch {
+            exoPlayer.play()
         }
     }
 

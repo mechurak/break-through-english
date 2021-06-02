@@ -7,7 +7,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.exoplayer2.ui.PlayerControlView
 import com.google.android.exoplayer2.ui.PlayerView
@@ -22,9 +26,26 @@ fun ExoPlayerView(
     val activity = LocalContext.current as MainActivity
     val viewModel = ViewModelProvider(activity, MediaViewModel.Factory(app)).get(MediaViewModel::class.java)
 
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+
     LaunchedEffect(url) {
         Timber.d("LaunchedEffect. url: %s", url)
         viewModel.prepare(url)
+
+        lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun onStart() {
+                Timber.i("onStart()")
+                viewModel.resume()
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+            fun onStop() {
+                Timber.i("onStop()")
+                viewModel.exoPlayer.play()
+                viewModel.pause()
+            }
+        })
     }
 
     DisposableEffect(Unit) {
