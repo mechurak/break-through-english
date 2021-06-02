@@ -12,6 +12,9 @@ interface LectureDao {
     @Query("select * from lecture_table where subjectId = :subjectId order by date desc")
     fun getLectures(subjectId: Int): LiveData<List<DatabaseLecture>>
 
+    @Query("select * from lecture_table where subjectId = :subjectId order by date desc")
+    suspend fun getLecturesNormal(subjectId: Int): List<DatabaseLecture>
+
     @Query("select * from lecture_table where date = :date limit 1")
     fun getLecture(date: String): LiveData<DatabaseLecture>
 
@@ -38,7 +41,6 @@ interface LectureDao {
 
     @Query("delete from card_table where date = :date")
     suspend fun deleteCards(date: String)
-
 
     @Query("delete from lecture_table where subjectId = :subjectId")
     suspend fun clearLectures(subjectId: Int)

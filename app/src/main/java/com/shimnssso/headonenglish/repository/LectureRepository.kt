@@ -64,12 +64,20 @@ class LectureRepository(
         val newLectures = mutableListOf<DatabaseLecture>()
         val updateLectures = mutableListOf<DatabaseLecture>()
 
-        lectures.value?.forEach {
+        val prevLectures = database.lectureDao.getLecturesNormal(subject.subjectId)
+
+        prevLectures.forEach {
             remainedLectureMap[it.date] = it
         }
 
-        val spreadsheet:Spreadsheet = SheetHelper.fetchSpreadsheet(subject.sheetId)
-        val newCards = SheetHelper.getLectureCardListPair(spreadsheet, subject.subjectId, remainedLectureMap, newLectures, updateLectures)
+        val spreadsheet: Spreadsheet = SheetHelper.fetchSpreadsheet(subject.sheetId)
+        val newCards = SheetHelper.getLectureCardListPair(
+            spreadsheet,
+            subject.subjectId,
+            remainedLectureMap,
+            newLectures,
+            updateLectures
+        )
 
         Timber.d("remainedLectureMap.size: ${remainedLectureMap.size}")
         Timber.d("newLectures.size: ${newLectures.size}")
@@ -137,7 +145,8 @@ class LectureRepository(
         val remainedLectureMap = mutableMapOf<String, DatabaseLecture>()
         val newLectures = mutableListOf<DatabaseLecture>()
         val updateLectures = mutableListOf<DatabaseLecture>()
-        val newCards = SheetHelper.getLectureCardListPair(spreadsheet, subjectId, remainedLectureMap, newLectures, updateLectures)
+        val newCards =
+            SheetHelper.getLectureCardListPair(spreadsheet, subjectId, remainedLectureMap, newLectures, updateLectures)
 
         Timber.d("remainedLectureMap.size: ${remainedLectureMap.size}")
         Timber.d("newLectures.size: ${newLectures.size}")
