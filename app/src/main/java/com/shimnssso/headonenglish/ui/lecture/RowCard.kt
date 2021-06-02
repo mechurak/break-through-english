@@ -31,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.network.Cell
@@ -43,7 +45,7 @@ fun RowCard(
     defaultMode: CardMode,
     defaultShowKeyword: Boolean,
     isFocused: Boolean = false,
-    changeFocus: (Int) -> Unit = {}
+    changeFocus: (Int, Float) -> Unit = { _, _ -> }
 ) {
     val isFirst = card.order % 10 == 1
 
@@ -66,8 +68,13 @@ fun RowCard(
 
     val surfaceColor = if (isFocused) MaterialTheme.colors.primary.copy(alpha = 0.1f) else MaterialTheme.colors.surface
 
+    var positionY = 0f
     Box(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .onGloballyPositioned {
+                positionY = it.positionInParent().y
+            }
     ) {
         Column(
             modifier = Modifier
@@ -77,7 +84,7 @@ fun RowCard(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current
                 ) {
-                    changeFocus(index)
+                    changeFocus(index, positionY)
                     // mode = mode.next(defaultShowKeyword)
                 }
                 .padding(bottom = 16.dp, top = topPadding)
@@ -119,7 +126,7 @@ fun RowCard(
                     interactionSource.tryEmit(press)
                     interactionSource.tryEmit(PressInteraction.Release(press))
                     // mode = mode.next(defaultShowKeyword)
-                    changeFocus(index)
+                    changeFocus(index, positionY)
                 }
             }
 

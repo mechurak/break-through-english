@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.ui.MainActivity
+import kotlinx.coroutines.launch
 
 @Composable
 fun LectureContent(
@@ -57,11 +58,11 @@ fun LectureContent(
             cards.forEachIndexed() { index, card ->
                 RowCard(
                     index, card, defaultMode, defaultShowKeyword, index == focusedIdx
-                ) { newFocusedIdx ->
+                ) { newFocusedIdx, positionY ->
                     focusedIdx = newFocusedIdx
-                    // coroutineScope.launch {
-                    //     scrollState.animateScrollTo(newFocusedIdx)
-                    // }
+                    coroutineScope.launch {
+                        scrollState.animateScrollTo(positionY.toInt() - 300)
+                    }
                 }
             }
             Spacer(Modifier.height(100.dp))
