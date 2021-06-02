@@ -35,7 +35,7 @@ import com.shimnssso.headonenglish.utils.CellConverter
 @Composable
 fun RowCard(
     card: DomainCard,
-    defaultShowDescription: Boolean,
+    defaultMode: CardMode,
     defaultShowKeyword: Boolean,
 ) {
     val isFirst = card.order % 10 == 1
@@ -45,10 +45,10 @@ fun RowCard(
     }
     val topPadding = if (isFirst) 16.dp else 0.dp
 
-    var showDescription by remember { mutableStateOf(defaultShowDescription) }
+    var mode by remember { mutableStateOf(defaultMode) }
 
-    LaunchedEffect(defaultShowDescription) {
-        showDescription = defaultShowDescription
+    LaunchedEffect(defaultMode) {
+        mode = defaultMode
     }
 
     val interactionSource = remember { MutableInteractionSource() }
@@ -67,11 +67,14 @@ fun RowCard(
                 .clickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current
-                ) { showDescription = !showDescription }
+                ) {
+                    mode = mode.next(defaultShowKeyword)
+                }
                 .padding(bottom = 16.dp, top = topPadding)
         ) {
             FormattedText(
                 cell = spellingCell,
+                mode = mode,
                 modifier = Modifier.padding(horizontal = 8.dp),
                 defaultShowKeyword = defaultShowKeyword
             ) {
@@ -79,10 +82,10 @@ fun RowCard(
                 val press = PressInteraction.Press(Offset.Zero)
                 interactionSource.tryEmit(press)
                 interactionSource.tryEmit(PressInteraction.Release(press))
-                showDescription = !showDescription
+                mode = mode.next(defaultShowKeyword)
             }
 
-            if (showDescription) {
+            if (mode != CardMode.HideDescription) {
                 if (hasNote) {
                     Text(
                         text = card.note!!,
@@ -100,7 +103,7 @@ fun RowCard(
             }
         }
 
-        if (!showDescription && (hasNote || hasMemo)) {
+        if (mode == CardMode.HideDescription && (hasNote || hasMemo)) {
             Icon(
                 Icons.Filled.SignalCellular0Bar,
                 contentDescription = "temp description",
@@ -108,7 +111,7 @@ fun RowCard(
                     .size(8.dp)
                     .align(Alignment.BottomEnd)
             )
-        } else if (showDescription && (hasNote || hasMemo)) {
+        } else if (mode != CardMode.HideDescription && (hasNote || hasMemo)) {
             Icon(
                 Icons.Filled.KeyboardArrowUp,
                 contentDescription = "temp description",

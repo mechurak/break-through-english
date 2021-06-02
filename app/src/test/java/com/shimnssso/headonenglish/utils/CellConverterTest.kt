@@ -19,10 +19,10 @@ class CellConverterTest {
     )
 
     private val JSON_STR =
-        "{\"formattedValue\":\"Being overweight is (the leading cause of) several chronic illnesses, like heart disease or diabetes.\",\"textFormatRuns\":[{\"format\":{}},{\"startIndex\":25,\"format\":{\"underline\":true}},{\"startIndex\":28,\"format\":{}},{\"startIndex\":43,\"format\":{\"underline\":true}},{\"startIndex\":45,\"format\":{}},{\"startIndex\":51,\"format\":{\"underline\":true}},{\"startIndex\":55,\"format\":{}},{\"startIndex\":59,\"format\":{\"underline\":true}},{\"startIndex\":61,\"format\":{}},{\"startIndex\":83,\"format\":{\"underline\":true}},{\"startIndex\":88,\"format\":{}},{\"startIndex\":95,\"format\":{\"underline\":true}},{\"startIndex\":97,\"format\":{}}]}"
+        "{\"formattedValue\":\"Being overweight is [the leading cause of] several chronic illnesses, like heart disease or diabetes.\",\"textFormatRuns\":[{\"format\":{}},{\"startIndex\":25,\"format\":{\"underline\":true}},{\"startIndex\":28,\"format\":{}},{\"startIndex\":43,\"format\":{\"underline\":true}},{\"startIndex\":45,\"format\":{}},{\"startIndex\":51,\"format\":{\"underline\":true}},{\"startIndex\":55,\"format\":{}},{\"startIndex\":59,\"format\":{\"underline\":true}},{\"startIndex\":61,\"format\":{}},{\"startIndex\":83,\"format\":{\"underline\":true}},{\"startIndex\":88,\"format\":{}},{\"startIndex\":95,\"format\":{\"underline\":true}},{\"startIndex\":97,\"format\":{}}]}"
 
     private val JSON_CELL =
-        "{\"formattedValue\":\"The (ROI) could be better if you invest in ETFs.\",\"textFormatRuns\":[{\"format\":{}},{\"startIndex\":5,\"format\":{\"underline\":true}},{\"startIndex\":8,\"format\":{}},{\"startIndex\":19,\"format\":{\"underline\":true}},{\"startIndex\":22,\"format\":{}},{\"startIndex\":35,\"format\":{\"underline\":true}},{\"startIndex\":39,\"format\":{}},{\"startIndex\":43,\"format\":{\"underline\":true}},{\"startIndex\":47,\"format\":{}}]}"
+        "{\"formattedValue\":\"The [ROI] could be better if you invest in ETFs.\",\"textFormatRuns\":[{\"format\":{}},{\"startIndex\":5,\"format\":{\"underline\":true}},{\"startIndex\":8,\"format\":{}},{\"startIndex\":19,\"format\":{\"underline\":true}},{\"startIndex\":22,\"format\":{}},{\"startIndex\":35,\"format\":{\"underline\":true}},{\"startIndex\":39,\"format\":{}},{\"startIndex\":43,\"format\":{\"underline\":true}},{\"startIndex\":47,\"format\":{}}]}"
 
     @Test
     fun toJsonTest() {
@@ -42,7 +42,7 @@ class CellConverterTest {
     @Test
     fun getStyleListTest() {
         val cell = CellConverter.fromJson(JSON_CELL)
-        val (text, retList) = CellConverter.getStyleItemPair(cell)
+        val (text, retList) = CellConverter.getStyleItemPair(cell, 0)
         println("text: $text")
         for (item in retList) {
             println(

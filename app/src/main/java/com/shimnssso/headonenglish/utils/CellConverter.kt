@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import com.shimnssso.headonenglish.model.StyleItem
 import com.shimnssso.headonenglish.network.Cell
+import com.shimnssso.headonenglish.ui.lecture.CardMode
 import com.squareup.moshi.Moshi
 
 object CellConverter {
@@ -18,7 +19,7 @@ object CellConverter {
         return adapter.fromJson(jsonStr)!!
     }
 
-    fun getStyleItemPair(cell: Cell): Pair<String, List<StyleItem>> {
+    fun getStyleItemPair(cell: Cell, mode: CardMode): Pair<String, List<StyleItem>> {
         var tempStr = cell.formattedValue!!
         val retList = mutableListOf<StyleItem>()
         cell.textFormatRuns?.let {
@@ -45,6 +46,11 @@ object CellConverter {
             retList.add(curItem!!)
         }
 
+        val baseColor = when (mode) {
+            CardMode.HideText -> Color.LightGray
+            else -> Color.DarkGray
+        }
+
         var end = tempStr.lastIndexOf("]")
         while (end > 0) {
             val start = tempStr.lastIndexOf("[")
@@ -65,9 +71,54 @@ object CellConverter {
             }
             tempStr = tempStr.replaceRange(end, end + 1, "")
             tempStr = tempStr.replaceRange(start, start + 1, "")
-            retList.add(StyleItem(SpanStyle(background = Color.DarkGray, color = Color.DarkGray), start, end - 1, true))  // for annotation
-
+            if (mode != CardMode.HideText) {
+                retList.add(
+                    StyleItem(
+                        SpanStyle(background = baseColor, color = baseColor),
+                        start,
+                        end - 1,
+                        true
+                    )
+                )
+            }
             end = tempStr.lastIndexOf(']')
+        }
+        if (mode == CardMode.HideText) {
+            var start = 0
+            var endSpace = tempStr.indexOf(' ', start)
+            while (endSpace > 0) {
+                println(
+                    "[${start}:${endSpace}) \"${
+                        tempStr.substring(
+                            start,
+                            endSpace
+                        )
+                    }\""
+                )
+                if ((endSpace - start) > 2) {
+                    retList.add(
+                        StyleItem(
+                            SpanStyle(background = baseColor, color = baseColor),
+                            start,
+                            endSpace,
+                            true
+                        )
+                    )
+                }
+                start = endSpace + 1
+                endSpace = tempStr.indexOf(' ', start)
+            }
+            endSpace = tempStr.length
+            if ((endSpace - start) > 2) {
+                retList.add(
+                    StyleItem(
+                        SpanStyle(background = baseColor, color = baseColor),
+                        start,
+                        endSpace,
+                        true
+                    )
+                )
+            }
         }
         return Pair(tempStr, retList)
     }

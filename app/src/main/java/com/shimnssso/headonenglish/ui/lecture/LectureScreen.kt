@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material.icons.filled.SubtitlesOff
 import androidx.compose.material.icons.filled.Visibility
@@ -31,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -60,8 +62,8 @@ fun LectureScreen(
     val cards by viewModel.cards.observeAsState(listOf())
     val lecture by viewModel.lecture.observeAsState(FakeData.DEFAULT_LECTURE)
 
-    val defaultShowDescription = remember { mutableStateOf(true) }
-    val defaultShowKeyword = remember { mutableStateOf(false) }
+    var defaultMode: CardMode by remember { mutableStateOf(CardMode.Default) }
+    var defaultShowKeyword by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -84,8 +86,15 @@ fun LectureScreen(
         },
         bottomBar = {
             BottomBar(
-                setDefaultShowDescription = { showDescription -> defaultShowDescription.value = showDescription },
-                setDefaultShowKeyword = { showKeyword -> defaultShowKeyword.value = showKeyword },
+                defaultMode = defaultMode,
+                defaultShowKeyword = defaultShowKeyword,
+                changeDefaultMode = {
+                    defaultMode = defaultMode.next(defaultShowKeyword)
+                },
+                changeShowKeyword = {
+                    defaultShowKeyword = !defaultShowKeyword
+                    defaultMode = defaultMode.refresh(defaultShowKeyword)
+                },
             )
         }
     ) { innerPadding ->
@@ -99,16 +108,18 @@ fun LectureScreen(
                 .navigationBarsPadding(bottom = false)
                 // center content in landscape mode
                 .supportWideScreen(),
-            defaultShowDescription = defaultShowDescription.value,
-            defaultShowKeyword = defaultShowKeyword.value,
+            defaultMode = defaultMode,
+            defaultShowKeyword = defaultShowKeyword,
         )
     }
 }
 
 @Composable
 private fun BottomBar(
-    setDefaultShowDescription: (Boolean) -> Unit,
-    setDefaultShowKeyword: (Boolean) -> Unit,
+    defaultMode: CardMode,
+    defaultShowKeyword: Boolean,
+    changeDefaultMode: () -> Unit,
+    changeShowKeyword: () -> Unit,
 ) {
     val app = LocalContext.current.applicationContext as Application
     val activity = LocalContext.current as MainActivity
@@ -163,15 +174,14 @@ private fun BottomBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = { setDefaultShowKeyword(false) }) {
-                    Icon(
-                        imageVector = Icons.Filled.VisibilityOff,
-                        contentDescription = "temp settings"
-                    )
+                val showKeywordIcon = when (defaultShowKeyword) {
+                    true -> Icons.Filled.Visibility
+                    else -> Icons.Filled.VisibilityOff
                 }
-                IconButton(onClick = { setDefaultShowKeyword(true) }) {
+
+                IconButton(onClick = { changeShowKeyword() }) {
                     Icon(
-                        imageVector = Icons.Filled.Visibility,
+                        imageVector = showKeywordIcon,
                         contentDescription = "temp settings"
                     )
                 }
@@ -191,15 +201,14 @@ private fun BottomBar(
                     }
                     Text(text = "${speed}x")
                 }
-                IconButton(onClick = { setDefaultShowDescription(false) }) {
-                    Icon(
-                        imageVector = Icons.Filled.SubtitlesOff,
-                        contentDescription = "temp settings"
-                    )
+                val modeIcon = when (defaultMode) {
+                    CardMode.HideText -> Icons.Filled.Lightbulb
+                    CardMode.HideDescription -> Icons.Filled.SubtitlesOff  // 2
+                    else -> Icons.Filled.Subtitles
                 }
-                IconButton(onClick = { setDefaultShowDescription(true) }) {
+                IconButton(onClick = { changeDefaultMode() }) {
                     Icon(
-                        imageVector = Icons.Filled.Subtitles,
+                        imageVector = modeIcon,
                         contentDescription = "temp settings"
                     )
                 }

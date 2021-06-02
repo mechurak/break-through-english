@@ -22,7 +22,7 @@ fun LectureContent(
     lecture: DatabaseLecture,
     cards: List<DomainCard>,
     modifier: Modifier = Modifier,
-    defaultShowDescription: Boolean,
+    defaultMode: CardMode,
     defaultShowKeyword: Boolean,
 ) {
     val activity = LocalContext.current as MainActivity
@@ -48,7 +48,7 @@ fun LectureContent(
         ) {
             cards.forEach { card ->
                 RowCard(
-                    card, defaultShowDescription, defaultShowKeyword
+                    card, defaultMode, defaultShowKeyword
                 )
             }
             Spacer(Modifier.height(100.dp))

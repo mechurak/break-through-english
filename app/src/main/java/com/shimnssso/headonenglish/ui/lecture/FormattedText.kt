@@ -2,6 +2,7 @@ package com.shimnssso.headonenglish.ui.lecture
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,11 +24,12 @@ import timber.log.Timber
 @Composable
 fun FormattedText(
     cell: Cell,
+    mode: CardMode,
     modifier: Modifier = Modifier,
     defaultShowKeyword: Boolean = false,
     toggleDescription: () -> Unit = {},
 ) {
-    val (text, itemList) = CellConverter.getStyleItemPair(cell)
+    val (text, itemList) = CellConverter.getStyleItemPair(cell, mode)
 
     val showStartList = remember { mutableStateListOf<Int>() }
 
@@ -36,7 +38,13 @@ fun FormattedText(
         itemList.forEach {
             if (it.isAnnotation) {
                 if (it.start in showStartList) {
-                    val tempStyle = it.spanStyle!!.copy(background = Color.Unspecified, color = Color.Red)
+                    val tempStyle = when (mode) {
+                        CardMode.HideText -> it.spanStyle!!.copy(
+                            background = Color.Unspecified,
+                            color = Color.Unspecified
+                        )  // for all
+                        else -> it.spanStyle!!.copy(background = Color.Unspecified, color = Color.Red)  // 1, 3
+                    }
                     addStyle(tempStyle, it.start, it.end)
                 } else {
                     addStyle(it.spanStyle!!, it.start, it.end)
@@ -48,7 +56,7 @@ fun FormattedText(
         }
     }
 
-    LaunchedEffect(defaultShowKeyword) {
+    LaunchedEffect(mode, defaultShowKeyword) {
         showStartList.clear()
         if (defaultShowKeyword) {
             val sections = annotatedText.getStringAnnotations("Section", 0, annotatedText.length)
@@ -58,8 +66,14 @@ fun FormattedText(
         }
     }
 
+    val textStyle = when (mode) {
+        CardMode.HideText -> MaterialTheme.typography.h5
+        else -> MaterialTheme.typography.body1
+    }
+
     ClickableText(
         text = annotatedText,
+        style = textStyle,
         onClick = { offset ->
             val selectedSection = annotatedText.getStringAnnotations("Section", offset, offset).firstOrNull()
             if (selectedSection != null) {
@@ -95,7 +109,7 @@ fun FormattedTextPreview() {
             TextFormat(startIndex = 3, format = Format(underline = null, bold = null))
         )
     )
-    FormattedText(cell)
+    FormattedText(cell, mode = CardMode.Default)
 }
 
 @Preview("FormattedText", widthDp = 360, heightDp = 120, showBackground = true)
