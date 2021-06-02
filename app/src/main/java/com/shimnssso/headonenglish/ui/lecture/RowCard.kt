@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.SignalCellular0Bar
+import androidx.compose.material.icons.filled.Subtitles
+import androidx.compose.material.icons.filled.SubtitlesOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,9 +38,12 @@ import com.shimnssso.headonenglish.utils.CellConverter
 
 @Composable
 fun RowCard(
+    index: Int,
     card: DomainCard,
     defaultMode: CardMode,
     defaultShowKeyword: Boolean,
+    isFocused: Boolean = false,
+    changeFocus: (Int) -> Unit = {}
 ) {
     val isFirst = card.order % 10 == 1
 
@@ -57,32 +64,63 @@ fun RowCard(
     val hasNote = !card.note.isNullOrEmpty()
     val hasMemo = !card.memo.isNullOrEmpty()
 
+    val surfaceColor = if (isFocused) MaterialTheme.colors.primary.copy(alpha = 0.1f) else MaterialTheme.colors.surface
+
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colors.surface)
+                .background(surfaceColor)
                 .clickable(
                     interactionSource = interactionSource,
                     indication = LocalIndication.current
                 ) {
-                    mode = mode.next(defaultShowKeyword)
+                    changeFocus(index)
+                    // mode = mode.next(defaultShowKeyword)
                 }
                 .padding(bottom = 16.dp, top = topPadding)
         ) {
+            if (isFocused) {
+                val modeIcon = when (mode) {
+                    CardMode.HideText -> Icons.Filled.Lightbulb
+                    CardMode.HideDescription -> Icons.Filled.SubtitlesOff  // 2
+                    else -> Icons.Filled.Subtitles
+                }
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    IconButton(
+                        onClick = {
+                            // Trigger ripple effect
+                            val press = PressInteraction.Press(Offset.Zero)
+                            interactionSource.tryEmit(press)
+                            interactionSource.tryEmit(PressInteraction.Release(press))
+                            mode = mode.next(defaultShowKeyword)
+                        },
+                        modifier = Modifier.align(Alignment.BottomEnd)
+                    ) {
+                        Icon(
+                            imageVector = modeIcon,
+                            contentDescription = "temp settings"
+                        )
+                    }
+                }
+            }
+
             FormattedText(
                 cell = spellingCell,
                 mode = mode,
-                modifier = Modifier.padding(horizontal = 8.dp),
+                modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
                 defaultShowKeyword = defaultShowKeyword
             ) {
-                // Trigger ripple effect
-                val press = PressInteraction.Press(Offset.Zero)
-                interactionSource.tryEmit(press)
-                interactionSource.tryEmit(PressInteraction.Release(press))
-                mode = mode.next(defaultShowKeyword)
+                if (!isFocused) {
+                    // Trigger ripple effect
+                    val press = PressInteraction.Press(Offset.Zero)
+                    interactionSource.tryEmit(press)
+                    interactionSource.tryEmit(PressInteraction.Release(press))
+                    // mode = mode.next(defaultShowKeyword)
+                    changeFocus(index)
+                }
             }
 
             if (mode != CardMode.HideDescription) {

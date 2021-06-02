@@ -9,6 +9,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -43,13 +48,21 @@ fun LectureContent(
             ExoPlayerView(url = lecture.remoteUrl)
         }
 
+        var focusedIdx by remember { mutableStateOf(-1) }
+        val coroutineScope = rememberCoroutineScope()
+        val scrollState = rememberScrollState()
         Column(
-            modifier = modifier.verticalScroll(rememberScrollState())
+            modifier = modifier.verticalScroll(scrollState)
         ) {
-            cards.forEach { card ->
+            cards.forEachIndexed() { index, card ->
                 RowCard(
-                    card, defaultMode, defaultShowKeyword
-                )
+                    index, card, defaultMode, defaultShowKeyword, index == focusedIdx
+                ) { newFocusedIdx ->
+                    focusedIdx = newFocusedIdx
+                    // coroutineScope.launch {
+                    //     scrollState.animateScrollTo(newFocusedIdx)
+                    // }
+                }
             }
             Spacer(Modifier.height(100.dp))
         }

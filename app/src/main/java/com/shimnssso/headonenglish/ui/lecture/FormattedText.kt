@@ -91,9 +91,8 @@ fun FormattedText(
                     showStartList.add(selectedSection.start)
                 }
                 Timber.d("showStartList: $showStartList")
-            } else {
-                toggleDescription()  // Propagate click event
             }
+            toggleDescription()  // Propagate click event
         },
         modifier = modifier
     )
