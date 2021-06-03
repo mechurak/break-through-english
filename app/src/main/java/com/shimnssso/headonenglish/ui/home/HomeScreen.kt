@@ -1,13 +1,19 @@
 package com.shimnssso.headonenglish.ui.home
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.AlertDialog
@@ -19,10 +25,11 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,18 +37,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieAnimationSpec
+import com.airbnb.lottie.compose.rememberLottieAnimationState
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.toPaddingValues
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.api.services.drive.model.File
+import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.room.DatabaseSubject
 import com.shimnssso.headonenglish.room.FakeData
@@ -49,7 +61,6 @@ import com.shimnssso.headonenglish.ui.MainActivity
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.utils.DateConverter
 import com.shimnssso.headonenglish.utils.supportWideScreen
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
@@ -59,10 +70,10 @@ import timber.log.Timber
  * @param openDrawer (event) request opening the app drawer
  * @param scaffoldState (state) state for the [Scaffold] component on this screen
  */
+@ExperimentalAnimationApi
 @Composable
 fun HomeScreen(
     navigateToLecture: (Int, String) -> Unit,
-    openDrawer: () -> Unit,
     scaffoldState: ScaffoldState = rememberScaffoldState()
 ) {
     val activity = LocalContext.current as MainActivity
@@ -94,7 +105,6 @@ fun HomeScreen(
         isLogIn = isLogIn,
         onRefreshPosts = { viewModel.refresh() },
         navigateToLecture = navigateToLecture,
-        openDrawer = openDrawer,
         scaffoldState = scaffoldState
     )
 }
@@ -111,6 +121,7 @@ fun HomeScreen(
  * @param openDrawer (event) request opening the app drawer
  * @param scaffoldState (state) state for the [Scaffold] component on this screen
  */
+@ExperimentalAnimationApi
 @Composable
 fun HomeScreen(
     subject: DatabaseSubject,
@@ -119,10 +130,9 @@ fun HomeScreen(
     isLogIn: Boolean,
     onRefreshPosts: () -> Unit,
     navigateToLecture: (Int, String) -> Unit,
-    openDrawer: () -> Unit,
     scaffoldState: ScaffoldState
 ) {
-    val coroutineScope = rememberCoroutineScope()
+    var showBackdrop by remember { mutableStateOf(false) }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -131,12 +141,20 @@ fun HomeScreen(
             InsetAwareTopAppBar(
                 title = { Text(text = title) },
                 navigationIcon = {
-                    IconButton(onClick = { coroutineScope.launch { openDrawer() } }) {
+                    IconButton(onClick = { }) {
                         Icon(
-                            Icons.Filled.Menu,
+                            Icons.Filled.Home,
                             contentDescription = "temp description"
                         )
                     }
+                }
+            )
+        },
+        bottomBar = {
+            HomeBottomBar(
+                showBackdrop = showBackdrop,
+                setShowBackdrop = { newShowBackdrop ->
+                    showBackdrop = newShowBackdrop
                 }
             )
         }
@@ -148,10 +166,14 @@ fun HomeScreen(
             loading = isLoading,
             isLogIn = isLogIn,
             onRefresh = onRefreshPosts,
+            showBackdrop = showBackdrop,
+            changeShowBackdrop = { showBackdrop = !showBackdrop },
             content = {
                 HomeScreenErrorAndContent(
                     lectures = lectures,
                     navigateToLecture = navigateToLecture,
+                    showBackdrop = showBackdrop,
+                    changeShowBackdrop = { showBackdrop = !showBackdrop },
                     modifier = modifier.supportWideScreen()
                 )
             }
@@ -168,6 +190,7 @@ fun HomeScreen(
  * @param onRefresh (event) event to request refresh
  * @param content (slot) the main content to show
  */
+@ExperimentalAnimationApi
 @Composable
 private fun LoadingContent(
     empty: Boolean,
@@ -175,6 +198,8 @@ private fun LoadingContent(
     loading: Boolean,
     isLogIn: Boolean,
     onRefresh: () -> Unit,
+    showBackdrop: Boolean,
+    changeShowBackdrop: () -> Unit,
     content: @Composable () -> Unit
 ) {
     if (isLogIn) {
@@ -188,15 +213,45 @@ private fun LoadingContent(
             )
         }
     } else {
-        val activity = LocalContext.current as MainActivity
-        Column(
-            verticalArrangement = Arrangement.SpaceEvenly,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Text("Google sign-in is required to access your google sheets.")
-            Button(onClick = { activity.requestSignIn() }) {
-                Text("Sign in")
+        Box() {
+            val animationSpec = remember { LottieAnimationSpec.RawRes(R.raw.walking_broccoli) }
+            val animationState = rememberLottieAnimationState(autoPlay = true, repeatCount = Integer.MAX_VALUE)
+
+            val activity = LocalContext.current as MainActivity
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                LottieAnimation(
+                    spec = animationSpec,
+                    modifier = Modifier
+                        .size(250.dp),
+                    animationState = animationState,
+                )
+
+                Text("Google sign-in is required to access your google sheets.", textAlign = TextAlign.Center)
+                Button(
+                    onClick = { activity.requestSignIn() },
+                    modifier = Modifier.padding(24.dp)
+                ) {
+                    Text("Sign in")
+                }
+            }
+            AnimatedVisibility(
+                showBackdrop,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable {
+                            changeShowBackdrop()
+                        },
+                    color = Color.Black.copy(0.7f)
+                ) {
+                }
             }
         }
     }
@@ -210,14 +265,17 @@ private fun LoadingContent(
  * @param navigateToLecture (event) request navigation to Article screen
  * @param modifier modifier for root element
  */
+@ExperimentalAnimationApi
 @Composable
 private fun HomeScreenErrorAndContent(
     lectures: List<DatabaseLecture>,
     navigateToLecture: (Int, String) -> Unit,
+    showBackdrop: Boolean,
+    changeShowBackdrop: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (lectures.isNotEmpty()) {
-        LectureList(lectures, navigateToLecture, modifier)
+        LectureList(lectures, navigateToLecture, showBackdrop, changeShowBackdrop, modifier)
     } else {
         // there's currently an error showing, don't show any content
         Box(modifier.fillMaxSize()) { /* empty screen */ }
@@ -234,17 +292,37 @@ private fun HomeScreenErrorAndContent(
  * @param navigateToLecture (event) request navigation to Article screen
  * @param modifier modifier for the root element
  */
+@ExperimentalAnimationApi
 @Composable
 private fun LectureList(
     lectures: List<DatabaseLecture>,
     navigateToLecture: (Int, String) -> Unit,
+    showBackdrop: Boolean,
+    changeShowBackdrop: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier.background(MaterialTheme.colors.surface),
-        contentPadding = LocalWindowInsets.current.systemBars.toPaddingValues(top = false)
-    ) {
-        item { LectureListMainSection(lectures, navigateToLecture) }
+    Box() {
+        LazyColumn(
+            modifier = modifier.background(MaterialTheme.colors.surface),
+            contentPadding = LocalWindowInsets.current.systemBars.toPaddingValues(top = false)
+        ) {
+            item { LectureListMainSection(lectures, navigateToLecture) }
+        }
+        AnimatedVisibility(
+            showBackdrop,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable {
+                        changeShowBackdrop()
+                    },
+                color = Color.Black.copy(0.7f)
+            ) {
+            }
+        }
     }
 }
 

@@ -1,12 +1,15 @@
 package com.shimnssso.headonenglish.ui.lecture
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,16 +30,20 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.network.Cell
 import com.shimnssso.headonenglish.utils.CellConverter
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun RowCard(
@@ -52,13 +59,10 @@ fun RowCard(
     if (isFirst && card.order != 1) {
         Spacer(Modifier.height(24.dp))
     }
-    val topPadding = if (isFirst) 16.dp else 0.dp
+    val topPadding = if (isFirst && !isFocused) 16.dp else 0.dp
 
     var mode by remember { mutableStateOf(defaultMode) }
-
-    LaunchedEffect(defaultMode) {
-        mode = defaultMode
-    }
+    var showKeyword by remember { mutableStateOf(defaultShowKeyword) }
 
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -68,7 +72,23 @@ fun RowCard(
 
     val surfaceColor = if (isFocused) MaterialTheme.colors.primary.copy(alpha = 0.1f) else MaterialTheme.colors.surface
 
-    var positionY = 0f
+    var positionY by remember { mutableStateOf(0f) }
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(defaultMode, defaultShowKeyword) {
+        mode = defaultMode
+        showKeyword = defaultShowKeyword
+        if (isFocused) {
+            if (mode == CardMode.HideDescription && !hasNote && !hasMemo) {
+                mode = CardMode.Default
+            }
+            scope.launch {
+                delay(200)
+                changeFocus(index, positionY)
+            }
+        }
+    }
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -79,36 +99,73 @@ fun RowCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .animateContentSize()
                 .background(surfaceColor)
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = LocalIndication.current
+                    indication = LocalIndication.current,
+                    enabled = !isFocused
                 ) {
                     changeFocus(index, positionY)
-                    // mode = mode.next(defaultShowKeyword)
+                    if (mode == CardMode.HideDescription && !hasNote && !hasMemo) {
+                        mode = CardMode.Default
+                    }
                 }
                 .padding(bottom = 16.dp, top = topPadding)
         ) {
             if (isFocused) {
-                val modeIcon = when (mode) {
-                    CardMode.HideText -> Icons.Filled.Lightbulb
-                    CardMode.HideDescription -> Icons.Filled.SubtitlesOff  // 2
-                    else -> Icons.Filled.Subtitles
-                }
-                Box(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     IconButton(
                         onClick = {
                             // Trigger ripple effect
                             val press = PressInteraction.Press(Offset.Zero)
                             interactionSource.tryEmit(press)
                             interactionSource.tryEmit(PressInteraction.Release(press))
-                            mode = mode.next(defaultShowKeyword)
+                            mode = CardMode.HideText
                         },
-                        modifier = Modifier.align(Alignment.BottomEnd)
                     ) {
                         Icon(
-                            imageVector = modeIcon,
-                            contentDescription = "temp settings"
+                            imageVector = Icons.Filled.Lightbulb,
+                            contentDescription = "temp settings",
+                            tint = if (mode == CardMode.HideText) MaterialTheme.colors.primary else Color.LightGray
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            // Trigger ripple effect
+                            val press = PressInteraction.Press(Offset.Zero)
+                            interactionSource.tryEmit(press)
+                            interactionSource.tryEmit(PressInteraction.Release(press))
+                            mode = CardMode.Default
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Subtitles,
+                            contentDescription = "temp settings",
+                            tint = if (mode == CardMode.Default || mode == CardMode.DefaultAgain) MaterialTheme.colors.primary else Color.LightGray
+                        )
+                    }
+                    val hasDescription = hasNote || hasMemo
+                    val tint = if (hasDescription) {
+                        if (mode == CardMode.HideDescription) MaterialTheme.colors.primary else Color.LightGray
+                    } else surfaceColor
+                    IconButton(
+                        enabled = hasDescription,
+                        onClick = {
+                            // Trigger ripple effect
+                            val press = PressInteraction.Press(Offset.Zero)
+                            interactionSource.tryEmit(press)
+                            interactionSource.tryEmit(PressInteraction.Release(press))
+                            mode = CardMode.HideDescription
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.SubtitlesOff,
+                            contentDescription = "temp settings",
+                            tint = tint
                         )
                     }
                 }
@@ -118,15 +175,18 @@ fun RowCard(
                 cell = spellingCell,
                 mode = mode,
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
-                defaultShowKeyword = defaultShowKeyword
+                showKeyword = showKeyword
             ) {
                 if (!isFocused) {
                     // Trigger ripple effect
                     val press = PressInteraction.Press(Offset.Zero)
                     interactionSource.tryEmit(press)
                     interactionSource.tryEmit(PressInteraction.Release(press))
-                    // mode = mode.next(defaultShowKeyword)
+
                     changeFocus(index, positionY)
+                    if (mode == CardMode.HideDescription && !hasNote && !hasMemo) {
+                        mode = CardMode.Default
+                    }
                 }
             }
 

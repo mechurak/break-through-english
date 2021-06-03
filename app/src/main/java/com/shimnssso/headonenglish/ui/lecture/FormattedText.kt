@@ -15,6 +15,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.shimnssso.headonenglish.network.Cell
 import com.shimnssso.headonenglish.network.Format
 import com.shimnssso.headonenglish.network.TextFormat
@@ -26,7 +27,7 @@ fun FormattedText(
     cell: Cell,
     mode: CardMode,
     modifier: Modifier = Modifier,
-    defaultShowKeyword: Boolean = false,
+    showKeyword: Boolean = false,
     toggleDescription: () -> Unit = {},
 ) {
     val (text, itemList) = CellConverter.getStyleItemPair(cell, mode)
@@ -56,9 +57,9 @@ fun FormattedText(
         }
     }
 
-    LaunchedEffect(mode, defaultShowKeyword) {
+    LaunchedEffect(mode, showKeyword) {
         showStartList.clear()
-        if (defaultShowKeyword) {
+        if (showKeyword) {
             val sections = annotatedText.getStringAnnotations("Section", 0, annotatedText.length)
             sections.forEach {
                 showStartList.add(it.start)
@@ -67,8 +68,8 @@ fun FormattedText(
     }
 
     val textStyle = when (mode) {
-        CardMode.HideText -> MaterialTheme.typography.h5
-        else -> MaterialTheme.typography.body1
+        CardMode.HideText -> MaterialTheme.typography.h5.copy(fontSize = 30.sp)
+        else -> MaterialTheme.typography.body1.copy(fontSize = 20.sp)
     }
 
     ClickableText(

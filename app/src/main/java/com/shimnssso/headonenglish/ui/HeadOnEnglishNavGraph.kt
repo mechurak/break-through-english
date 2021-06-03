@@ -1,10 +1,10 @@
 package com.shimnssso.headonenglish.ui
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,7 +13,6 @@ import com.shimnssso.headonenglish.ui.MainDestinations.DATE_KEY
 import com.shimnssso.headonenglish.ui.MainDestinations.SUBJECT_KEY
 import com.shimnssso.headonenglish.ui.home.HomeScreen
 import com.shimnssso.headonenglish.ui.lecture.LectureScreen
-import kotlinx.coroutines.launch
 
 /**
  * Destinations used in the ([HeadOnEnglishApp]).
@@ -29,6 +28,7 @@ object MainDestinations {
     const val URL_KEY = "url"
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun HeadOnEnglishNavGraph(
     navController: NavHostController = rememberNavController(),
@@ -36,8 +36,6 @@ fun HeadOnEnglishNavGraph(
     startDestination: String = MainDestinations.HOME_ROUTE
 ) {
     val actions = remember(navController) { MainActions(navController) }
-    val coroutineScope = rememberCoroutineScope()
-    val openDrawer: () -> Unit = { coroutineScope.launch { scaffoldState.drawerState.open() } }
 
     NavHost(
         navController = navController,
@@ -46,7 +44,6 @@ fun HeadOnEnglishNavGraph(
         composable(MainDestinations.HOME_ROUTE) {
             HomeScreen(
                 navigateToLecture = actions.navigateToLecture,
-                openDrawer = openDrawer
             )
         }
         composable("${MainDestinations.LECTURE_ROUTE}?$DATE_KEY={$DATE_KEY}&$SUBJECT_KEY={$SUBJECT_KEY}") { backStackEntry ->

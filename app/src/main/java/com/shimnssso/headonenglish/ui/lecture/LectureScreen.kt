@@ -1,6 +1,8 @@
 package com.shimnssso.headonenglish.ui.lecture
 
 import android.app.Application
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.filled.SubtitlesOff
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +54,7 @@ import com.shimnssso.headonenglish.utils.supportWideScreen
  * @param date (state) item to display
  * @param onBack (event) request navigate back
  */
+@ExperimentalAnimationApi
 @Composable
 fun LectureScreen(
     subject: String?,
@@ -64,6 +68,8 @@ fun LectureScreen(
 
     var defaultMode: CardMode by remember { mutableStateOf(CardMode.Default) }
     var defaultShowKeyword by remember { mutableStateOf(false) }
+
+    var showBackdrop by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -89,12 +95,15 @@ fun LectureScreen(
                 defaultMode = defaultMode,
                 defaultShowKeyword = defaultShowKeyword,
                 changeDefaultMode = {
-                    defaultMode = defaultMode.next(defaultShowKeyword)
+                    defaultMode = defaultMode.next()
                 },
                 changeShowKeyword = {
                     defaultShowKeyword = !defaultShowKeyword
-                    defaultMode = defaultMode.refresh(defaultShowKeyword)
                 },
+                showBackdrop = showBackdrop,
+                setShowBackdrop = { newShowBackdrop ->
+                    showBackdrop = newShowBackdrop
+                }
             )
         }
     ) { innerPadding ->
@@ -110,23 +119,32 @@ fun LectureScreen(
                 .supportWideScreen(),
             defaultMode = defaultMode,
             defaultShowKeyword = defaultShowKeyword,
+            showBackdrop = showBackdrop,
+            changeShowBackdrop = { showBackdrop = !showBackdrop },
         )
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 private fun BottomBar(
     defaultMode: CardMode,
     defaultShowKeyword: Boolean,
     changeDefaultMode: () -> Unit,
     changeShowKeyword: () -> Unit,
+    showBackdrop: Boolean,
+    setShowBackdrop: (Boolean) -> Unit
 ) {
     val app = LocalContext.current.applicationContext as Application
     val activity = LocalContext.current as MainActivity
     val viewModel = ViewModelProvider(activity, MediaViewModel.Factory(app)).get(MediaViewModel::class.java)
 
-    val showSetting = remember { mutableStateOf(false) }
+    var showSetting by remember { mutableStateOf(showBackdrop) }
     val speed by viewModel.speed.observeAsState(initial = 1.0f)
+
+    LaunchedEffect(showBackdrop) {
+        showSetting = showBackdrop
+    }
 
     Surface(elevation = 8.dp) {
         Column(
@@ -134,12 +152,12 @@ private fun BottomBar(
                 .navigationBarsPadding()
                 .fillMaxWidth()
         ) {
-            if (showSetting.value) {
+            AnimatedVisibility(showSetting) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { showSetting.value = !showSetting.value }
+                        .clickable{ }
                 ) {
                     Text(
                         "play speed",
@@ -185,12 +203,15 @@ private fun BottomBar(
                         contentDescription = "temp settings"
                     )
                 }
-                IconButton(onClick = { showSetting.value = !showSetting.value }) {
+                IconButton(onClick = {
+                    showSetting = !showSetting
+                    setShowBackdrop(showSetting)
+                }) {
                     Box(
                         modifier = Modifier.fillMaxHeight()
                     ) {
                         val iconVector =
-                            if (showSetting.value) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp
+                            if (showSetting) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp
                         Icon(
                             imageVector = iconVector,
                             contentDescription = "temp settings",
