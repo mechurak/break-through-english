@@ -18,7 +18,7 @@ class LectureViewModel(
     val cards: LiveData<List<DomainCard>> = Transformations.map(repository.getCards(subjectId, date)) {
         it.asDomainCard()
     }
-    val lecture = repository.getLecture(date)
+    val lecture = repository.getLecture(subjectId, date)
 
     override fun onCleared() {
         Timber.e("onCleared()!!")

@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.shimnssso.headonenglish.googlesheet.SheetHelper
-import com.shimnssso.headonenglish.network.MyGoogleSheetService
 import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseGlobal
 import com.shimnssso.headonenglish.room.DatabaseLecture
@@ -16,12 +15,11 @@ import timber.log.Timber
 
 class LectureRepository(
     private val database: LectureDatabase,
-    private val network: MyGoogleSheetService,
 ) {
     private val _currentGlobal: LiveData<DatabaseGlobal?> = database.globalDao.currentData()
     val currentGlobal: LiveData<DatabaseGlobal> =
         Transformations.map(_currentGlobal) {
-            it ?: DatabaseGlobal(0, 0)
+            it ?: DatabaseGlobal(1, 1)
         }
 
     val subjects = database.subjectDao.getSubjects()
@@ -120,8 +118,8 @@ class LectureRepository(
         return database.lectureDao.getCards(subjectId, date)
     }
 
-    fun getLecture(date: String): LiveData<DatabaseLecture> {
-        return database.lectureDao.getLecture(date)
+    fun getLecture(subjectId: Int, date: String): LiveData<DatabaseLecture> {
+        return database.lectureDao.getLecture(subjectId, date)
     }
 
     suspend fun createSubject(name: String, spreadsheetId: String): Int {

@@ -20,7 +20,7 @@ object Graph {
         private set
 
     val lectureRepository by lazy {
-        LectureRepository(database, retrofit)
+        LectureRepository(database)
     }
 
     fun provide(context: Context) {
