@@ -2,8 +2,13 @@ package com.shimnssso.headonenglish.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,6 +35,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,8 +56,6 @@ import com.airbnb.lottie.compose.LottieAnimationSpec
 import com.airbnb.lottie.compose.rememberLottieAnimationState
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.toPaddingValues
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import com.google.api.services.drive.model.File
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseLecture
@@ -147,6 +151,17 @@ fun HomeScreen(
                             contentDescription = "temp description"
                         )
                     }
+                },
+                actions = {
+                    IconButton(onClick = {
+                        showBackdrop = false
+                        onRefreshPosts()
+                    }) {
+                        Icon(
+                            Icons.Filled.Refresh,
+                            contentDescription = "refresh"
+                        )
+                    }
                 }
             )
         },
@@ -172,6 +187,7 @@ fun HomeScreen(
                 HomeScreenErrorAndContent(
                     lectures = lectures,
                     navigateToLecture = navigateToLecture,
+                    loading = isLoading,
                     showBackdrop = showBackdrop,
                     changeShowBackdrop = { showBackdrop = !showBackdrop },
                     modifier = modifier.supportWideScreen()
@@ -206,11 +222,7 @@ private fun LoadingContent(
         if (empty) {
             emptyContent()
         } else {
-            SwipeRefresh(
-                state = rememberSwipeRefreshState(loading),
-                onRefresh = onRefresh,
-                content = content,
-            )
+            content()
         }
     } else {
         Box() {
@@ -270,12 +282,13 @@ private fun LoadingContent(
 private fun HomeScreenErrorAndContent(
     lectures: List<DatabaseLecture>,
     navigateToLecture: (Int, String) -> Unit,
+    loading: Boolean,
     showBackdrop: Boolean,
     changeShowBackdrop: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (lectures.isNotEmpty()) {
-        LectureList(lectures, navigateToLecture, showBackdrop, changeShowBackdrop, modifier)
+        LectureList(lectures, navigateToLecture, loading, showBackdrop, changeShowBackdrop, modifier)
     } else {
         // there's currently an error showing, don't show any content
         Box(modifier.fillMaxSize()) { /* empty screen */ }
@@ -297,6 +310,7 @@ private fun HomeScreenErrorAndContent(
 private fun LectureList(
     lectures: List<DatabaseLecture>,
     navigateToLecture: (Int, String) -> Unit,
+    loading: Boolean,
     showBackdrop: Boolean,
     changeShowBackdrop: () -> Unit,
     modifier: Modifier = Modifier
@@ -308,19 +322,48 @@ private fun LectureList(
         ) {
             item { LectureListMainSection(lectures, navigateToLecture) }
         }
+
         AnimatedVisibility(
-            showBackdrop,
+            showBackdrop || loading,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable {
-                        changeShowBackdrop()
-                    },
-                color = Color.Black.copy(0.7f)
+                        if (showBackdrop) {
+                            changeShowBackdrop()
+                        }
+                    }
+                    .background(Color.Black.copy(0.7f))
+            )
+        }
+        AnimatedVisibility(
+            loading,
+            enter = slideInHorizontally(
+                // Enters by sliding up from offset -fullHeight to 0.
+                initialOffsetX = { fullWidth -> -fullWidth },
+                animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
+            ) + fadeIn(),
+            exit = slideOutHorizontally(
+                // Exits by sliding right from offset 0 to fullHeight.
+                targetOffsetX = { fullWidth -> fullWidth },
+                animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
+            ) + fadeOut()
+        ) {
+            val animationSpec = remember { LottieAnimationSpec.RawRes(R.raw.walking_broccoli) }
+            val animationState = rememberLottieAnimationState(autoPlay = true, repeatCount = Integer.MAX_VALUE)
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.fillMaxSize()
             ) {
+                LottieAnimation(
+                    spec = animationSpec,
+                    modifier = Modifier
+                        .size(250.dp),
+                    animationState = animationState,
+                )
             }
         }
     }

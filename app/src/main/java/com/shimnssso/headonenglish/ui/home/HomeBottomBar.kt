@@ -52,6 +52,7 @@ fun HomeBottomBar(
     val globalData by viewModel.global.observeAsState(DatabaseGlobal(0))
     val subjects by viewModel.subjects.observeAsState(listOf())
     val isLogIn by viewModel.isLogIn.observeAsState(false)
+    val isLoading by viewModel.isLoading.observeAsState(false)
 
     var showSubjectList by remember { mutableStateOf(showBackdrop) }
 
@@ -69,16 +70,6 @@ fun HomeBottomBar(
         ) {
             AnimatedVisibility(
                 showSubjectList,
-                // enter = slideInVertically(
-                //     // Enters by sliding up from offset fullHeight to 0.
-                //     initialOffsetY = { fullHeight -> fullHeight },
-                //     animationSpec = tween(durationMillis = 150, easing = LinearOutSlowInEasing)
-                // ),
-                // exit = slideOutVertically(
-                //     // Exits by sliding down from offset 0 to fullHeight.
-                //     targetOffsetY = { fullHeight -> fullHeight },
-                //     animationSpec = tween(durationMillis = 250, easing = FastOutLinearInEasing)
-                // )
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -139,8 +130,10 @@ fun HomeBottomBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 IconButton(onClick = {
-                    showSubjectList = !showSubjectList
-                    setShowBackdrop(showSubjectList)
+                    if (!isLoading) {
+                        showSubjectList = !showSubjectList
+                        setShowBackdrop(showSubjectList)
+                    }
                 }) {
                     Icon(
                         imageVector = Icons.Filled.MenuOpen,
@@ -151,7 +144,6 @@ fun HomeBottomBar(
         }
     }
 }
-
 
 @Composable
 private fun DrawerButton(
