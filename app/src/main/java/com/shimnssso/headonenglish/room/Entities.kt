@@ -12,7 +12,10 @@ data class DatabaseSubject(
     val title: String,
     val sheetId: String,
     val lastUpdateTime: Long,
-    val link: String?,
+    val description: String? = null,
+    val link: String? = null,
+    val subjectForUrl: String? = null,
+    val image: String? = null,
 )
 
 @Entity(tableName = "lecture_table", primaryKeys = ["subjectId", "date"])

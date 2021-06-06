@@ -8,6 +8,7 @@ import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseGlobal
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.room.DatabaseSubject
+import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.room.LectureDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -31,7 +32,7 @@ class LectureRepository(
 
     val currentSubject: LiveData<DatabaseSubject> =
         Transformations.map(_currentSubject) {
-            it ?: DatabaseSubject(0, "Temp Subject", "", 0L, "")
+            it ?: FakeData.DEFAULT_SUBJECT
         }
 
     val lectures: LiveData<List<DatabaseLecture>> =
@@ -61,6 +62,7 @@ class LectureRepository(
         val remainedLectureMap = mutableMapOf<String, DatabaseLecture>()
         val newLectures = mutableListOf<DatabaseLecture>()
         val updateLectures = mutableListOf<DatabaseLecture>()
+        val newCards = mutableListOf<DatabaseCard>()
 
         val prevLectures = database.lectureDao.getLecturesNormal(subject.subjectId)
 
@@ -69,17 +71,23 @@ class LectureRepository(
         }
 
         val spreadsheet: Spreadsheet = SheetHelper.fetchSpreadsheet(subject.sheetId)
-        val newCards = SheetHelper.getLectureCardListPair(
+        val newSubject = SheetHelper.getLectureCardListPair(
             spreadsheet,
-            subject.subjectId,
+            subject,
             remainedLectureMap,
             newLectures,
-            updateLectures
+            updateLectures,
+            newCards
         )
 
         Timber.d("remainedLectureMap.size: ${remainedLectureMap.size}")
         Timber.d("newLectures.size: ${newLectures.size}")
         Timber.d("updateLectures.size: ${updateLectures.size}")
+
+        if (newSubject == null) {
+            Timber.e("newSubject == null!!!!")
+            return
+        }
 
         var isUpdated = false
 
@@ -97,6 +105,13 @@ class LectureRepository(
             isUpdated = true
         }
 
+        if (newSubject.subjectForUrl != null) {
+            Timber.e("process for newSubject.subjectForUrl. ${newSubject.subjectForUrl}")
+            val lectures = database.lectureDao.getLecturesNormal(subject.subjectId)
+            val retLectures = SheetHelper.updateRemoteUrl(newSubject.subjectForUrl, lectures)
+            database.lectureDao.updateLectures(retLectures)
+        }
+
         if (newCards.isNotEmpty()) {
             database.lectureDao.clearCards(globalInfo.subjectId)
             database.lectureDao.insertCards(newCards)
@@ -104,7 +119,6 @@ class LectureRepository(
         }
 
         if (isUpdated) {
-            val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
             Timber.i("update current subject to %s", newSubject)
             database.subjectDao.update(newSubject)
         } else {
@@ -129,7 +143,6 @@ class LectureRepository(
             title = name,
             sheetId = spreadsheetId,
             lastUpdateTime = 0L,
-            link = null,
         )
         val rowId = database.subjectDao.insert(newSubject)
         Timber.e("rowId: $rowId")
@@ -143,18 +156,24 @@ class LectureRepository(
         val remainedLectureMap = mutableMapOf<String, DatabaseLecture>()
         val newLectures = mutableListOf<DatabaseLecture>()
         val updateLectures = mutableListOf<DatabaseLecture>()
-        val newCards =
-            SheetHelper.getLectureCardListPair(spreadsheet, subjectId, remainedLectureMap, newLectures, updateLectures)
+        val subject = database.subjectDao.getSubject(subjectId)
+        val newCards = mutableListOf<DatabaseCard>()
+
+        val newSubject =
+            SheetHelper.getLectureCardListPair(spreadsheet, subject, remainedLectureMap, newLectures, updateLectures, newCards)
 
         Timber.d("remainedLectureMap.size: ${remainedLectureMap.size}")
         Timber.d("newLectures.size: ${newLectures.size}")
         Timber.d("updateLectures.size: ${updateLectures.size}")
 
+        if (newSubject == null) {
+            Timber.e("newSubject == null!!!!")
+            return
+        }
+
         database.lectureDao.insertLectures(newLectures)
         database.lectureDao.insertCards(newCards)
 
-        val subject = database.subjectDao.getSubject(subjectId)
-        val newSubject = subject.copy(lastUpdateTime = System.currentTimeMillis())
         Timber.i("importSpreadsheet() %s", newSubject)
         database.subjectDao.update(newSubject)
 

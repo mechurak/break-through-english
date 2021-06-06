@@ -73,7 +73,7 @@ class HomeViewModel(
         }
     }
 
-    fun fetchSheet(name: String, sheetId: String) {
+    fun importSubject(name: String, sheetId: String) {
         viewModelScope.launch {
             _showDialog.value = false
             _isLoading.value = true

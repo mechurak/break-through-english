@@ -16,6 +16,7 @@ import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.google.gson.GsonBuilder
 import com.shimnssso.headonenglish.room.DatabaseCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
+import com.shimnssso.headonenglish.room.DatabaseSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -98,15 +99,9 @@ object SheetHelper {
                 .setFields("sheets.properties,sheets.data.rowData.values.formattedValue,sheets.data.rowData.values.textFormatRuns")
                 .execute()
 
-            val data0: GridData = spreadsheet.sheets[0].data[0]
-            Timber.e("data[0](${data0::class.simpleName}): $data0")
-
-            val properties: SheetProperties = spreadsheet.sheets[0].properties
-            Timber.e("properties(${properties::class.simpleName}): $properties")
-
-            val rowData = data0.rowData
-            for (row: RowData in rowData) {
-                Timber.e("row(${row::class.simpleName}): $row")
+            for ((index, sheet: Sheet) in spreadsheet.sheets.withIndex()) {
+                val properties: SheetProperties = sheet.properties
+                Timber.i("sheet[$index]: $properties")
             }
         }
         return spreadsheet
@@ -114,18 +109,23 @@ object SheetHelper {
 
     fun getLectureCardListPair(
         spreadsheet: Spreadsheet,
-        subjectId: Int,
+        subject: DatabaseSubject,
         remainedLectureMap: MutableMap<String, DatabaseLecture>,
         newLectures: MutableList<DatabaseLecture>,
-        updateLectures: MutableList<DatabaseLecture>
-    ): List<DatabaseCard> {
-        val newCards = mutableListOf<DatabaseCard>()
-
+        updateLectures: MutableList<DatabaseLecture>,
+        newCards: MutableList<DatabaseCard>
+    ): DatabaseSubject? {
+        var retSubject: DatabaseSubject? = null
         for (sheet: Sheet in spreadsheet.sheets) {
             val sheetProperties: SheetProperties = sheet.properties
             Timber.e("sheetProperties: $sheetProperties")
             val sheetTitle = sheetProperties.title
-            if (sheetTitle.endsWith("_temp")) {
+            if (sheetTitle.startsWith("doc_info")) {
+                val data: GridData = sheet.data[0]  // We didn't query for multi section.
+                retSubject = getSubjectInfo(data, subject)
+                continue
+            }
+            else if (sheetTitle.endsWith("_temp")) {
                 Timber.d("skip $sheetTitle sheet")
                 continue
             }
@@ -141,7 +141,7 @@ object SheetHelper {
                 if (i < frozenRowCount) {
                     idxHolder.setColumnIndices(rowData)
                 } else if (cells[idxHolder.order].formattedValue == "0") {
-                    val lecture = getLecture(idxHolder, cells, subjectId)
+                    val lecture = getLecture(idxHolder, cells, subject.subjectId)
                     val originLecture = remainedLectureMap[lecture.date]
                     if (originLecture == null) {
                         newLectures.add(lecture)
@@ -156,13 +156,49 @@ object SheetHelper {
                         remainedLectureMap.remove(lecture.date)
                     }
                 } else {
-                    val card = getCard(idxHolder, cells, subjectId)
+                    val card = getCard(idxHolder, cells, subject.subjectId)
                     newCards.add(card)
                 }
             }
         }
-        return newCards
+        return retSubject
     }
+
+    private fun getSubjectInfo(data: GridData, subject: DatabaseSubject): DatabaseSubject {
+        val rowDataList: List<RowData> = data.rowData
+        var description: String? = null
+        var link: String? = null
+        var subjectForUrl: String? = null
+        var image: String? = null
+        for ((i, rowData: RowData) in rowDataList.withIndex()) {
+            val cells = rowData.getValues()
+            if (cells.size < 2) {
+                Timber.e("unexpected cell.size: ${cells.size}. row $i")
+                continue
+            }
+            when (cells[0].formattedValue) {
+                "key" -> {}
+                "description" -> description = cells[1].formattedValue
+                "link" -> link = cells[1].formattedValue
+                "subjectForUrl" -> {
+                    subjectForUrl = cells[1].formattedValue
+                    if (subjectForUrl == "N/A") subjectForUrl = null
+                }
+                "image" -> image = cells[1].formattedValue
+                else -> {
+                    Timber.e("unexpected key. ${cells[0].formattedValue}")
+                }
+            }
+        }
+        return subject.copy(
+            description = description,
+            link = link,
+            subjectForUrl = subjectForUrl,
+            image = image,
+            lastUpdateTime = System.currentTimeMillis()
+        )
+    }
+
 
     private fun getLecture(idx: IndexHolder, cells: List<CellData>, subjectId: Int): DatabaseLecture {
         val category =
@@ -199,5 +235,49 @@ object SheetHelper {
             note = note,
             memo = memo,
         )
+    }
+
+    suspend fun updateRemoteUrl(subjectForUrl: String, lectures: List<DatabaseLecture>) : List<DatabaseLecture>{
+        if (!isInitialized()) {
+            throw IOException("SheetHelper has not been initialized yet!!")
+        }
+
+        // https://docs.google.com/spreadsheets/d/1vcC8BtRiDmh1tv8IzoNonXvRrTXQHRJOJmD0O1EgnMk/edit?usp=sharing
+        val spreadsheetId = "1vcC8BtRiDmh1tv8IzoNonXvRrTXQHRJOJmD0O1EgnMk"
+
+        val retLectures = mutableListOf<DatabaseLecture>()
+
+        val urlMap = mutableMapOf<String, String>()
+
+        var spreadsheet: Spreadsheet
+        withContext(Dispatchers.IO) {
+            spreadsheet = sheets!!.spreadsheets()
+                .get(spreadsheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
+                .setRanges(listOf("$subjectForUrl!A2:C"))
+                .setFields("sheets.properties,sheets.data.rowData.values.formattedValue")
+                .execute()
+
+            for ((index, sheet: Sheet) in spreadsheet.sheets.withIndex()) {
+                val properties: SheetProperties = sheet.properties
+                Timber.i("sheet[$index]: $properties")
+
+                val rowDataList = sheet.data[0].rowData
+                for ((i, rowData: RowData) in rowDataList.withIndex()) {
+                    val cells = rowData.getValues()
+                    // Timber.e("[$i] $cells")
+                    val date = cells[0].formattedValue
+                    val remoteUrl = cells[2].formattedValue
+                    urlMap[date] = remoteUrl
+                }
+            }
+        }
+
+        if (urlMap.isNotEmpty()) {
+            for (lecture in lectures) {
+                retLectures.add(lecture.copy(remoteUrl = urlMap[lecture.date]))
+            }
+        }
+
+        return retLectures
     }
 }

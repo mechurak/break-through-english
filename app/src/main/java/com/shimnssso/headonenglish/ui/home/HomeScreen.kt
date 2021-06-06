@@ -93,7 +93,7 @@ fun HomeScreen(
     if (showDialog) {
         ConfirmFetchPopup(
             files = sheetFiles,
-            onConfirm = { name, sheetId -> viewModel.fetchSheet(name, sheetId) },
+            onConfirm = { name, sheetId -> viewModel.importSubject(name, sheetId) },
             onDismiss = { viewModel.dismissSheetFetchDialog() }
         )
     }
