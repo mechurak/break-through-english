@@ -65,10 +65,10 @@ class LectureDaoTest : TestCase() {
     )
 
     private val tempCards = listOf(
-        DatabaseCard(0, "2021-05-12", 1, "test spelling1", "test meaning1", "test description1"),
-        DatabaseCard(0, "2021-05-12", 2, "test spelling2", "test meaning2", "test description2"),
-        DatabaseCard(0, "2021-05-13", 1, "13 test spelling1", "13 test meaning1", "13 test description1"),
-        DatabaseCard(0, "2021-05-13", 2, "13 test spelling2", "13 test meaning2", "13 test description2"),
+        DatabaseCard(0, "2021-05-12", 1, "test spelling1", "hint temp", "test meaning1", "test description1"),
+        DatabaseCard(0, "2021-05-12", 2, "test spelling2", "hint temp", "test meaning2", "test description2"),
+        DatabaseCard(0, "2021-05-13", 1, "13 test spelling1", "hint temp", "13 test meaning1", "13 test description1"),
+        DatabaseCard(0, "2021-05-13", 2, "13 test spelling2", "hint temp", "13 test meaning2", "13 test description2"),
     )
 
     @Test

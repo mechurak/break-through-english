@@ -3,6 +3,7 @@ package com.shimnssso.headonenglish.utils
 import com.shimnssso.headonenglish.network.Cell
 import com.shimnssso.headonenglish.network.Format
 import com.shimnssso.headonenglish.network.TextFormat
+import com.shimnssso.headonenglish.ui.lecture.CardMode
 import org.junit.Assert
 import org.junit.Test
 
@@ -42,7 +43,7 @@ class CellConverterTest {
     @Test
     fun getStyleListTest() {
         val cell = CellConverter.fromJson(JSON_CELL)
-        val (text, retList) = CellConverter.getStyleItemPair(cell, 0)
+        val (text, retList) = CellConverter.getStyleItemPair(cell, CardMode.Default)
         println("text: $text")
         for (item in retList) {
             println(

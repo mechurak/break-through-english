@@ -7,8 +7,9 @@ data class IndexHolder(
     var date: Int = 0, // both
     var order: Int = 1,  // both
     var text: Int = 2,
-    var note: Int = 3,
-    var memo: Int = 4,
+    var hint: Int = -1,  // optional
+    var note: Int = -1,  // optional
+    var memo: Int = -1,  // optional
 
     var metaTitle: Int = 2,
     var metaCategory: Int = -1,  // optional
@@ -28,6 +29,9 @@ data class IndexHolder(
                 }
                 "text" -> {
                     text = i
+                }
+                "hint" -> {
+                    hint = i
                 }
                 "note" -> {
                     note = i

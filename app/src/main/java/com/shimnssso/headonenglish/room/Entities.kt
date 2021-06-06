@@ -34,7 +34,8 @@ data class DatabaseCard(
     val date: String,
     val order: Int,
 
-    val text: String?, // json formatted string that represent Cell. ex: {"formattedValue":"seasonal fruits","textFormatRuns":[{"format":{"underline":true}},{"startIndex":3,"format":{}}]}
+    val text: String, // json formatted string that represent Cell. ex: {"formattedValue":"seasonal fruits","textFormatRuns":[{"format":{"underline":true}},{"startIndex":3,"format":{}}]}
+    val hint: String?,
     val note: String?,
     val memo: String?,
 )
@@ -52,7 +53,8 @@ fun List<DatabaseCard>.asDomainCard(): List<DomainCard> {
         DomainCard(
             date = it.date,
             order = it.order,
-            text = it.text!!,
+            text = it.text,
+            hint = it.hint,
             note = it.note,
             memo = it.memo,
         )

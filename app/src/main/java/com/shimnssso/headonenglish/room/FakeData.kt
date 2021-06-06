@@ -3,15 +3,37 @@ package com.shimnssso.headonenglish.room
 class FakeData {
     companion object {
         val DEFAULT_SUBJECT = DatabaseSubject(
-            subjectId = 0,
+            subjectId = 1,
             title = "정면돌파 스피킹",
             sheetId = "1veQzV0fyYHO_4Lu2l33ZRXbjy47_q8EI1nwVAQXJcVQ",
             lastUpdateTime = 0L,
             link = "https://home.ebse.co.kr/10mins_lee2/",
         )
 
+        val DEFAULT_SUBJECTS = listOf(
+            DatabaseSubject(
+                subjectId = 1,
+                title = "정면돌파 스피킹",
+                sheetId = "1veQzV0fyYHO_4Lu2l33ZRXbjy47_q8EI1nwVAQXJcVQ",
+                lastUpdateTime = 0L,
+                link = "https://home.ebse.co.kr/10mins_lee2/",
+            ),
+            DatabaseSubject(
+                subjectId = 2,
+                title = "입트영 최고의 스피킹 60 (일상생활편)",
+                sheetId = "1GeK1Kz8GycGMYviq52sqV3-WKoI8Gw7llSOvJekp01s",
+                lastUpdateTime = 0L,
+                link = null,
+            ),
+        )
+
+        val DEFAULT_GLOBAL = DatabaseGlobal(
+            id = 1,
+            subjectId = 1,
+        )
+
         val DEFAULT_LECTURE = DatabaseLecture(
-            subjectId = 0,
+            subjectId = 1,
             date = "2021-05-12",
             title = "발음 강세 Unit 553. 체중",
             category = "Maintaining Our Health",

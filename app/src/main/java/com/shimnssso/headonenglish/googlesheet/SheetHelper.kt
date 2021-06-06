@@ -187,13 +187,15 @@ object SheetHelper {
     }
 
     private fun getCard(idx: IndexHolder, cells: List<CellData>, subjectId: Int): DatabaseCard {
-        val note = if (cells.size > idx.note) cells[idx.note].formattedValue else null
-        val memo = if (cells.size > idx.memo) cells[idx.memo].formattedValue else null
+        val hint = if (idx.hint > 0 && cells.size > idx.hint) cells[idx.hint].formattedValue else null
+        val note = if (idx.note > 0 && cells.size > idx.note) cells[idx.note].formattedValue else null
+        val memo = if (idx.memo > 0 && cells.size > idx.memo) cells[idx.memo].formattedValue else null
         return DatabaseCard(
             subjectId = subjectId,
             date = cells[idx.date].formattedValue!!,
             order = cells[idx.order].formattedValue!!.toInt(),
             text = gson.toJson(cells[idx.text]),
+            hint = hint,
             note = note,
             memo = memo,
         )

@@ -38,6 +38,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.network.Cell
@@ -57,7 +59,7 @@ fun RowCard(
     val isFirst = card.order % 10 == 1
 
     if (isFirst && card.order != 1) {
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(48.dp))
     }
     val topPadding = if (isFirst && !isFocused) 16.dp else 0.dp
 
@@ -67,6 +69,7 @@ fun RowCard(
     val interactionSource = remember { MutableInteractionSource() }
 
     val spellingCell: Cell = CellConverter.fromJson(card.text)
+    val hasHint = !card.hint.isNullOrEmpty()
     val hasNote = !card.note.isNullOrEmpty()
     val hasMemo = !card.memo.isNullOrEmpty()
 
@@ -80,7 +83,7 @@ fun RowCard(
         mode = defaultMode
         showKeyword = defaultShowKeyword
         if (isFocused) {
-            if (mode == CardMode.HideDescription && !hasNote && !hasMemo) {
+            if (mode == CardMode.HideDescription && !hasHint && !hasNote && !hasMemo) {
                 mode = CardMode.Default
             }
             scope.launch {
@@ -107,7 +110,7 @@ fun RowCard(
                     enabled = !isFocused
                 ) {
                     changeFocus(index, positionY)
-                    if (mode == CardMode.HideDescription && !hasNote && !hasMemo) {
+                    if (mode == CardMode.HideDescription && !hasHint && !hasNote && !hasMemo) {
                         mode = CardMode.Default
                     }
                 }
@@ -148,7 +151,7 @@ fun RowCard(
                             tint = if (mode == CardMode.Default || mode == CardMode.DefaultAgain) MaterialTheme.colors.primary else Color.LightGray
                         )
                     }
-                    val hasDescription = hasNote || hasMemo
+                    val hasDescription = hasHint || hasNote || hasMemo
                     val tint = if (hasDescription) {
                         if (mode == CardMode.HideDescription) MaterialTheme.colors.primary else Color.LightGray
                     } else surfaceColor
@@ -184,31 +187,39 @@ fun RowCard(
                     interactionSource.tryEmit(PressInteraction.Release(press))
 
                     changeFocus(index, positionY)
-                    if (mode == CardMode.HideDescription && !hasNote && !hasMemo) {
+                    if (mode == CardMode.HideDescription && !hasHint && !hasNote && !hasMemo) {
                         mode = CardMode.Default
                     }
                 }
             }
 
             if (mode != CardMode.HideDescription) {
+                if (hasHint) {
+                    Text(
+                        text = card.hint!!,
+                        style = MaterialTheme.typography.caption,
+                        fontStyle = FontStyle.Italic,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
                 if (hasNote) {
                     Text(
                         text = card.note!!,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.overline,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
                 if (hasMemo) {
                     Text(
                         text = card.memo!!,
-                        style = MaterialTheme.typography.body2,
+                        style = MaterialTheme.typography.caption,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
             }
         }
 
-        if (mode == CardMode.HideDescription && (hasNote || hasMemo)) {
+        if (mode == CardMode.HideDescription && (hasHint || hasNote || hasMemo)) {
             Icon(
                 Icons.Filled.SignalCellular0Bar,
                 contentDescription = "temp description",
@@ -216,7 +227,7 @@ fun RowCard(
                     .size(8.dp)
                     .align(Alignment.BottomEnd)
             )
-        } else if (mode != CardMode.HideDescription && (hasNote || hasMemo)) {
+        } else if (mode != CardMode.HideDescription && (hasHint|| hasNote || hasMemo)) {
             Icon(
                 Icons.Filled.KeyboardArrowUp,
                 contentDescription = "temp description",
@@ -226,4 +237,19 @@ fun RowCard(
             )
         }
     }
+}
+
+
+@Preview("RowCardPreview", widthDp = 360, heightDp = 120, showBackground = true)
+@Composable
+fun RowCardPreview() {
+    val card = DomainCard(
+        date = "2021-06-07",
+        order = 1,
+        text = "{\"formattedValue\":\"The [ROI] could be better if you invest in ETFs.\",\"textFormatRuns\":[{\"format\":{}},{\"startIndex\":5,\"format\":{\"underline\":true}},{\"startIndex\":8,\"format\":{}},{\"startIndex\":19,\"format\":{\"underline\":true}},{\"startIndex\":22,\"format\":{}},{\"startIndex\":35,\"format\":{\"underline\":true}},{\"startIndex\":39,\"format\":{}},{\"startIndex\":43,\"format\":{\"underline\":true}},{\"startIndex\":47,\"format\":{}}]}",
+        hint = "ETF에 투자하는 것이 투자수익률이 더 좋을 수 있어.",
+        note = "ROI return on investment ",
+        memo = "test memo"
+    )
+    RowCard(index = 1, card = card, defaultMode = CardMode.Default, defaultShowKeyword = true )
 }

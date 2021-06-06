@@ -2,9 +2,15 @@ package com.shimnssso.headonenglish
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.shimnssso.headonenglish.network.MyGoogleSheetService
 import com.shimnssso.headonenglish.repository.LectureRepository
+import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.room.LectureDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
@@ -31,7 +37,16 @@ object Graph {
             .create(MyGoogleSheetService::class.java)
 
         database = Room.databaseBuilder(context, LectureDatabase::class.java, "data.db")
-            .createFromAsset("data.db")
+            // https://stackoverflow.com/a/57570451/16111308
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        database.subjectDao.insertSubjects(FakeData.DEFAULT_SUBJECTS)
+                        database.globalDao.insert(FakeData.DEFAULT_GLOBAL)
+                    }
+                }
+            })
             .build()
     }
 }

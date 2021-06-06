@@ -24,6 +24,9 @@ interface SubjectDao {
     @Insert
     suspend fun insert(subject: DatabaseSubject): Long
 
+    @Insert
+    suspend fun insertSubjects(subjects: List<DatabaseSubject>)
+
     @Update
     suspend fun update(subject: DatabaseSubject)
 }

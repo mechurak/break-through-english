@@ -19,6 +19,7 @@ data class DomainCard(
     val order: Int,
 
     val text: String,
+    val hint: String?,
     val note: String?,
     val memo: String?,
 )
