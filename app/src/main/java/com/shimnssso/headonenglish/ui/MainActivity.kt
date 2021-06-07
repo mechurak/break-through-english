@@ -33,6 +33,7 @@ import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.shimnssso.headonenglish.Graph
+import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.googlesheet.SheetHelper
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.ui.daylist.HomeViewModel
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_HeadOnEnglish_Splash)
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
