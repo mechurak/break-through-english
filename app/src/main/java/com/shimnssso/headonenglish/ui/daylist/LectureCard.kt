@@ -1,4 +1,4 @@
-package com.shimnssso.headonenglish.ui.home
+package com.shimnssso.headonenglish.ui.daylist
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -32,7 +32,7 @@ class LectureRepository(
 
     val currentSubject: LiveData<DatabaseSubject> =
         Transformations.map(_currentSubject) {
-            it ?: FakeData.DEFAULT_SUBJECT
+            it ?: FakeData.DEFAULT_SUBJECTS[0]
         }
 
     val lectures: LiveData<List<DatabaseLecture>> =
@@ -46,6 +46,12 @@ class LectureRepository(
             Timber.e("newGlobalInfo: %s", newGlobalInfo)
             database.globalDao.update(newGlobalInfo)
             refresh(true)
+        }
+    }
+
+    suspend fun removeSubject(newSubjectId: Int) {
+        withContext(Dispatchers.IO) {
+            database.subjectDao.deleteSubject(newSubjectId)
         }
     }
 
@@ -160,7 +166,14 @@ class LectureRepository(
         val newCards = mutableListOf<DatabaseCard>()
 
         val newSubject =
-            SheetHelper.getLectureCardListPair(spreadsheet, subject, remainedLectureMap, newLectures, updateLectures, newCards)
+            SheetHelper.getLectureCardListPair(
+                spreadsheet,
+                subject,
+                remainedLectureMap,
+                newLectures,
+                updateLectures,
+                newCards
+            )
 
         Timber.d("remainedLectureMap.size: ${remainedLectureMap.size}")
         Timber.d("newLectures.size: ${newLectures.size}")
@@ -173,6 +186,13 @@ class LectureRepository(
 
         database.lectureDao.insertLectures(newLectures)
         database.lectureDao.insertCards(newCards)
+
+        if (newSubject.subjectForUrl != null) {
+            Timber.e("process for newSubject.subjectForUrl. ${newSubject.subjectForUrl}")
+            val lectures = database.lectureDao.getLecturesNormal(subject.subjectId)
+            val retLectures = SheetHelper.updateRemoteUrl(newSubject.subjectForUrl, lectures)
+            database.lectureDao.updateLectures(retLectures)
+        }
 
         Timber.i("importSpreadsheet() %s", newSubject)
         database.subjectDao.update(newSubject)

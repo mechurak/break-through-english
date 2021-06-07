@@ -6,7 +6,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 
-
 @Dao
 interface SubjectDao {
     @Query("select * from subject_table where subjectId = :subjectId limit 1")
@@ -29,4 +28,7 @@ interface SubjectDao {
 
     @Update
     suspend fun update(subject: DatabaseSubject)
+
+    @Query("delete from subject_table where subjectId = :subjectId")
+    suspend fun deleteSubject(subjectId: Int)
 }

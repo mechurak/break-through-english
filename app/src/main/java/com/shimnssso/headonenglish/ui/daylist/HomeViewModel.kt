@@ -1,4 +1,4 @@
-package com.shimnssso.headonenglish.ui.home
+package com.shimnssso.headonenglish.ui.daylist
 
 import android.content.ContentResolver
 import android.net.Uri
@@ -48,6 +48,14 @@ class HomeViewModel(
         }
     }
 
+    fun removeSubject(subjectId: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            repository.removeSubject(subjectId)
+            _isLoading.value = false
+        }
+    }
+
     fun refresh(shouldCheckInterval: Boolean = false) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -77,7 +85,7 @@ class HomeViewModel(
         viewModelScope.launch {
             _showDialog.value = false
             _isLoading.value = true
-            val spreadsheet:Spreadsheet = SheetHelper.fetchSpreadsheet(sheetId)
+            val spreadsheet: Spreadsheet = SheetHelper.fetchSpreadsheet(sheetId)
             val subjectId = repository.createSubject(name, sheetId)
 
             repository.importSpreadsheet(spreadsheet, subjectId)

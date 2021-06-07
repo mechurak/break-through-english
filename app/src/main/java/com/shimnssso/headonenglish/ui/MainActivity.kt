@@ -13,6 +13,7 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -34,7 +35,7 @@ import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.shimnssso.headonenglish.Graph
 import com.shimnssso.headonenglish.googlesheet.SheetHelper
 import com.shimnssso.headonenglish.room.DatabaseLecture
-import com.shimnssso.headonenglish.ui.home.HomeViewModel
+import com.shimnssso.headonenglish.ui.daylist.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(activity).get(HomeViewModel::class.java)
     }
 
+    @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -193,8 +195,6 @@ class MainActivity : AppCompatActivity() {
             Timber.i("signOut(). failed")
         }
     }
-
-
 
     private fun handleSignInResult(result: Intent) {
         GoogleSignIn.getSignedInAccountFromIntent(result)

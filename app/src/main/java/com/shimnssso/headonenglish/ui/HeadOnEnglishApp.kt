@@ -1,8 +1,6 @@
 package com.shimnssso.headonenglish.ui
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.Scaffold
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
@@ -22,16 +20,10 @@ fun HeadOnEnglishApp() {
             }
 
             val navController = rememberNavController()
-            val scaffoldState = rememberScaffoldState()
 
-            Scaffold(
-                scaffoldState = scaffoldState,
-            ) {
-                HeadOnEnglishNavGraph(
-                    navController = navController,
-                    scaffoldState = scaffoldState
-                )
-            }
+            HeadOnEnglishNavGraph(
+                navController = navController,
+            )
         }
     }
 }

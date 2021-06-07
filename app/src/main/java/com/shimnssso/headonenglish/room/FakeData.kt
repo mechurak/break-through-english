@@ -2,14 +2,6 @@ package com.shimnssso.headonenglish.room
 
 class FakeData {
     companion object {
-        val DEFAULT_SUBJECT = DatabaseSubject(
-            subjectId = 1,
-            title = "정면돌파 스피킹",
-            sheetId = "1veQzV0fyYHO_4Lu2l33ZRXbjy47_q8EI1nwVAQXJcVQ",
-            lastUpdateTime = 0L,
-            link = "https://home.ebse.co.kr/10mins_lee2/",
-        )
-
         val DEFAULT_SUBJECTS = listOf(
             DatabaseSubject(
                 subjectId = 1,
@@ -25,7 +17,7 @@ class FakeData {
                 sheetId = "1GeK1Kz8GycGMYviq52sqV3-WKoI8Gw7llSOvJekp01s",
                 lastUpdateTime = 0L,
                 link = "https://book.naver.com/bookdb/book_detail.nhn?bid=16744854",
-                image = "http://image.kyobobook.co.kr/images/book/xlarge/937/x9788954753937.jpg"
+                image = "https://image.kyobobook.co.kr/images/book/xlarge/937/x9788954753937.jpg"
             ),
         )
 
