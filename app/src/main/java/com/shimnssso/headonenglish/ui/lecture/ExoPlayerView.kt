@@ -42,7 +42,6 @@ fun ExoPlayerView(
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             fun onStop() {
                 Timber.i("onStop()")
-                viewModel.exoPlayer.play()
                 viewModel.pause()
             }
         })

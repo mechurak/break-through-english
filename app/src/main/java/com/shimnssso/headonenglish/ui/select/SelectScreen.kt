@@ -8,20 +8,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -134,37 +129,18 @@ fun SelectScreen(
 
                     Row(
                         horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(120.dp)
                             .padding(16.dp)
                     ) {
-                        IconButton(
-                            onClick = {
-                                activity.openFilePicker()
-                            },
-                            modifier = Modifier
-                                .size(128.dp)
-
-                        ) {
-                            Icon(
-                                Icons.Filled.AddCircle,
-                                contentDescription = "Add",
-                                modifier = Modifier.size(56.dp),
-                                tint = MaterialTheme.colors.primary
-                            )
+                        Button(onClick = { activity.openFilePicker() }) {
+                            Text("Add")
                         }
-                        IconButton(
-                            onClick = {
-                                activity.requestSignOut()
-                            }, modifier = Modifier
-                                .size(128.dp)
-                        ) {
-                            Icon(
-                                Icons.Filled.Logout,
-                                contentDescription = "Logout",
-                                modifier = Modifier.size(56.dp),
-                                tint = MaterialTheme.colors.primary
-                            )
+
+                        Button(onClick = { activity.requestSignOut() }) {
+                            Text("Log out")
                         }
                     }
                 }

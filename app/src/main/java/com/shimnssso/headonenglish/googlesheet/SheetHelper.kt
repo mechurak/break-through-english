@@ -124,8 +124,7 @@ object SheetHelper {
                 val data: GridData = sheet.data[0]  // We didn't query for multi section.
                 retSubject = getSubjectInfo(data, subject)
                 continue
-            }
-            else if (sheetTitle.endsWith("_temp")) {
+            } else if (sheetTitle.endsWith("_temp")) {
                 Timber.d("skip $sheetTitle sheet")
                 continue
             }
@@ -146,7 +145,8 @@ object SheetHelper {
                     if (originLecture == null) {
                         newLectures.add(lecture)
                     } else {
-                        val updateLecture: DatabaseLecture = originLecture.copy(title = lecture.title,
+                        val updateLecture: DatabaseLecture = originLecture.copy(
+                            title = lecture.title,
                             category = lecture.category,
                             remoteUrl = lecture.remoteUrl,
                             link1 = lecture.link1,
@@ -171,13 +171,15 @@ object SheetHelper {
         var subjectForUrl: String? = null
         var image: String? = null
         for ((i, rowData: RowData) in rowDataList.withIndex()) {
-            val cells = rowData.getValues()
+            Timber.e("[$i] $rowData")
+            val cells = rowData.getValues() ?: break
             if (cells.size < 2) {
                 Timber.e("unexpected cell.size: ${cells.size}. row $i")
                 continue
             }
             when (cells[0].formattedValue) {
-                "key" -> {}
+                "key" -> {
+                }
                 "description" -> description = cells[1].formattedValue
                 "link" -> link = cells[1].formattedValue
                 "subjectForUrl" -> {
@@ -198,7 +200,6 @@ object SheetHelper {
             lastUpdateTime = System.currentTimeMillis()
         )
     }
-
 
     private fun getLecture(idx: IndexHolder, cells: List<CellData>, subjectId: Int): DatabaseLecture {
         val category =
@@ -237,7 +238,7 @@ object SheetHelper {
         )
     }
 
-    suspend fun updateRemoteUrl(subjectForUrl: String, lectures: List<DatabaseLecture>) : List<DatabaseLecture>{
+    suspend fun updateRemoteUrl(subjectForUrl: String, lectures: List<DatabaseLecture>): List<DatabaseLecture> {
         if (!isInitialized()) {
             throw IOException("SheetHelper has not been initialized yet!!")
         }
@@ -253,7 +254,7 @@ object SheetHelper {
         withContext(Dispatchers.IO) {
             spreadsheet = sheets!!.spreadsheets()
                 .get(spreadsheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
-                .setRanges(listOf("$subjectForUrl!A2:C"))
+                .setRanges(listOf("$subjectForUrl!A2:B"))
                 .setFields("sheets.properties,sheets.data.rowData.values.formattedValue")
                 .execute()
 
@@ -266,7 +267,7 @@ object SheetHelper {
                     val cells = rowData.getValues()
                     // Timber.e("[$i] $cells")
                     val date = cells[0].formattedValue
-                    val remoteUrl = cells[2].formattedValue
+                    val remoteUrl = cells[1].formattedValue
                     urlMap[date] = remoteUrl
                 }
             }

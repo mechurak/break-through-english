@@ -4,10 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.shimnssso.headonenglish.Graph
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.repository.LectureRepository
 import com.shimnssso.headonenglish.room.asDomainCard
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 class LectureViewModel(
@@ -19,6 +21,14 @@ class LectureViewModel(
         it.asDomainCard()
     }
     val lecture = repository.getLecture(subjectId, date)
+
+    fun updateLocalUrl(localUrl: String?) {
+        viewModelScope.launch {
+            val newLecture = lecture.value!!.copy(localUrl = localUrl)
+            Timber.i("newLecture: %s", newLecture)
+            repository.updateLecture(newLecture)
+        }
+    }
 
     override fun onCleared() {
         Timber.e("onCleared()!!")

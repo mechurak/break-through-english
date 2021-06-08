@@ -55,9 +55,10 @@ fun LectureContent(
         if (lecture.remoteUrl == null && lecture.localUrl == null) {
             Button(
                 onClick = { activity.launchAudioChooser(lecture) },
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
             ) {
-                Text("Set Media file")
+                Text("Set an audio file")
             }
         } else if (lecture.localUrl != null) {
             ExoPlayerView(url = lecture.localUrl)

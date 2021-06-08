@@ -43,7 +43,9 @@ fun LectureCard(
             .clickable(onClick = { navigateToArticle(lecture.subjectId, lecture.date) })
             .padding(16.dp)
     ) {
-        Column {
+        Column(
+            modifier = Modifier.weight(0.95f)
+        ) {
             val dateStr = if (isDateBase) {
                 DateConverter.withDayName(lecture.date)
             } else {

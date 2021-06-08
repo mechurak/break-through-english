@@ -19,8 +19,6 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
-
-        buildConfigField("String", "SHEET_API_KEY", "\"" + project.findProperty("sheet_api_key") + "\"")
     }
 
     signingConfigs {
@@ -93,10 +91,6 @@ dependencies {
 
     // ExoPlayer (https://exoplayer.dev/)
     implementation 'com.google.android.exoplayer:exoplayer:2.14.0'
-
-    // retrofit for networking
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-moshi:2.9.0'
 
     // moshi for parsing the JSON format
     def moshi_version = "1.11.0"

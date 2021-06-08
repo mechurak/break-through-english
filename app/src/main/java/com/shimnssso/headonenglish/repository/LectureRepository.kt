@@ -199,4 +199,8 @@ class LectureRepository(
 
         changeSubject(subjectId)
     }
+
+    suspend fun updateLecture(lecture: DatabaseLecture) {
+        database.lectureDao.updateLecture(lecture)
+    }
 }

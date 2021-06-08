@@ -25,6 +25,8 @@ import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.SignalCellular0Bar
 import androidx.compose.material.icons.filled.Subtitles
 import androidx.compose.material.icons.filled.SubtitlesOff
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -127,7 +129,41 @@ fun RowCard(
                             val press = PressInteraction.Press(Offset.Zero)
                             interactionSource.tryEmit(press)
                             interactionSource.tryEmit(PressInteraction.Release(press))
+                            showKeyword = false
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.VisibilityOff,
+                            contentDescription = "VisibilityOff",
+                            tint = if (!showKeyword) MaterialTheme.colors.primary else Color.LightGray
+                        )
+                    }
+                    IconButton(
+                        onClick = {
+                            // Trigger ripple effect
+                            val press = PressInteraction.Press(Offset.Zero)
+                            interactionSource.tryEmit(press)
+                            interactionSource.tryEmit(PressInteraction.Release(press))
+                            showKeyword = true
+                        },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Visibility,
+                            contentDescription = "Visibility",
+                            tint = if (showKeyword) MaterialTheme.colors.primary else Color.LightGray
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    IconButton(
+                        onClick = {
+                            // Trigger ripple effect
+                            val press = PressInteraction.Press(Offset.Zero)
+                            interactionSource.tryEmit(press)
+                            interactionSource.tryEmit(PressInteraction.Release(press))
                             mode = CardMode.HideText
+                            showKeyword = false
                         },
                     ) {
                         Icon(
@@ -227,7 +263,7 @@ fun RowCard(
                     .size(8.dp)
                     .align(Alignment.BottomEnd)
             )
-        } else if (mode != CardMode.HideDescription && (hasHint|| hasNote || hasMemo)) {
+        } else if (mode != CardMode.HideDescription && (hasHint || hasNote || hasMemo)) {
             Icon(
                 Icons.Filled.KeyboardArrowUp,
                 contentDescription = "temp description",
@@ -238,7 +274,6 @@ fun RowCard(
         }
     }
 }
-
 
 @Preview("RowCardPreview", widthDp = 360, heightDp = 120, showBackground = true)
 @Composable
@@ -251,5 +286,5 @@ fun RowCardPreview() {
         note = "ROI return on investment ",
         memo = "test memo"
     )
-    RowCard(index = 1, card = card, defaultMode = CardMode.Default, defaultShowKeyword = true )
+    RowCard(index = 1, card = card, defaultMode = CardMode.Default, defaultShowKeyword = true)
 }
