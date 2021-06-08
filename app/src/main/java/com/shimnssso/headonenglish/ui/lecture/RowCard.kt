@@ -1,6 +1,7 @@
 package com.shimnssso.headonenglish.ui.lecture
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,18 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.SignalCellular0Bar
-import androidx.compose.material.icons.filled.Subtitles
-import androidx.compose.material.icons.filled.SubtitlesOff
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,13 +32,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.network.Cell
 import com.shimnssso.headonenglish.utils.CellConverter
@@ -123,90 +123,115 @@ fun RowCard(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    IconButton(
-                        onClick = {
-                            // Trigger ripple effect
-                            val press = PressInteraction.Press(Offset.Zero)
-                            interactionSource.tryEmit(press)
-                            interactionSource.tryEmit(PressInteraction.Release(press))
-                            showKeyword = false
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.VisibilityOff,
-                            contentDescription = "VisibilityOff",
-                            tint = if (!showKeyword) MaterialTheme.colors.primary else Color.LightGray
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            // Trigger ripple effect
-                            val press = PressInteraction.Press(Offset.Zero)
-                            interactionSource.tryEmit(press)
-                            interactionSource.tryEmit(PressInteraction.Release(press))
-                            showKeyword = true
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Visibility,
-                            contentDescription = "Visibility",
-                            tint = if (showKeyword) MaterialTheme.colors.primary else Color.LightGray
-                        )
-                    }
+                    Image(
+                        painter = painterResource(R.drawable.ic_curtain_closed),
+                        contentDescription = "curtain closed icon",
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(if (!showKeyword) MaterialTheme.colors.primary else Color.LightGray)
+                            .clickable(
+                                onClick = {
+                                    // Trigger ripple effect
+                                    val press = PressInteraction.Press(Offset.Zero)
+                                    interactionSource.tryEmit(press)
+                                    interactionSource.tryEmit(PressInteraction.Release(press))
+                                    showKeyword = false
+                                })
+                            .padding(8.dp)
+                    )
+
+                    Image(
+                        painter = painterResource(R.drawable.ic_curtain_opened),
+                        contentDescription = "curtain opened icon",
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(if (showKeyword) MaterialTheme.colors.primary else Color.LightGray)
+                            .clickable(
+                                onClick = {
+                                    // Trigger ripple effect
+                                    val press = PressInteraction.Press(Offset.Zero)
+                                    interactionSource.tryEmit(press)
+                                    interactionSource.tryEmit(PressInteraction.Release(press))
+                                    showKeyword = true
+                                })
+                            .padding(8.dp)
+                    )
 
                     Spacer(modifier = Modifier.weight(1f))
 
-                    IconButton(
-                        onClick = {
-                            // Trigger ripple effect
-                            val press = PressInteraction.Press(Offset.Zero)
-                            interactionSource.tryEmit(press)
-                            interactionSource.tryEmit(PressInteraction.Release(press))
-                            mode = CardMode.HideText
-                            showKeyword = false
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Lightbulb,
-                            contentDescription = "temp settings",
-                            tint = if (mode == CardMode.HideText) MaterialTheme.colors.primary else Color.LightGray
-                        )
-                    }
-                    IconButton(
-                        onClick = {
-                            // Trigger ripple effect
-                            val press = PressInteraction.Press(Offset.Zero)
-                            interactionSource.tryEmit(press)
-                            interactionSource.tryEmit(PressInteraction.Release(press))
-                            mode = CardMode.Default
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Subtitles,
-                            contentDescription = "temp settings",
-                            tint = if (mode == CardMode.Default || mode == CardMode.DefaultAgain) MaterialTheme.colors.primary else Color.LightGray
-                        )
-                    }
+                    val hideTextBackground =
+                        if (mode == CardMode.HideText) MaterialTheme.colors.primary else Color.LightGray
+                    Image(
+                        painter = painterResource(R.drawable.ic_lightbulb),
+                        contentDescription = "hide text mode",
+                        // colorFilter = ColorFilter.tint(color = hidTextTint),
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(hideTextBackground)
+                            .clickable(
+                                onClick = {
+                                    // Trigger ripple effect
+                                    val press = PressInteraction.Press(Offset.Zero)
+                                    interactionSource.tryEmit(press)
+                                    interactionSource.tryEmit(PressInteraction.Release(press))
+                                    mode = CardMode.HideText
+                                    showKeyword = false
+                                })
+                            .padding(8.dp)
+                    )
+
+                    val defaultModeBackground =
+                        if (mode == CardMode.Default || mode == CardMode.DefaultAgain) MaterialTheme.colors.primary else Color.LightGray
+                    Image(
+                        painter = painterResource(R.drawable.ic_book_opened),
+                        contentDescription = "default mode",
+                        // colorFilter = ColorFilter.tint(color = defaultModeTint),
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(defaultModeBackground)
+                            .clickable(
+                                onClick = {
+                                    // Trigger ripple effect
+                                    val press = PressInteraction.Press(Offset.Zero)
+                                    interactionSource.tryEmit(press)
+                                    interactionSource.tryEmit(PressInteraction.Release(press))
+                                    mode = CardMode.Default
+                                })
+                            .padding(8.dp)
+                    )
+
                     val hasDescription = hasHint || hasNote || hasMemo
-                    val tint = if (hasDescription) {
+                    val hideDescriptionBackground = if (hasDescription) {
                         if (mode == CardMode.HideDescription) MaterialTheme.colors.primary else Color.LightGray
                     } else surfaceColor
-                    IconButton(
-                        enabled = hasDescription,
-                        onClick = {
-                            // Trigger ripple effect
-                            val press = PressInteraction.Press(Offset.Zero)
-                            interactionSource.tryEmit(press)
-                            interactionSource.tryEmit(PressInteraction.Release(press))
-                            mode = CardMode.HideDescription
-                        },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.SubtitlesOff,
-                            contentDescription = "temp settings",
-                            tint = tint
-                        )
-                    }
+                    Image(
+                        painter = painterResource(R.drawable.ic_book_closed),
+                        contentDescription = "hide memo mode",
+                        colorFilter = if (hasDescription) null else ColorFilter.tint(color = hideDescriptionBackground),
+                        modifier = Modifier
+                            .padding(4.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(hideDescriptionBackground)
+                            .clickable(
+                                enabled = hasDescription,
+                                onClick = {
+                                    // Trigger ripple effect
+                                    val press = PressInteraction.Press(Offset.Zero)
+                                    interactionSource.tryEmit(press)
+                                    interactionSource.tryEmit(PressInteraction.Release(press))
+                                    mode = CardMode.HideDescription
+                                })
+                            .padding(8.dp)
+                    )
                 }
             }
 
@@ -257,8 +282,8 @@ fun RowCard(
 
         if (mode == CardMode.HideDescription && (hasHint || hasNote || hasMemo)) {
             Icon(
-                Icons.Filled.SignalCellular0Bar,
-                contentDescription = "temp description",
+                Icons.Filled.KeyboardArrowDown,
+                contentDescription = "expend icon",
                 modifier = Modifier
                     .size(8.dp)
                     .align(Alignment.BottomEnd)
@@ -266,7 +291,7 @@ fun RowCard(
         } else if (mode != CardMode.HideDescription && (hasHint || hasNote || hasMemo)) {
             Icon(
                 Icons.Filled.KeyboardArrowUp,
-                contentDescription = "temp description",
+                contentDescription = "shrink icon",
                 modifier = Modifier
                     .size(10.dp)
                     .align(Alignment.BottomEnd)

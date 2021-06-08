@@ -15,6 +15,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.ui.components.LoadingAwareBox
 import com.shimnssso.headonenglish.utils.DateConverter
 import com.shimnssso.headonenglish.utils.supportWideScreen
+import timber.log.Timber
 
 @ExperimentalAnimationApi
 @Composable
@@ -43,6 +45,11 @@ fun DayListScreen(
     val isLoading by viewModel.isLoading.observeAsState(false)
     val subject by viewModel.subject.observeAsState(FakeData.DEFAULT_SUBJECTS[0])
 
+
+    LaunchedEffect(Unit) {
+        Timber.i("LaunchedEffect.")
+        viewModel.refresh(true)
+    }
 
     Scaffold(
         topBar = {

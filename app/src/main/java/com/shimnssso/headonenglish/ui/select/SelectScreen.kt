@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
@@ -90,7 +91,7 @@ fun SelectScreen(
             InsetAwareTopAppBar(
                 title = {
                     Text(
-                        text = "Select a Subject",
+                        text = stringResource(R.string.app_name),
                         color = LocalContentColor.current
                     )
                 },

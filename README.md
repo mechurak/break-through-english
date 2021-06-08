@@ -4,12 +4,11 @@
 
 [1]: https://home.ebse.co.kr/10mins_lee2/replay/3/list?courseId=ER2017H0SPE01ZZ&stepId=ET2017H0SPE0101
 
-## google sheet api key
-구글 시트 데이터를 받아오기 위해서 api 키가 필요함.    
-`~/.gradle/gradle.properties` 파일에(없으면 추가) 아래 내용 추가 필요함
+## 🙏 Credits
+- Icons made by [Freepik][1] from [www.flaticon.com][2]
+- Loading animation made by [Jeffrey Christopher][3] at [LottieFiles][4]
 
-```bash
-sheet_api_key=<구글 시트 api 키>
-```
-
-Reference: <https://github.com/android/sunflower#unsplash-api-key>
+[1]: https://www.freepik.com
+[2]: https://www.flaticon.com/
+[3]: https://lottiefiles.com/zeffchris
+[4]: https://lottiefiles.com/

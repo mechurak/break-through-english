@@ -15,11 +15,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,9 +24,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.glide.rememberGlidePainter
+import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseSubject
 
 @Composable
@@ -110,18 +109,21 @@ private fun SubjectImage(
             }
         }
     } else {
-        Box(
-            modifier = Modifier
-                .clip(CircleShape)
-                .border(3.dp, MaterialTheme.colors.primary, CircleShape)
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Image,
-                contentDescription = "no image",
+        Box {
+            Image(
+                painter = painterResource(R.drawable.ic_picture),
+                contentDescription = "picture icon",
                 modifier = Modifier
                     .size(120.dp)
-                    .padding(16.dp),
-                tint = Color.LightGray
+                    .clip(CircleShape)
+                    .border(3.dp, MaterialTheme.colors.primary, CircleShape)
+                    .clickable(
+                        onClick = {
+                            if (subject.link != null) {
+                                onLinkClick(subject.link)
+                            }
+                        })
+                    .padding(32.dp)
             )
             if (subject.link != null) {
                 LinkMark(subject, onLinkClick)

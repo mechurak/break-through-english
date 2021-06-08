@@ -226,8 +226,6 @@ class MainActivity : AppCompatActivity() {
                     .build()
 
                 SheetHelper.init(googleDriveService, googleSheetService)
-
-                viewmodel.refresh(true)
             }
             .addOnFailureListener { exception: Exception? ->
                 Timber.e(exception, "Unable to sign in.")

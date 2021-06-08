@@ -45,7 +45,6 @@ class LectureRepository(
             val newGlobalInfo = currentGlobal.value!!.copy(subjectId = newSubjectId)
             Timber.e("newGlobalInfo: %s", newGlobalInfo)
             database.globalDao.update(newGlobalInfo)
-            refresh(true)
         }
     }
 

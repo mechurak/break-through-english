@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
@@ -31,11 +33,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.filled.Subtitles
-import androidx.compose.material.icons.filled.SubtitlesOff
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.primarySurface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,14 +43,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.accompanist.insets.navigationBarsPadding
+import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.ui.MainActivity
@@ -344,23 +344,28 @@ private fun BottomBar(
                     modifier = Modifier.width(100.dp)
                 ) {
                     val showKeywordIcon = when (defaultShowKeyword) {
-                        true -> Icons.Filled.Visibility
-                        else -> Icons.Filled.VisibilityOff
+                        true -> R.drawable.ic_curtain_opened
+                        else -> R.drawable.ic_curtain_closed
                     }
                     val showKeywordText = when (defaultShowKeyword) {
                         true -> "Show"
                         else -> "Hide"
                     }
 
-                    IconButton(
-                        onClick = { changeShowKeyword() },
-                        modifier = Modifier.align(Alignment.Center)
-                    ) {
-                        Icon(
-                            imageVector = showKeywordIcon,
-                            contentDescription = "temp settings"
-                        )
-                    }
+                    Image(
+                        painter = painterResource(showKeywordIcon),
+                        contentDescription = "showKeyword icon",
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(vertical = 8.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .clickable(
+                                onClick = {
+                                    changeShowKeyword()
+                                })
+                            .padding(8.dp)
+                    )
 
                     Text(
                         "default keyword", style = MaterialTheme.typography.caption,
@@ -406,24 +411,30 @@ private fun BottomBar(
                     modifier = Modifier.width(100.dp)
                 ) {
                     val modeIcon = when (defaultMode) {
-                        CardMode.HideText -> Icons.Filled.Lightbulb
-                        CardMode.HideDescription -> Icons.Filled.SubtitlesOff  // 2
-                        else -> Icons.Filled.Subtitles
+                        CardMode.HideText -> R.drawable.ic_lightbulb
+                        CardMode.HideDescription -> R.drawable.ic_book_closed  // 2
+                        else -> R.drawable.ic_book_opened
                     }
                     val modeText = when (defaultMode) {
                         CardMode.HideText -> "Memorize"
                         CardMode.HideDescription -> "Hide memo"  // 2
                         else -> "Normal"
                     }
-                    IconButton(
-                        onClick = { changeDefaultMode() },
-                        modifier = Modifier.align(Alignment.Center)
-                    ) {
-                        Icon(
-                            imageVector = modeIcon,
-                            contentDescription = "temp settings"
-                        )
-                    }
+
+                    Image(
+                        painter = painterResource(modeIcon),
+                        contentDescription = "mode icon",
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(vertical = 8.dp)
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .clickable(
+                                onClick = {
+                                    changeDefaultMode()
+                                })
+                            .padding(8.dp)
+                    )
 
                     Text(
                         "default mode",
