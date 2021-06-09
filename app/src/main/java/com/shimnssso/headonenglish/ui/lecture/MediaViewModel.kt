@@ -31,8 +31,8 @@ class MediaViewModel(
     val speed: LiveData<Float>
         get() = _speed
 
-    fun updateState() {
-        autoPlay = exoPlayer.playWhenReady
+    private fun updateState() {
+        autoPlay = exoPlayer.isPlaying
         window = exoPlayer.currentWindowIndex
         position = 0L.coerceAtLeast(exoPlayer.contentPosition)
     }
@@ -44,22 +44,17 @@ class MediaViewModel(
                 Util.getUserAgent(app, app.packageName)
             )
             val mediaItem = MediaItem.fromUri(url)
-            val source = ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
+            val source =
+                ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem)
             exoPlayer.setMediaSource(source)
             exoPlayer.prepare()
-            exoPlayer.playWhenReady = true
-        }
-    }
-
-    fun release() {
-        viewModelScope.launch {
-            updateState()
-            exoPlayer.stop()
+            exoPlayer.playWhenReady = autoPlay
         }
     }
 
     fun pause() {
         viewModelScope.launch {
+            Timber.e("pause")
             updateState()
             exoPlayer.pause()
         }
@@ -67,7 +62,10 @@ class MediaViewModel(
 
     fun resume() {
         viewModelScope.launch {
-            exoPlayer.play()
+            Timber.e("resume")
+            if (autoPlay) {
+                exoPlayer.play()
+            }
         }
     }
 

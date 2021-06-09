@@ -3,7 +3,6 @@ package com.shimnssso.headonenglish.ui.lecture
 import android.app.Application
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -45,14 +44,6 @@ fun ExoPlayerView(
                 viewModel.pause()
             }
         })
-    }
-
-    DisposableEffect(Unit) {
-        Timber.d("DisposableEffect setup")
-        onDispose {
-            Timber.i("onDispose!!")
-            viewModel.release()
-        }
     }
 
     // TODO: Find proper way
