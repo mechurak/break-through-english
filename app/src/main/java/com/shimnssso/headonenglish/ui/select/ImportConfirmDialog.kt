@@ -40,14 +40,24 @@ fun ImportConfirmDialog(
                         .fillMaxWidth()
                         .border(
                             2.dp,
-                            MaterialTheme.colors.primaryVariant
-                        ) else Modifier
-
+                            MaterialTheme.colors.primaryVariant,
+                        ) else Modifier.fillMaxWidth()
                     TextButton(
                         onClick = { selectedIdx = index },
                         modifier = modifier
                     ) {
-                        Text("${file.name} : ${file.owners[0].displayName}")
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                file.name,
+                                style = MaterialTheme.typography.body1
+                            )
+                            Text(
+                                "   by ${file.owners[0].emailAddress}",
+                                style = MaterialTheme.typography.caption,
+                            )
+                        }
                     }
                 }
             }

@@ -82,7 +82,7 @@ dependencies {
     // logging (https://github.com/JakeWharton/timber)
     implementation 'com.jakewharton.timber:timber:4.7.1'
 
-    // accompanist
+    // accompanist (https://google.github.io/accompanist/)
     def accompanist_version = "0.10.0"
     implementation "com.google.accompanist:accompanist-insets:$accompanist_version"
     implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
