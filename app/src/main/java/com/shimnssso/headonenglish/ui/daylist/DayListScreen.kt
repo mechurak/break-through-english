@@ -14,10 +14,12 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -29,6 +31,7 @@ import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.ui.components.LoadingAwareBox
 import com.shimnssso.headonenglish.utils.DateConverter
 import com.shimnssso.headonenglish.utils.supportWideScreen
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @ExperimentalAnimationApi
@@ -45,13 +48,17 @@ fun DayListScreen(
     val isLoading by viewModel.isLoading.observeAsState(false)
     val subject by viewModel.subject.observeAsState(FakeData.DEFAULT_SUBJECTS[0])
 
+    val errorPair by viewModel.errorPair.observeAsState(Pair(false, ""))  // first: hasError, second: msg
+
 
     LaunchedEffect(Unit) {
         Timber.i("LaunchedEffect.")
         viewModel.refresh(true)
     }
 
+    val scaffoldState = rememberScaffoldState()
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             val title = subject.title
             InsetAwareTopAppBar(
@@ -81,8 +88,16 @@ fun DayListScreen(
                     }
                 }
             )
-        }
+        },
     ) { innerPadding ->
+        if (errorPair.first) {
+            val scope = rememberCoroutineScope()
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(errorPair.second)
+                viewModel.setError(Pair(false, ""))
+            }
+        }
+
         val modifier = Modifier.padding(innerPadding)
         LectureList(
             lectures = lectures,

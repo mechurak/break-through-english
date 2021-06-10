@@ -26,4 +26,9 @@ object DateConverter {
         val day = formatter4.format(tempDate!!)
         return "Mon" == day
     }
+
+    private val dateRegex = Regex("^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$")
+    fun isDateBase(inputStr: String): Boolean {
+        return dateRegex.containsMatchIn(inputStr)
+    }
 }

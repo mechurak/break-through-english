@@ -128,7 +128,7 @@ fun RowCard(
                         contentDescription = "curtain closed icon",
                         modifier = Modifier
                             .padding(4.dp)
-                            .size(48.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(if (!showKeyword) MaterialTheme.colors.primary else Color.LightGray)
                             .clickable(
@@ -147,7 +147,7 @@ fun RowCard(
                         contentDescription = "curtain opened icon",
                         modifier = Modifier
                             .padding(4.dp)
-                            .size(48.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(if (showKeyword) MaterialTheme.colors.primary else Color.LightGray)
                             .clickable(
@@ -171,7 +171,7 @@ fun RowCard(
                         // colorFilter = ColorFilter.tint(color = hidTextTint),
                         modifier = Modifier
                             .padding(4.dp)
-                            .size(48.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(hideTextBackground)
                             .clickable(
@@ -194,7 +194,7 @@ fun RowCard(
                         // colorFilter = ColorFilter.tint(color = defaultModeTint),
                         modifier = Modifier
                             .padding(4.dp)
-                            .size(48.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(defaultModeBackground)
                             .clickable(
@@ -218,7 +218,7 @@ fun RowCard(
                         colorFilter = if (hasDescription) null else ColorFilter.tint(color = hideDescriptionBackground),
                         modifier = Modifier
                             .padding(4.dp)
-                            .size(48.dp)
+                            .size(36.dp)
                             .clip(CircleShape)
                             .background(hideDescriptionBackground)
                             .clickable(

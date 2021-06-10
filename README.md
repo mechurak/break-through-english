@@ -1,12 +1,16 @@
 # Ella's Notes
 A google sheet viewer app to boost your self taught output for English.
-It is mainly focused on [정면돌파 스피킹][1], [입트영 60][2], [귀트영][3].  
+It is mainly focused on [정면돌파 스피킹][1], [입트영 60][2], [귀트영][3].
 I hope it could be helpful for someone who is studying that subjects.
+
+[1]: https://home.ebse.co.kr/10mins_lee2/main
+[2]: https://book.naver.com/bookdb/book_detail.nhn?bid=16744854
+[3]: https://home.ebs.co.kr/listene/main
 
 ## Used Libraries
 - [Jetpack Compose][11]: Android’s modern toolkit for building native UI
 - [Accompanist][12]: Utils for Jetpack Compose
-- [ExoPlayer][13]: An application level media player for Android  
+- [ExoPlayer][13]: An application level media player for Android
 - [Room][14]: Persistence library
 - [Lottie][15]: parses and renders json files that are originated from Adobe After Effects animations.
 - [Dexter][16]: simplifies the process of requesting permissions at runtime.

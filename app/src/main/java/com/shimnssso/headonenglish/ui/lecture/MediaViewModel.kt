@@ -54,7 +54,7 @@ class MediaViewModel(
 
     fun pause() {
         viewModelScope.launch {
-            Timber.e("pause")
+            Timber.i("pause")
             updateState()
             exoPlayer.pause()
         }
@@ -62,7 +62,7 @@ class MediaViewModel(
 
     fun resume() {
         viewModelScope.launch {
-            Timber.e("resume")
+            Timber.i("resume")
             if (autoPlay) {
                 exoPlayer.play()
             }

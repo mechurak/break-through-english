@@ -85,7 +85,7 @@ object CellConverter {
         }
         if (mode == CardMode.HideText) {
             var start = 0
-            var endSpace = tempStr.indexOf(' ', start)
+            var endSpace = tempStr.indexOfAny(listOf(" ", ",",  ".", "!", "?", "/"), start)
             while (endSpace > 0) {
                 println(
                     "[${start}:${endSpace}) \"${
@@ -106,7 +106,7 @@ object CellConverter {
                     )
                 }
                 start = endSpace + 1
-                endSpace = tempStr.indexOf(' ', start)
+                endSpace = tempStr.indexOfAny(listOf(" ", ",",  ".", "!", "?", "/"), start)
             }
             endSpace = tempStr.length
             if ((endSpace - start) > 2) {

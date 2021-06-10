@@ -31,7 +31,7 @@ class LectureViewModel(
     }
 
     override fun onCleared() {
-        Timber.e("onCleared()!!")
+        Timber.i("onCleared()!!")
     }
 
     class Factory(

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.google.api.services.drive.model.File
 import com.google.api.services.sheets.v4.model.Spreadsheet
 import com.shimnssso.headonenglish.Graph
+import com.shimnssso.headonenglish.googlesheet.SheetException
 import com.shimnssso.headonenglish.googlesheet.SheetHelper
 import com.shimnssso.headonenglish.repository.LectureRepository
 import kotlinx.coroutines.launch
@@ -38,6 +39,14 @@ class HomeViewModel(
     val isLogIn: LiveData<Boolean>
         get() = _isLogIn
 
+    private var _errorPair = MutableLiveData<Pair<Boolean, String>>(Pair(false, ""))
+    val errorPair: LiveData<Pair<Boolean, String>>
+        get() = _errorPair
+
+    fun setError(pair: Pair<Boolean, String>) {
+        _errorPair.value = pair
+    }
+
     fun setLogIn(isLogIn: Boolean) {
         _isLogIn.value = isLogIn
     }
@@ -59,7 +68,11 @@ class HomeViewModel(
     fun refresh(shouldCheckInterval: Boolean = false) {
         viewModelScope.launch {
             _isLoading.value = true
-            repository.refresh(shouldCheckInterval)
+            try {
+                repository.refresh(shouldCheckInterval)
+            } catch (e: SheetException) {
+                _errorPair.value = Pair(true, e.message!!)
+            }
             _isLoading.value = false
         }
     }
@@ -85,16 +98,20 @@ class HomeViewModel(
         viewModelScope.launch {
             _showDialog.value = false
             _isLoading.value = true
-            val spreadsheet: Spreadsheet = SheetHelper.fetchSpreadsheet(sheetId)
-            val subjectId = repository.createSubject(name, sheetId)
 
-            repository.importSpreadsheet(spreadsheet, subjectId)
+            try {
+                val spreadsheet: Spreadsheet = SheetHelper.fetchSpreadsheet(sheetId)
+                val subjectId = repository.createSubject(name, sheetId)
 
+                repository.importSpreadsheet(spreadsheet, subjectId)
+            } catch (e: SheetException) {
+                _errorPair.value = Pair(true, e.message!!)
+            }
             _isLoading.value = false
         }
     }
 
     override fun onCleared() {
-        Timber.e("onCleared()!!")
+        Timber.i("onCleared()!!")
     }
 }

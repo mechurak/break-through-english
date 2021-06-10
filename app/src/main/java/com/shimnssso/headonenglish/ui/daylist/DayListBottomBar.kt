@@ -50,8 +50,8 @@ fun DayListBottomBar(
                 painter = painterResource(R.drawable.ic_home),
                 contentDescription = "home icon",
                 modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .size(48.dp)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .clickable(
                         onClick = {
@@ -64,10 +64,10 @@ fun DayListBottomBar(
 
             Image(
                 painter = painterResource(R.drawable.ic_refresh),
-                contentDescription = "home icon",
+                contentDescription = "refresh icon",
                 modifier = Modifier
-                    .padding(vertical = 8.dp)
-                    .size(48.dp)
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .clickable(
                         onClick = {

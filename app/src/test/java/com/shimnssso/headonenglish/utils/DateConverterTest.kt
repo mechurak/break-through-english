@@ -27,4 +27,18 @@ class DateConverterTest {
         println(ret)
         Assert.assertEquals(false, ret)
     }
+
+
+    @Test
+    fun isDateBaseTest() {
+        val withoutDay = "2021-05-20"
+        val ret = DateConverter.isDateBase(withoutDay)
+        println(ret)
+        Assert.assertEquals(true, ret)
+
+        val normalText = "123"
+        val ret2 = DateConverter.isDateBase(normalText)
+        println(ret2)
+        Assert.assertEquals(false, ret2)
+    }
 }

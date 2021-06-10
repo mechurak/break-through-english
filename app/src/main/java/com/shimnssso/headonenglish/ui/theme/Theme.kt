@@ -31,7 +31,9 @@ private val LightColorPalette = lightColors(
 @Composable
 fun HeadOnEnglishTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable() () -> Unit) {
     val colors = if (darkTheme) {
-        DarkColorPalette
+        // TODO: Provide Dark theme
+        // DarkColorPalette
+        LightColorPalette
     } else {
         LightColorPalette
     }

@@ -182,9 +182,6 @@ class MainActivity : AppCompatActivity() {
 
     fun requestSignOut() {
         Timber.i("Requesting sign-out")
-
-        // val client = GoogleSignIn.getLastSignedInAccount(this)
-
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .requestScopes(Scope(DriveScopes.DRIVE_METADATA_READONLY), Scope(SheetsScopes.SPREADSHEETS_READONLY))
@@ -194,7 +191,8 @@ class MainActivity : AppCompatActivity() {
             Timber.i("signOut(). succeeded")
             viewmodel.setLogIn(false)
         }.addOnFailureListener {
-            Timber.i("signOut(). failed")
+            Timber.e(it,"signOut(). failed")
+            viewmodel.setError(Pair(true, "Failed to sign-in"))
         }
     }
 
@@ -229,6 +227,7 @@ class MainActivity : AppCompatActivity() {
             }
             .addOnFailureListener { exception: Exception? ->
                 Timber.e(exception, "Unable to sign in.")
+                viewmodel.setError(Pair(true, "Failed to sign-in"))
                 viewmodel.setLogIn(false)
             }
     }

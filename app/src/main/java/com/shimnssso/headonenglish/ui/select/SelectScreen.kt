@@ -9,23 +9,29 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.LocalContentColor
+import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,6 +55,7 @@ import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.ui.components.LoadingAwareBox
 import com.shimnssso.headonenglish.ui.daylist.HomeViewModel
 import com.shimnssso.headonenglish.utils.supportWideScreen
+import kotlinx.coroutines.launch
 
 @ExperimentalAnimationApi
 @Composable
@@ -66,6 +73,7 @@ fun SelectScreen(
     val sheetFiles by viewModel.sheetFiles.observeAsState(listOf())
 
     val isLoading by viewModel.isLoading.observeAsState(false)
+    val errorPair by viewModel.errorPair.observeAsState(Pair(false, ""))  // first: hasError, second: msg
 
 
     if (showDialog) {
@@ -92,10 +100,19 @@ fun SelectScreen(
             })
     }
 
-
+    val scaffoldState = rememberScaffoldState()
     Scaffold(
+        scaffoldState = scaffoldState,
         topBar = {
             InsetAwareTopAppBar(
+                navigationIcon = {
+                    Image(
+                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                        contentDescription = "information",
+                        modifier = Modifier
+                            .size(56.dp)
+                    )
+                },
                 title = {
                     Text(
                         text = stringResource(R.string.app_name),
@@ -104,7 +121,20 @@ fun SelectScreen(
                 },
             )
         },
+        snackbarHost = {
+            SnackbarHost(it) { data ->
+                androidx.compose.material.Snackbar(snackbarData = data, modifier = Modifier.navigationBarsPadding())
+            }
+        },
     ) { innerPadding ->
+        if (errorPair.first) {
+            val scope = rememberCoroutineScope()
+            scope.launch {
+                scaffoldState.snackbarHostState.showSnackbar(errorPair.second)
+                viewModel.setError(Pair(false, ""))
+            }
+        }
+
         if (isLogIn) {
             LoadingAwareBox(isLoading = isLoading) {
                 Column(
@@ -144,11 +174,17 @@ fun SelectScreen(
                             .height(120.dp)
                             .padding(16.dp)
                     ) {
-                        Button(onClick = { activity.openFilePicker() }) {
+                        OutlinedButton(
+                            onClick = { activity.openFilePicker() },
+                            modifier = Modifier.width(120.dp)
+                        ) {
                             Text("Add")
                         }
 
-                        Button(onClick = { activity.requestSignOut() }) {
+                        OutlinedButton(
+                            onClick = { activity.requestSignOut() },
+                            modifier = Modifier.width(120.dp)
+                        ) {
                             Text("Log out")
                         }
                     }
@@ -158,7 +194,7 @@ fun SelectScreen(
                         contentDescription = "information",
                         modifier = Modifier
                             .padding(4.dp)
-                            .size(48.dp)
+                            .size(56.dp)
                             .clip(CircleShape)
                             .background(Color.LightGray)
                             .clickable(
@@ -169,6 +205,7 @@ fun SelectScreen(
                                 })
                             .padding(8.dp)
                     )
+                    Spacer(Modifier.height(200.dp))
                 }
             }
         } else {

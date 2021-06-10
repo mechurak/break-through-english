@@ -22,6 +22,8 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.IOException
 
+class SheetException(message: String) : Exception(message)
+
 object SheetHelper {
     private var drive: Drive? = null
     private var sheets: Sheets? = null
@@ -77,10 +79,10 @@ object SheetHelper {
             if (files != null) {
                 retFiles = files
                 for (file in files) {
-                    Timber.e("file: $file")
-                    Timber.e("file.modifiedTime: ${file.modifiedTime}")
-                    Timber.e("file.owners ${file.owners}")
-                    Timber.e("spreadsheetId: %s", file.id)
+                    Timber.d("file: $file")
+                    Timber.d("file.modifiedTime: ${file.modifiedTime}")
+                    Timber.d("file.owners ${file.owners}")
+                    Timber.d("spreadsheetId: %s", file.id)
                 }
             }
         }
@@ -94,14 +96,19 @@ object SheetHelper {
 
         var spreadsheet: Spreadsheet
         withContext(Dispatchers.IO) {
-            spreadsheet = sheets!!.spreadsheets()
-                .get(spreadsheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
-                .setFields("sheets.properties,sheets.data.rowData.values.formattedValue,sheets.data.rowData.values.textFormatRuns")
-                .execute()
+            try {
+                spreadsheet = sheets!!.spreadsheets()
+                    .get(spreadsheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
+                    .setFields("sheets.properties,sheets.data.rowData.values.formattedValue,sheets.data.rowData.values.textFormatRuns")
+                    .execute()
 
-            for ((index, sheet: Sheet) in spreadsheet.sheets.withIndex()) {
-                val properties: SheetProperties = sheet.properties
-                Timber.i("sheet[$index]: $properties")
+                for ((index, sheet: Sheet) in spreadsheet.sheets.withIndex()) {
+                    val properties: SheetProperties = sheet.properties
+                    Timber.d("sheet[$index]: $properties")
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
+                throw SheetException("Failed to fetch the doc. Please check your doc and guide page.")
             }
         }
         return spreadsheet
@@ -118,7 +125,7 @@ object SheetHelper {
         var retSubject: DatabaseSubject? = null
         for (sheet: Sheet in spreadsheet.sheets) {
             val sheetProperties: SheetProperties = sheet.properties
-            Timber.e("sheetProperties: $sheetProperties")
+            Timber.i("sheetProperties: $sheetProperties")
             val sheetTitle = sheetProperties.title
             if (sheetTitle.startsWith("doc_info")) {
                 val data: GridData = sheet.data[0]  // We didn't query for multi section.
@@ -130,6 +137,10 @@ object SheetHelper {
             }
 
             val frozenRowCount = sheetProperties.gridProperties.frozenRowCount
+            if (frozenRowCount != 2) {
+                Timber.e("unexpected frozenRowCount: $frozenRowCount")
+                throw SheetException("Unexpected frozen row count. Please check your doc and guide page.")
+            }
 
             val data: GridData = sheet.data[0]  // We didn't query for multi section.
             val idxHolder = IndexHolder()
@@ -137,6 +148,10 @@ object SheetHelper {
             val rowDataList: List<RowData> = data.rowData
             for ((i, rowData: RowData) in rowDataList.withIndex()) {
                 val cells = rowData.getValues()
+                if (cells == null || cells.size < idxHolder.order) {
+                    Timber.w("wrong row[$i] cells: ${cells}")
+                    continue
+                }
                 if (i < frozenRowCount) {
                     idxHolder.setColumnIndices(rowData)
                 } else if (cells[idxHolder.order].formattedValue == "0") {
@@ -171,7 +186,7 @@ object SheetHelper {
         var subjectForUrl: String? = null
         var image: String? = null
         for ((i, rowData: RowData) in rowDataList.withIndex()) {
-            Timber.e("[$i] $rowData")
+            Timber.d("[$i] $rowData")
             val cells = rowData.getValues() ?: break
             if (cells.size < 2) {
                 Timber.e("unexpected cell.size: ${cells.size}. row $i")
@@ -188,7 +203,7 @@ object SheetHelper {
                 }
                 "image" -> image = cells[1].formattedValue
                 else -> {
-                    Timber.e("unexpected key. ${cells[0].formattedValue}")
+                    Timber.w("unexpected key. ${cells[0].formattedValue}")
                 }
             }
         }
@@ -252,24 +267,29 @@ object SheetHelper {
 
         var spreadsheet: Spreadsheet
         withContext(Dispatchers.IO) {
-            spreadsheet = sheets!!.spreadsheets()
-                .get(spreadsheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
-                .setRanges(listOf("$subjectForUrl!A2:B"))
-                .setFields("sheets.properties,sheets.data.rowData.values.formattedValue")
-                .execute()
+            try {
+                spreadsheet = sheets!!.spreadsheets()
+                    .get(spreadsheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
+                    .setRanges(listOf("$subjectForUrl!A2:B"))
+                    .setFields("sheets.properties,sheets.data.rowData.values.formattedValue")
+                    .execute()
 
-            for ((index, sheet: Sheet) in spreadsheet.sheets.withIndex()) {
-                val properties: SheetProperties = sheet.properties
-                Timber.i("sheet[$index]: $properties")
+                for ((index, sheet: Sheet) in spreadsheet.sheets.withIndex()) {
+                    val properties: SheetProperties = sheet.properties
+                    Timber.i("sheet[$index]: $properties")
 
-                val rowDataList = sheet.data[0].rowData
-                for ((i, rowData: RowData) in rowDataList.withIndex()) {
-                    val cells = rowData.getValues()
-                    // Timber.e("[$i] $cells")
-                    val date = cells[0].formattedValue
-                    val remoteUrl = cells[1].formattedValue
-                    urlMap[date] = remoteUrl
+                    val rowDataList = sheet.data[0].rowData
+                    for ((i, rowData: RowData) in rowDataList.withIndex()) {
+                        val cells = rowData.getValues()
+                        // Timber.e("[$i] $cells")
+                        val date = cells[0].formattedValue
+                        val remoteUrl = cells[1].formattedValue
+                        urlMap[date] = remoteUrl
+                    }
                 }
+            } catch (e: Exception) {
+                Timber.e(e)
+                throw SheetException("Failed to get remoteUrls. Please check your 'subjectForUrl' field on 'doc_info' sheet")
             }
         }
 
