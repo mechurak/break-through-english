@@ -199,7 +199,7 @@ fun SelectScreen(
                             .background(Color.LightGray)
                             .clickable(
                                 onClick = {
-                                    val homepage = "https://mechurak.github.io/ellas-notes/"
+                                    val homepage = "https://ellas-notes.github.io/"
                                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(homepage))
                                     activity.startActivity(intent)
                                 })
