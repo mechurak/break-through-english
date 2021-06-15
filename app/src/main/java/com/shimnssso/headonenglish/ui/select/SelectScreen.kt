@@ -107,7 +107,7 @@ fun SelectScreen(
             InsetAwareTopAppBar(
                 navigationIcon = {
                     Image(
-                        painter = painterResource(R.drawable.ic_launcher_foreground),
+                        painter = painterResource(R.drawable.launcher),
                         contentDescription = "information",
                         modifier = Modifier
                             .size(56.dp)

@@ -7,5 +7,5 @@
         android:gravity="center"
         android:width="144dp"
         android:height="144dp"
-        android:drawable="@drawable/ic_launcher_base" />
+        android:drawable="@drawable/launcher" />
 </layer-list>
