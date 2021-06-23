@@ -49,9 +49,13 @@ class LectureRepository(
         }
     }
 
-    suspend fun removeSubject(newSubjectId: Int) {
+    suspend fun removeSubject(subjectId: Int) {
         withContext(Dispatchers.IO) {
-            database.subjectDao.deleteSubject(newSubjectId)
+            database.subjectDao.deleteSubject(subjectId)
+            Timber.i("remove subjectId: $subjectId")
+            val tempSubject = database.subjectDao.getFirstSubject()
+            Timber.i("tempSubject: $tempSubject")
+            changeSubject(tempSubject.subjectId)
         }
     }
 

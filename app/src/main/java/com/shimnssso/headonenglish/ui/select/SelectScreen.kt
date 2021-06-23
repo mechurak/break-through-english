@@ -148,10 +148,13 @@ fun SelectScreen(
                         .supportWideScreen()
                         .verticalScroll(rememberScrollState()),
                 ) {
-                    subjects.forEach {
+                    subjects.forEachIndexed { index, databaseSubject ->
                         SubjectCard(
-                            subject = it, globalData.subjectId == it.subjectId,
-                            onClick = { subjectId ->
+                            subject = databaseSubject,
+                            selected = globalData.subjectId == databaseSubject.subjectId,
+                            index = index,
+                            onClick = { theIndex ->
+                                val subjectId = subjects[theIndex].subjectId
                                 viewModel.changeSubject(subjectId)
                                 navigateToDayList()
                             },

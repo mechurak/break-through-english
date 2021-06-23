@@ -35,6 +35,7 @@ import com.shimnssso.headonenglish.room.DatabaseSubject
 fun SubjectCard(
     subject: DatabaseSubject,
     selected: Boolean,
+    index: Int,
     onClick: (Int) -> Unit,
     onLongClick: (DatabaseSubject) -> Unit,
     onLinkClick: (String) -> Unit,
@@ -49,7 +50,7 @@ fun SubjectCard(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        onClick(subject.subjectId)
+                        onClick(index)
                     },
                     onLongPress = {
                         onLongClick(subject)

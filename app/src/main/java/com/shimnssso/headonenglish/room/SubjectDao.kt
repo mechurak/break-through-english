@@ -20,6 +20,9 @@ interface SubjectDao {
     @Query("select subjectId from subject_table where rowId = :rowId")
     suspend fun getSubjectId(rowId: Long): Long
 
+    @Query("select * from subject_table limit 1")
+    suspend fun getFirstSubject(): DatabaseSubject
+
     @Insert
     suspend fun insert(subject: DatabaseSubject): Long
 
