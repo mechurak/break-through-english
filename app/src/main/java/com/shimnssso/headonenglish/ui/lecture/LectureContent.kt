@@ -28,8 +28,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieAnimationSpec
-import com.airbnb.lottie.compose.rememberLottieAnimationState
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
@@ -70,8 +72,11 @@ fun LectureContent(
         val coroutineScope = rememberCoroutineScope()
         val scrollState = rememberScrollState()
 
-        val animationSpec = remember { LottieAnimationSpec.RawRes(R.raw.walking_broccoli) }
-        val animationState = rememberLottieAnimationState(autoPlay = true, repeatCount = Integer.MAX_VALUE)
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_broccoli))
+        val progress by animateLottieCompositionAsState(
+            composition,
+            iterations = LottieConstants.IterateForever,
+        )
 
         Box() {
             Column(
@@ -91,10 +96,10 @@ fun LectureContent(
                 Spacer(Modifier.height(200.dp))
 
                 LottieAnimation(
-                    spec = animationSpec,
+                    composition,
                     modifier = Modifier
                         .size(250.dp),
-                    animationState = animationState,
+                    progress = progress,
                 )
             }
 

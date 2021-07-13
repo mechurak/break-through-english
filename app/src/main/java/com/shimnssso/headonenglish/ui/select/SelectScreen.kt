@@ -44,8 +44,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieAnimationSpec
-import com.airbnb.lottie.compose.rememberLottieAnimationState
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.insets.navigationBarsPadding
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseGlobal
@@ -212,8 +214,11 @@ fun SelectScreen(
                 }
             }
         } else {
-            val animationSpec = remember { LottieAnimationSpec.RawRes(R.raw.walking_broccoli) }
-            val animationState = rememberLottieAnimationState(autoPlay = true, repeatCount = Integer.MAX_VALUE)
+            val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_broccoli))
+            val progress by animateLottieCompositionAsState(
+                composition,
+                iterations = LottieConstants.IterateForever,
+            )
 
             val activity = LocalContext.current as MainActivity
             Column(
@@ -222,10 +227,10 @@ fun SelectScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 LottieAnimation(
-                    spec = animationSpec,
+                    composition,
                     modifier = Modifier
                         .size(250.dp),
-                    animationState = animationState,
+                    progress = progress,
                 )
 
                 Text("Google sign-in is required to access your google sheets.", textAlign = TextAlign.Center)
