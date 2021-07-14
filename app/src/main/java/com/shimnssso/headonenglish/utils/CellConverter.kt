@@ -29,7 +29,9 @@ object CellConverter {
                     0 -> {
                         val backgroundColor =
                             if (textFormat.format.underline == true) Color.Yellow else Color.Unspecified
-                        curItem = StyleItem(SpanStyle(background = backgroundColor), 0, -1)
+                        val color =
+                            if (textFormat.format.bold == true) Color.Magenta else if (textFormat.format.italic == true) Color.DarkGray else Color.Unspecified
+                        curItem = StyleItem(SpanStyle(background = backgroundColor, color = color), 0, -1)
                     }
                     else -> {
                         val prevEndIndex = textFormat.startIndex!!
@@ -38,7 +40,9 @@ object CellConverter {
 
                         val backgroundColor =
                             if (textFormat.format.underline == true) Color.Yellow else Color.Unspecified
-                        curItem = StyleItem(SpanStyle(background = backgroundColor), textFormat.startIndex, -1)
+                        val color =
+                            if (textFormat.format.bold == true) Color.Magenta else if (textFormat.format.italic == true) Color.DarkGray else Color.Unspecified
+                        curItem = StyleItem(SpanStyle(background = backgroundColor, color = color), textFormat.startIndex, -1)
                     }
                 }
             }

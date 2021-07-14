@@ -105,8 +105,8 @@ fun FormattedTextPreview() {
     val cell = Cell(
         formattedValue = "seasonal fruits",
         textFormatRuns = listOf(
-            TextFormat(startIndex = null, format = Format(underline = true, bold = null)),
-            TextFormat(startIndex = 3, format = Format(underline = null, bold = null))
+            TextFormat(startIndex = null, format = Format(underline = true, bold = null, italic = null)),
+            TextFormat(startIndex = 3, format = Format(underline = null, bold = null, italic = null))
         )
     )
     FormattedText(cell, mode = CardMode.Default)

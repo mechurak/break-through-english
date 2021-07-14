@@ -66,4 +66,5 @@ data class TextFormat(
 data class Format(
     val underline: Boolean?,
     val bold: Boolean?,
+    val italic: Boolean?,
 )
