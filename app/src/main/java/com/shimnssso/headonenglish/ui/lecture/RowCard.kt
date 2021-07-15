@@ -121,7 +121,9 @@ fun RowCard(
             if (isFocused) {
                 Row(
                     horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp)
                 ) {
                     Image(
                         painter = painterResource(R.drawable.ic_curtain_closed),
@@ -297,6 +299,11 @@ fun RowCard(
                     .align(Alignment.BottomEnd)
             )
         }
+
+        Text(
+            text = card.order.toString(),
+            style = MaterialTheme.typography.caption,
+        )
     }
 }
 

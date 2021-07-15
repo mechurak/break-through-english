@@ -15,6 +15,7 @@ sealed class CardMode(
             Default -> HideDescription
             HideDescription -> DefaultAgain
             DefaultAgain -> HideText
+            else -> Default
         }
     }
 }
