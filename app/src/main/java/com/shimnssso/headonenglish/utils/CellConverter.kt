@@ -20,85 +20,70 @@ object CellConverter {
     }
 
     fun getStyleItemPair(cell: Cell, mode: CardMode): Pair<String, List<StyleItem>> {
+
+        val LIGHT_PURPLE = Color(0xFF7e57c2)
+
         var tempStr = cell.formattedValue!!
         val retList = mutableListOf<StyleItem>()
-        cell.textFormatRuns?.let {
-            var curItem: StyleItem? = null
-            cell.textFormatRuns.forEachIndexed { index, textFormat ->
-                when (index) {
-                    0 -> {
-                        val backgroundColor =
-                            if (textFormat.format.underline == true) Color.Yellow else Color.Unspecified
-                        val color =
-                            if (textFormat.format.bold == true) Color.Magenta else if (textFormat.format.italic == true) Color.DarkGray else Color.Unspecified
-                        curItem = StyleItem(SpanStyle(background = backgroundColor, color = color), 0, -1)
-                    }
-                    else -> {
-                        val prevEndIndex = textFormat.startIndex!!
-                        curItem!!.end = prevEndIndex
-                        retList.add(curItem!!)
-
-                        val backgroundColor =
-                            if (textFormat.format.underline == true) Color.Yellow else Color.Unspecified
-                        val color =
-                            if (textFormat.format.bold == true) Color.Magenta else if (textFormat.format.italic == true) Color.DarkGray else Color.Unspecified
-                        curItem = StyleItem(SpanStyle(background = backgroundColor, color = color), textFormat.startIndex, -1)
-                    }
-                }
-            }
-            curItem!!.end = cell.formattedValue!!.length
-            retList.add(curItem!!)
-        }
 
         val baseColor = when (mode) {
             CardMode.HideText -> Color.LightGray
             else -> Color.DarkGray
         }
 
-        var end = tempStr.lastIndexOf("]")
-        while (end > 0) {
-            val start = tempStr.lastIndexOf("[")
-            if (start < 0) {
-                throw Exception("mis-matched parentheses")
-            }
-            retList.forEach { item ->
-                item.start = when {
-                    item.start > end -> item.start - 2
-                    item.start in (start + 1) until end -> item.start - 1
-                    else -> item.start
+        if (mode != CardMode.HideText) {
+            cell.textFormatRuns?.let {
+                var curItem: StyleItem? = null
+                cell.textFormatRuns.forEachIndexed { index, textFormat ->
+                    if (curItem != null) {
+                        val prevEndIndex = textFormat.startIndex!!
+                        curItem!!.end = prevEndIndex
+                        retList.add(curItem!!)
+                    }
+
+                    var backgroundColor = Color.Unspecified
+                    var color = Color.Unspecified
+
+                    if (textFormat.format.underline == true) {
+                        backgroundColor = Color.Yellow
+                    }
+                    if (textFormat.format.italic == true) {
+                        color = LIGHT_PURPLE
+                    }
+                    curItem = StyleItem(SpanStyle(background = backgroundColor, color = color), textFormat.startIndex ?: 0, -1)
                 }
-                item.end = when {
-                    item.end > end -> item.end - 2
-                    item.end in (start + 1)..end -> item.end - 1
-                    else -> item.end
+                curItem!!.end = cell.formattedValue!!.length
+                retList.add(curItem!!)
+
+                // for bold
+                var prevStartIndex = -1
+                var prevBold = false
+                cell.textFormatRuns.forEachIndexed { index, textFormat ->
+                    if (textFormat.format.bold == true) {
+                        if (prevBold) {
+                            // Do nothing
+                        } else {
+                            prevStartIndex = textFormat.startIndex ?: 0
+                            prevBold = true
+                        }
+                    } else {
+                        if (prevStartIndex != -1) {
+                            retList.add(StyleItem(SpanStyle(background = baseColor, color = baseColor), prevStartIndex, textFormat.startIndex!!, true))
+                        }
+                        prevStartIndex = -1
+                        prevBold = false
+                    }
+                }
+                if (prevStartIndex != -1) {
+                    retList.add(StyleItem(SpanStyle(background = baseColor, color = baseColor), prevStartIndex, cell.formattedValue!!.length, true))
                 }
             }
-            tempStr = tempStr.replaceRange(end, end + 1, "")
-            tempStr = tempStr.replaceRange(start, start + 1, "")
-            if (mode != CardMode.HideText) {
-                retList.add(
-                    StyleItem(
-                        SpanStyle(background = baseColor, color = baseColor),
-                        start,
-                        end - 1,
-                        true
-                    )
-                )
-            }
-            end = tempStr.lastIndexOf(']')
         }
+
         if (mode == CardMode.HideText) {
             var start = 0
             var endSpace = tempStr.indexOfAny(listOf(" ", ",",  ".", "!", "?", "/"), start)
             while (endSpace > 0) {
-                println(
-                    "[${start}:${endSpace}) \"${
-                        tempStr.substring(
-                            start,
-                            endSpace
-                        )
-                    }\""
-                )
                 if ((endSpace - start) > 2) {
                     retList.add(
                         StyleItem(
