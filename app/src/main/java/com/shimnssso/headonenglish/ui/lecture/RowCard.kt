@@ -194,6 +194,7 @@ fun RowCard(
         Text(
             text = card.order.toString(),
             style = MaterialTheme.typography.caption,
+            modifier = Modifier.padding(top = topPadding)
         )
     }
 }
