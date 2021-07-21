@@ -11,8 +11,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -70,7 +71,7 @@ fun LectureContent(
 
         var focusedIdx by remember { mutableStateOf(-1) }
         val coroutineScope = rememberCoroutineScope()
-        val scrollState = rememberScrollState()
+        val lazyListState = rememberLazyListState()
 
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_broccoli))
         val progress by animateLottieCompositionAsState(
@@ -79,28 +80,36 @@ fun LectureContent(
         )
 
         Box() {
-            Column(
+            LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = modifier.verticalScroll(scrollState)
             ) {
-                cards.forEachIndexed() { index, card ->
+                itemsIndexed(cards) { index, card ->
                     RowCard(
                         index, card, defaultMode, defaultShowKeyword, index == focusedIdx
-                    ) { newFocusedIdx, positionY ->
+                    ) { newFocusedIdx ->
                         focusedIdx = newFocusedIdx
                         coroutineScope.launch {
-                            scrollState.animateScrollTo(positionY.toInt() - 360)
+                            lazyListState.animateScrollToItem(focusedIdx)
                         }
                     }
                 }
-                Spacer(Modifier.height(200.dp))
 
-                LottieAnimation(
-                    composition,
-                    modifier = Modifier
-                        .size(250.dp),
-                    progress = progress,
-                )
+                item {
+                    Spacer(Modifier.height(200.dp))
+                }
+
+                item {
+                    LottieAnimation(
+                        composition,
+                        modifier = Modifier
+                            .size(250.dp),
+                        progress = progress,
+                    )
+                }
+
+                item {
+                    Spacer(Modifier.height(200.dp))
+                }
             }
 
             androidx.compose.animation.AnimatedVisibility(
