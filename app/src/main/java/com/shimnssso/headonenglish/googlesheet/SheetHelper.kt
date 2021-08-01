@@ -99,7 +99,7 @@ object SheetHelper {
             try {
                 spreadsheet = sheets!!.spreadsheets()
                     .get(spreadsheetId)  // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/get
-                    .setFields("sheets.properties,sheets.data.rowData.values.formattedValue,sheets.data.rowData.values.textFormatRuns")
+                    .setFields("sheets.properties,sheets.data.rowData.values.formattedValue,sheets.data.rowData.values.textFormatRuns,sheets.data.rowData.values.effectiveFormat.textFormat.bold")
                     .execute()
 
                 for ((index, sheet: Sheet) in spreadsheet.sheets.withIndex()) {
@@ -154,6 +154,8 @@ object SheetHelper {
                 }
                 if (i < frozenRowCount) {
                     idxHolder.setColumnIndices(rowData)
+                } else if (cells[idxHolder.order].formattedValue == null) {
+                  continue
                 } else if (cells[idxHolder.order].formattedValue == "0") {
                     val lecture = getLecture(idxHolder, cells, subject.subjectId)
                     val originLecture = remainedLectureMap[lecture.date]
@@ -225,7 +227,6 @@ object SheetHelper {
             if (idx.metaLink1 > 0 && cells.size > idx.metaLink1) cells[idx.metaLink1].formattedValue else null
         val link2 =
             if (idx.metaLink2 > 0 && cells.size > idx.metaLink2) cells[idx.metaLink2].formattedValue else null
-
         return DatabaseLecture(
             subjectId = subjectId,
             date = cells[idx.date].formattedValue!!,
@@ -242,6 +243,7 @@ object SheetHelper {
         val hint = if (idx.hint > 0 && cells.size > idx.hint) cells[idx.hint].formattedValue else null
         val note = if (idx.note > 0 && cells.size > idx.note) cells[idx.note].formattedValue else null
         val memo = if (idx.memo > 0 && cells.size > idx.memo) cells[idx.memo].formattedValue else null
+        // Timber.e(cells[idx.text].toPrettyString())
         return DatabaseCard(
             subjectId = subjectId,
             date = cells[idx.date].formattedValue!!,

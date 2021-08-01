@@ -78,6 +78,10 @@ object CellConverter {
                     retList.add(StyleItem(SpanStyle(background = baseColor, color = baseColor), prevStartIndex, cell.formattedValue!!.length, true))
                 }
             }
+
+            if (cell.effectiveFormat?.textFormat?.bold == true) {
+                retList.add(StyleItem(SpanStyle(background = baseColor, color = baseColor), 0, cell.formattedValue!!.length, true))
+            }
         }
 
         if (mode == CardMode.HideText) {

@@ -53,13 +53,19 @@ data class RowDataItem(
 @JsonClass(generateAdapter = true)
 data class Cell(
     var formattedValue: String?,
-    val textFormatRuns: List<TextFormat>?
+    val textFormatRuns: List<TextFormatRun>?,
+    val effectiveFormat: EffectiveFormat?,
 )
 
 @JsonClass(generateAdapter = true)
-data class TextFormat(
+data class TextFormatRun(
     val startIndex: Int?,
     val format: Format,
+)
+
+@JsonClass(generateAdapter = true)
+data class EffectiveFormat(
+    val textFormat: Format,
 )
 
 @JsonClass(generateAdapter = true)

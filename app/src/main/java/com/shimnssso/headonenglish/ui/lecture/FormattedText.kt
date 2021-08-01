@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.shimnssso.headonenglish.network.Cell
 import com.shimnssso.headonenglish.network.Format
-import com.shimnssso.headonenglish.network.TextFormat
+import com.shimnssso.headonenglish.network.TextFormatRun
 import com.shimnssso.headonenglish.utils.CellConverter
 import timber.log.Timber
 
@@ -105,9 +105,10 @@ fun FormattedTextPreview() {
     val cell = Cell(
         formattedValue = "seasonal fruits",
         textFormatRuns = listOf(
-            TextFormat(startIndex = null, format = Format(underline = true, bold = null, italic = null)),
-            TextFormat(startIndex = 3, format = Format(underline = null, bold = null, italic = null))
-        )
+            TextFormatRun(startIndex = null, format = Format(underline = true, bold = null, italic = null)),
+            TextFormatRun(startIndex = 3, format = Format(underline = null, bold = null, italic = null))
+        ),
+        effectiveFormat = null
     )
     FormattedText(cell, mode = CardMode.Default)
 }
