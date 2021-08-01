@@ -107,7 +107,7 @@ dependencies {
     implementation 'com.karumi:dexter:6.2.2'
 
     // lottie (http://airbnb.io/lottie/#/android-compose)
-    implementation "com.airbnb.android:lottie-compose:1.0.0-rc01-1"
+    implementation "com.airbnb.android:lottie-compose:4.0.0"
 
     // google play service (https://developers.google.com/android/guides/setup)
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
