@@ -3,10 +3,12 @@ package com.shimnssso.headonenglish
 import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.shimnssso.headonenglish.repository.LectureRepository
 import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.room.LectureDatabase
+import com.shimnssso.headonenglish.room.MIGRATION_4_5
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -36,6 +38,7 @@ object Graph {
                     }
                 }
             })
+            .addMigrations(MIGRATION_4_5)
             .build()
     }
 }

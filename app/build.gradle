@@ -19,6 +19,13 @@ android {
         vectorDrawables {
             useSupportLibrary true
         }
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += ["room.schemaLocation":
+                                      "$projectDir/schemas".toString()]
+            }
+        }
     }
 
     signingConfigs {
@@ -58,6 +65,11 @@ android {
         // our test APK to build (has no effect on our AARs)
         excludes += "/META-INF/AL2.0"
         excludes += "/META-INF/LGPL2.1"
+    }
+
+    sourceSets {
+        // Adds exported schema location as test app assets.
+        androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
     }
 }
 
@@ -103,6 +115,8 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
+    implementation 'com.google.code.gson:gson:2.8.6'
+
     // Runtime permissions (https://github.com/Karumi/Dexter)
     implementation 'com.karumi:dexter:6.2.2'
 
@@ -131,4 +145,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
     androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation "androidx.room:room-testing:$room_version"
+    androidTestImplementation 'androidx.test.ext:junit-ktx:1.1.3'
 }

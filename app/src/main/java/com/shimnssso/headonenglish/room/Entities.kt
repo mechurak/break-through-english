@@ -1,5 +1,6 @@
 package com.shimnssso.headonenglish.room
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.shimnssso.headonenglish.model.DomainCard
@@ -29,6 +30,10 @@ data class DatabaseLecture(
     val localUrl: String? = null,
     val link1: String? = null,
     val link2: String? = null,
+    @ColumnInfo(defaultValue = "0")
+    val lastStudyDate: Long = 0,
+    @ColumnInfo(defaultValue = "0")
+    val studyPoint: Int = 0,
 )
 
 @Entity(tableName = "card_table", primaryKeys = ["subjectId", "date", "order"])
@@ -41,6 +46,8 @@ data class DatabaseCard(
     val hint: String?,
     val note: String?,
     val memo: String?,
+    @ColumnInfo(defaultValue = "0")
+    val isForQuiz: Int = 0,
 )
 
 @Entity(tableName = "global_table")
