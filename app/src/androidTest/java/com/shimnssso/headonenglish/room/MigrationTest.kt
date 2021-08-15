@@ -1,10 +1,15 @@
 package com.shimnssso.headonenglish.room
 
+import android.content.ContentValues
+import android.database.sqlite.SQLiteDatabase
+import androidx.core.database.getStringOrNull
 import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import timber.log.Timber
 import java.io.IOException
 
 class MigrationTest {
@@ -20,31 +25,62 @@ class MigrationTest {
     @Test
     @Throws(IOException::class)
     fun migrate4To5() {
-        var db = helper.createDatabase(TEST_DB, 4).apply {
+        val lectureCv1 = ContentValues()
+        lectureCv1.put("subjectId", 1)
+        lectureCv1.put("date", "2021-05-12")
+        lectureCv1.put("title", "발음 강세 Unit 553. 체중")
+        lectureCv1.put("category", "Maintaining Our Health")
+
+        val lectureCv2 = ContentValues()
+        lectureCv2.put("subjectId", 1)
+        lectureCv2.put("date", "2021-05-13")
+        lectureCv2.put("title", "발음 강세 Unit 554. Temp Title")
+        lectureCv2.put("category", "Maintaining Our Health")
+
+        var dbBefore = helper.createDatabase(TEST_DB, 4).apply {
             // db has schema version 4. insert some data using SQL queries.
             // You cannot use DAO classes because they expect the latest schema.
 
-//            execSQL("""
-//                insert into lecture_table values (
-//                1,
-//                "정면돌파 스피킹 template",
-//                "1veQzV0fyYHO_4Lu2l33ZRXbjy47_q8EI1nwVAQXJcVQ",
-//                0,
-//                "하루에 한 표현씩 Speed 실전 스피킹!",
-//                "https://home.ebse.co.kr/10mins_lee2/main",
-//                "https://static.ebs.co.kr/images/public/courses/2021/02/19/20/ER2017H0SPE01ZZ/8f8797ce-8085-4a0f-9681-4df159c3de17.jpg",
-//                );
-//            """.trimIndent())
+            insert("lecture_table", SQLiteDatabase.CONFLICT_REPLACE, lectureCv1)
+            insert("lecture_table", SQLiteDatabase.CONFLICT_REPLACE, lectureCv2)
 
             // Prepare for the next version.
             close()
         }
 
-        // Re-open the database with version 2 and provide
-        // MIGRATION_1_2 as the migration process.
-        db = helper.runMigrationsAndValidate(TEST_DB, 5, true, MIGRATION_4_5)
+        // Re-open the database with version 5 and provide
+        // MIGRATION_4_5 as the migration process.
+        val dbAfter = helper.runMigrationsAndValidate(TEST_DB, 5, true, MIGRATION_4_5)
 
-        // MigrationTestHelper automatically verifies the schema changes,
-        // but you need to validate that the data was migrated properly.
+        val cursor = dbAfter.query("SELECT * from lecture_table")
+        val idxStudyDate = cursor.getColumnIndex("lastStudyDate")
+        val idxStudyPoint = cursor.getColumnIndex("studyPoint")
+        Timber.i("count: ${cursor.count}")
+        Timber.i("idxStudyDate: $idxStudyDate")
+        assertEquals(8, idxStudyDate)
+        Timber.i("idxStudyPoint: $idxStudyPoint")
+        assertEquals(9, idxStudyPoint)
+
+        if (cursor.moveToFirst()) {
+            do {
+                Timber.i("== row ===")
+                val subjectId = cursor.getInt(0)
+                val date = cursor.getString(1)
+                val title = cursor.getString(2)
+                val category = cursor.getString(3)
+                val remoteUrl = cursor.getStringOrNull(4)
+                val localUrl = cursor.getStringOrNull(5)
+                val link1 = cursor.getStringOrNull(6)
+                val link2 = cursor.getStringOrNull(7)
+                val studyDate = cursor.getInt(idxStudyDate)
+                val studyPoint = cursor.getInt(idxStudyPoint)
+                Timber.i("subjectId: $subjectId, date: $date")
+                Timber.i("title: $title, category: $category")
+                Timber.i("remoteUrl: $remoteUrl, localUrl: $localUrl")
+                Timber.i("link1: $link1, link2: $link2")
+                Timber.i("studyDate: $studyDate")
+                Timber.i("studyPoint: $studyPoint")
+            } while (cursor.moveToNext())
+        }
     }
 }
