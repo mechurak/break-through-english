@@ -10,6 +10,7 @@ data class IndexHolder(
     var hint: Int = -1,  // optional
     var note: Int = -1,  // optional
     var memo: Int = -1,  // optional
+    var quiz: Int = -1,  // optional
 
     var metaTitle: Int = 2,
     var metaCategory: Int = -1,  // optional
@@ -38,6 +39,9 @@ data class IndexHolder(
                 }
                 "memo" -> {
                     memo = i
+                }
+                "quiz" -> {
+                    quiz = i
                 }
                 "title" -> {
                     metaTitle = i

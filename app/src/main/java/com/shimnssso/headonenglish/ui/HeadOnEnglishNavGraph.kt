@@ -11,6 +11,7 @@ import com.shimnssso.headonenglish.ui.MainDestinations.DATE_KEY
 import com.shimnssso.headonenglish.ui.MainDestinations.SUBJECT_KEY
 import com.shimnssso.headonenglish.ui.daylist.DayListScreen
 import com.shimnssso.headonenglish.ui.lecture.LectureScreen
+import com.shimnssso.headonenglish.ui.quiz.QuizScreen
 import com.shimnssso.headonenglish.ui.select.SelectScreen
 
 /**
@@ -20,6 +21,7 @@ object MainDestinations {
     const val SELECT_ROUTE = "select"
     const val DAY_LIST_ROUTE = "dayList"
     const val LECTURE_ROUTE = "lecture"
+    const val QUIZ_ROUTE = "quiz"
 
     const val SUBJECT_KEY = "subject"
     const val DATE_KEY = "date"
@@ -45,11 +47,19 @@ fun HeadOnEnglishNavGraph(
         composable(MainDestinations.DAY_LIST_ROUTE) {
             DayListScreen(
                 navigateToLecture = actions.navigateToLecture,
+                navigateToQuiz = actions.navigateToQuiz,
                 onBack = actions.upPress,
             )
         }
         composable("${MainDestinations.LECTURE_ROUTE}?$DATE_KEY={$DATE_KEY}&$SUBJECT_KEY={$SUBJECT_KEY}") { backStackEntry ->
             LectureScreen(
+                subject = backStackEntry.arguments?.getString(SUBJECT_KEY),
+                date = backStackEntry.arguments?.getString(DATE_KEY),
+                onBack = actions.upPress,
+            )
+        }
+        composable("${MainDestinations.QUIZ_ROUTE}?$DATE_KEY={$DATE_KEY}&$SUBJECT_KEY={$SUBJECT_KEY}") { backStackEntry ->
+            QuizScreen(
                 subject = backStackEntry.arguments?.getString(SUBJECT_KEY),
                 date = backStackEntry.arguments?.getString(DATE_KEY),
                 onBack = actions.upPress,
@@ -67,6 +77,9 @@ class MainActions(navController: NavHostController) {
     }
     val navigateToLecture: (Int, String) -> Unit = { subjectId, date: String ->
         navController.navigate("${MainDestinations.LECTURE_ROUTE}?$DATE_KEY=$date&$SUBJECT_KEY=$subjectId")
+    }
+    val navigateToQuiz: (Int, String) -> Unit = { subjectId, date: String ->
+        navController.navigate("${MainDestinations.QUIZ_ROUTE}?$DATE_KEY=$date&$SUBJECT_KEY=$subjectId")
     }
     val upPress: () -> Unit = {
         navController.navigateUp()

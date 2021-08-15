@@ -243,6 +243,11 @@ object SheetHelper {
         val hint = if (idx.hint > 0 && cells.size > idx.hint) cells[idx.hint].formattedValue else null
         val note = if (idx.note > 0 && cells.size > idx.note) cells[idx.note].formattedValue else null
         val memo = if (idx.memo > 0 && cells.size > idx.memo) cells[idx.memo].formattedValue else null
+        val quizTemp = if (idx.quiz > 0 && cells.size > idx.quiz) cells[idx.quiz].formattedValue else null
+        var quiz = 0
+        if (quizTemp != null) {
+            quiz = quizTemp.toInt()
+        }
         // Timber.e(cells[idx.text].toPrettyString())
         return DatabaseCard(
             subjectId = subjectId,
@@ -252,6 +257,7 @@ object SheetHelper {
             hint = hint,
             note = note,
             memo = memo,
+            isForQuiz = quiz
         )
     }
 

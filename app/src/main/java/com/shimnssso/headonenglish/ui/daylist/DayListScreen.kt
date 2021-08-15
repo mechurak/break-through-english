@@ -38,6 +38,7 @@ import timber.log.Timber
 @Composable
 fun DayListScreen(
     navigateToLecture: (Int, String) -> Unit,
+    navigateToQuiz:  (Int, String) -> Unit,
     onBack: () -> Unit,
 ) {
 
@@ -102,6 +103,7 @@ fun DayListScreen(
         LectureList(
             lectures = lectures,
             navigateToLecture = navigateToLecture,
+            navigateToQuiz = navigateToQuiz,
             loading = isLoading,
             modifier = modifier.supportWideScreen()
         )
@@ -123,6 +125,7 @@ fun DayListScreen(
 private fun LectureList(
     lectures: List<DatabaseLecture>,
     navigateToLecture: (Int, String) -> Unit,
+    navigateToQuiz:  (Int, String) -> Unit,
     loading: Boolean,
     modifier: Modifier = Modifier
 ) {
@@ -134,7 +137,7 @@ private fun LectureList(
         ) {
             lectures.forEach { lecture ->
                 val isDateBase = lecture.date.startsWith("20")
-                LectureCard(lecture, navigateToLecture)
+                LectureCard(lecture, navigateToLecture, navigateToQuiz)
                 val color = if (isDateBase) {
                     if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {
                         MaterialTheme.colors.surface

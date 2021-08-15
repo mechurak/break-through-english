@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ import com.shimnssso.headonenglish.utils.DateConverter
 fun LectureCard(
     lecture: DatabaseLecture,
     navigateToArticle: (Int, String) -> Unit,
+    navigateToQuiz:  (Int, String) -> Unit,
 ) {
     val isDateBase = lecture.date.startsWith("20")
     val backgroundColor = if (isDateBase) {
@@ -72,6 +74,10 @@ fun LectureCard(
                     .size(48.dp)
                     .padding(8.dp)
             )
+        }
+
+        Button(onClick = { navigateToQuiz(lecture.subjectId, lecture.date) }) {
+            Text(text = "Quiz")
         }
     }
 }
