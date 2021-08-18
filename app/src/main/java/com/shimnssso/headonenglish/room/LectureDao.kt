@@ -21,6 +21,9 @@ interface LectureDao {
     @Query("select * from card_table where date = :date and subjectId = :subjectId")
     fun getCards(subjectId: Int, date: String): LiveData<List<DatabaseCard>>
 
+    @Query("select * from card_table where date = :date and subjectId = :subjectId and isForQuiz = 1")
+    fun getCardsForQuiz(subjectId: Int, date: String): LiveData<List<DatabaseCard>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertCards(rows: List<DatabaseCard>)
 

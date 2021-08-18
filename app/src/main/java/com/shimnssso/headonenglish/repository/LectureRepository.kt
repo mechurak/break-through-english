@@ -146,6 +146,10 @@ class LectureRepository(
         return database.lectureDao.getCards(subjectId, date)
     }
 
+    fun getCardsForQuiz(subjectId: Int, date: String): LiveData<List<DatabaseCard>> {
+        return database.lectureDao.getCardsForQuiz(subjectId, date)
+    }
+
     fun getLecture(subjectId: Int, date: String): LiveData<DatabaseLecture> {
         return database.lectureDao.getLecture(subjectId, date)
     }
