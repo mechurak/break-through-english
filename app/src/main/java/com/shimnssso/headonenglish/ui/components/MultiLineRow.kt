@@ -1,20 +1,9 @@
 package com.shimnssso.headonenglish.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -95,9 +84,10 @@ fun MultiLineRow(
                         rowMeta = rowMetaIter.next()
                     }
                 }
+                val heightOffset = (rowMeta.maxHeight - placeable.height) / 2
                 placeable.placeRelative(
                     x = rowX[curRow],
-                    y = rowY[curRow]
+                    y = rowY[curRow] + heightOffset
                 )
                 rowX[curRow] += placeable.width
             }
@@ -110,29 +100,12 @@ fun MultiLineRow(
 fun MultiLineRowPreview() {
     HeadOnEnglishTheme {
         val prevTexts = "This is a test sentence. I would like".split(" ")
-        var userInput by remember { mutableStateOf("to") }
         val nextTexts = "locate a TextField among Texts.".split(" ")
         MultiLineRow {
             for (text in prevTexts) {
                 Text(text, modifier = Modifier.padding(end = 6.dp))
             }
-            BasicTextField(
-                value = userInput,
-                onValueChange = { userInput = it },
-                decorationBox = { innerTextField ->
-                    Row(
-                        Modifier
-                            .background(Color.White, RoundedCornerShape(percent = 20))
-                            .border(2.dp, Color.Black, RoundedCornerShape(percent = 20))
-                            .padding(2.dp)
-                    ) {
-                        innerTextField()
-                    }
-                },
-                modifier = Modifier
-                    .width(30.dp)
-                    .padding(end = 6.dp)
-            )
+            AnswerTextField(expectedText = "to", Modifier.padding(end = 6.dp))
             for (text in nextTexts) {
                 Text(text, modifier = Modifier.padding(end = 6.dp))
             }

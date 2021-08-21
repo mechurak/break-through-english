@@ -18,10 +18,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AnswerTextField(
     expectedText: String,
+    modifier: Modifier = Modifier
 ) {
     var value by remember { mutableStateOf("") }
     val maxChar = expectedText.length
-    val width = maxChar * 20
+    val width = maxChar * 30
     val isError = value != "" && value != expectedText
 
     OutlinedTextField(
@@ -32,7 +33,7 @@ fun AnswerTextField(
         placeholder = {
             Text(text = "o".repeat(maxChar))
         },
-        modifier = Modifier.width(width.dp)
+        modifier = modifier.width(width.dp)
     )
 }
 
