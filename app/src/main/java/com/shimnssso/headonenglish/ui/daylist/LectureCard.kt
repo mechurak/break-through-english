@@ -27,7 +27,7 @@ fun LectureCard(
     navigateToArticle: (Int, String) -> Unit,
     navigateToQuiz:  (Int, String) -> Unit,
 ) {
-    val isDateBase = lecture.date.startsWith("20")
+    val isDateBase = lecture.date.startsWith("20") && lecture.date.length == 10
     val backgroundColor = if (isDateBase) {
         if (DateConverter.weekInYear(lecture.date) % 2 == 0) {
             MaterialTheme.colors.background
