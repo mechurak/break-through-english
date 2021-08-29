@@ -136,7 +136,7 @@ private fun LectureList(
                 .verticalScroll(rememberScrollState()),
         ) {
             lectures.forEach { lecture ->
-                val isDateBase = lecture.date.startsWith("20") && lecture.date.length == 10
+                val isDateBase = DateConverter.isDateBase(lecture.date)
                 LectureCard(lecture, navigateToLecture, navigateToQuiz)
                 val color = if (isDateBase) {
                     if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {

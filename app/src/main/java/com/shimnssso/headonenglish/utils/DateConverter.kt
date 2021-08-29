@@ -29,6 +29,6 @@ object DateConverter {
 
     private val dateRegex = Regex("^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$")
     fun isDateBase(inputStr: String): Boolean {
-        return dateRegex.containsMatchIn(inputStr)
+        return dateRegex.matches(inputStr)
     }
 }
