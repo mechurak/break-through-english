@@ -4,11 +4,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
@@ -22,8 +18,12 @@ fun AnswerTextField(
 ) {
     var value by remember { mutableStateOf("") }
     val maxChar = expectedText.length
-    val width = maxChar * 30
+    val width = (maxChar * 15) + 30
     val isError = value != "" && value != expectedText
+
+    LaunchedEffect(expectedText) {
+        value = ""
+    }
 
     OutlinedTextField(
         value = value,
@@ -31,7 +31,7 @@ fun AnswerTextField(
         isError = isError,
         singleLine = true,
         placeholder = {
-            Text(text = "o".repeat(maxChar))
+            Text(text = "_".repeat(maxChar))
         },
         modifier = modifier.width(width.dp)
     )

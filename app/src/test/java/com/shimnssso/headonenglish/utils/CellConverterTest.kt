@@ -197,4 +197,12 @@ class CellConverterTest {
             )
         }
     }
+
+    @Test
+    fun getQuizAnswerPair() {
+        val cell = CellConverter.fromJson(JSON_SAMPLE_2)
+        val retList = CellConverter.getQuizAnswerPair(cell)
+        println(retList)
+
+    }
 }

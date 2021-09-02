@@ -26,10 +26,12 @@ class QuizViewModel(
         get() = _curIdx
 
     fun next() {
-        val last = cards.value!!.size - 1
-        _curIdx.value = _curIdx.value?.plus(1)
-        if (_curIdx.value!! > last) {
-            _curIdx.value = 0
+        cards.value?.let {
+            var tempValue = _curIdx.value?.plus(1) ?: 0
+            if (tempValue > it.lastIndex) {
+                tempValue = 0
+            }
+            _curIdx.value = tempValue
         }
     }
 

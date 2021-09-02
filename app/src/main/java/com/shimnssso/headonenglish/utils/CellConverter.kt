@@ -1,5 +1,7 @@
 package com.shimnssso.headonenglish.utils
 
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import com.shimnssso.headonenglish.model.StyleItem
@@ -114,5 +116,79 @@ object CellConverter {
             }
         }
         return Pair(tempStr, retList)
+    }
+
+    fun getQuizAnswerPair(cell: Cell): List<Pair<Boolean, String>> {
+
+        val retList = mutableListOf<Pair<Boolean, String>>()
+        val wordStartIndexSet = mutableSetOf<Int>()
+
+        // for bold
+        var prevStartIndex = -1
+        var prevBold = false
+        cell.textFormatRuns?.forEachIndexed { index, textFormat ->
+            if (textFormat.format.bold == true) {
+                if (prevBold) {
+                    // Do nothing
+                } else {
+                    prevStartIndex = textFormat.startIndex ?: 0
+                    prevBold = true
+                }
+            } else {
+                if (prevStartIndex != -1) {
+                    val curStr = cell.formattedValue!!.substring(prevStartIndex, textFormat.startIndex!!)
+                    println("curStr: $curStr")
+                    val tempList = getStartIdxList(curStr)
+                    println("tempList: $tempList")
+                    tempList.forEach {
+                        wordStartIndexSet.add(prevStartIndex + it)
+                    }
+                    println("wordStartIndexSet: $wordStartIndexSet")
+                }
+                prevStartIndex = -1
+                prevBold = false
+            }
+        }
+        if (prevStartIndex != -1) {
+            val curStr = cell.formattedValue!!.substring(prevStartIndex)
+            val tempList = getStartIdxList(curStr)
+            tempList.forEach {
+                wordStartIndexSet.add(prevStartIndex + it)
+            }
+        }
+
+        println("wordStartIndexSet: $wordStartIndexSet")
+
+        var curStartIdx = 0
+        var curSpaceIdx = cell.formattedValue!!.indexOf(" ")
+        // var curEndIdx = if (curSpaceIdx == -1) cell.formattedValue!!.length else curSpaceIdx
+
+        while (curSpaceIdx != -1) {
+            if (wordStartIndexSet.contains(curStartIdx)) {
+                retList.add(Pair(true, cell.formattedValue!!.substring(curStartIdx, curSpaceIdx)))
+            } else {
+                retList.add(Pair(false, cell.formattedValue!!.substring(curStartIdx, curSpaceIdx)))
+            }
+
+            curStartIdx = curSpaceIdx + 1
+            curSpaceIdx = cell.formattedValue!!.indexOf(" ", curStartIdx)
+        }
+
+        if (wordStartIndexSet.contains(curStartIdx)) {
+            retList.add(Pair(true, cell.formattedValue!!.substring(curStartIdx)))
+        } else {
+            retList.add(Pair(false, cell.formattedValue!!.substring(curStartIdx)))
+        }
+        return retList
+    }
+
+    private fun getStartIdxList(text: String) : List<Int> {
+        val retList = mutableListOf(0)
+        var offset = text.indexOf(" ")
+        while (offset != -1) {
+            retList.add(offset + 1)
+            offset = text.indexOf(" ", offset + 1)
+        }
+        return retList
     }
 }

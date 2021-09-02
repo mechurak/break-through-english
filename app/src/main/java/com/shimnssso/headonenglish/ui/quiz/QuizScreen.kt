@@ -1,7 +1,10 @@
 package com.shimnssso.headonenglish.ui.quiz
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -56,7 +59,10 @@ fun QuizScreen(
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
         ) {
             if (cards.isNotEmpty()) {
                 Text(
