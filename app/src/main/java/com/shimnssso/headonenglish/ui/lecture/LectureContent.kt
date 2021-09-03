@@ -81,6 +81,7 @@ fun LectureContent(
 
         Box() {
             LazyColumn(
+                state = lazyListState,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 itemsIndexed(cards) { index, card ->
@@ -89,7 +90,7 @@ fun LectureContent(
                     ) { newFocusedIdx ->
                         focusedIdx = newFocusedIdx
                         coroutineScope.launch {
-                            lazyListState.animateScrollToItem(focusedIdx)
+                            lazyListState.animateScrollToItem(newFocusedIdx)
                         }
                     }
                 }
