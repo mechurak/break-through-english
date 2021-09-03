@@ -87,7 +87,11 @@ fun MultiLineRowPreview() {
             for (text in prevTexts) {
                 Text(text, modifier = Modifier.padding(end = 6.dp))
             }
-            AnswerTextField(expectedText = "to", Modifier.padding(end = 6.dp))
+            AnswerTextField(
+                Modifier.padding(end = 6.dp),
+                idx = 0,
+                expectedText = "to"
+            )
             for (text in nextTexts) {
                 Text(text, modifier = Modifier.padding(end = 6.dp))
             }

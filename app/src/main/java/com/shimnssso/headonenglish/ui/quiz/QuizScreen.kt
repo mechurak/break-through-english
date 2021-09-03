@@ -9,6 +9,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -67,15 +68,18 @@ fun QuizScreen(
             if (cards.isNotEmpty()) {
                 Text(
                     text = "${curIdx + 1} / ${cards.size}",
+                    style = MaterialTheme.typography.overline,
                     modifier = Modifier.padding(vertical = 16.dp)
                 )
                 QuizContent(
                     card = cards[curIdx],
                     success = {
                         Timber.i("success")
+                        viewModel.next()
                     },
                     fail = {
                         Timber.i("fail")
+                        viewModel.next()
                     }
                 )
                 Button(onClick = { viewModel.next() }) {
