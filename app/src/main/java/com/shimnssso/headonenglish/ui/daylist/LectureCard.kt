@@ -25,7 +25,7 @@ import com.shimnssso.headonenglish.utils.DateConverter
 fun LectureCard(
     lecture: DatabaseLecture,
     navigateToArticle: (Int, String) -> Unit,
-    navigateToQuiz:  (Int, String) -> Unit,
+    navigateToQuiz: (Int, String) -> Unit,
 ) {
     val isDateBase = DateConverter.isDateBase(lecture.date)
     val backgroundColor = if (isDateBase) {
@@ -76,8 +76,10 @@ fun LectureCard(
             )
         }
 
-        Button(onClick = { navigateToQuiz(lecture.subjectId, lecture.date) }) {
-            Text(text = "Quiz")
+        if (lecture.quizCount > 0) {
+            Button(onClick = { navigateToQuiz(lecture.subjectId, lecture.date) }) {
+                Text(text = "Quiz")
+            }
         }
     }
 }
