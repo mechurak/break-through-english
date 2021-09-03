@@ -9,6 +9,7 @@ import com.shimnssso.headonenglish.repository.LectureRepository
 import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.room.LectureDatabase
 import com.shimnssso.headonenglish.room.MIGRATION_4_5
+import com.shimnssso.headonenglish.room.MIGRATION_5_6
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,7 +39,7 @@ object Graph {
                     }
                 }
             })
-            .addMigrations(MIGRATION_4_5)
+            .addMigrations(MIGRATION_4_5, MIGRATION_5_6)
             .build()
     }
 }
