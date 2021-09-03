@@ -146,6 +146,7 @@ object SheetHelper {
             val idxHolder = IndexHolder()
 
             val rowDataList: List<RowData> = data.rowData
+            var prevLecture: DatabaseLecture? = null
             for ((i, rowData: RowData) in rowDataList.withIndex()) {
                 val cells = rowData.getValues()
                 if (cells == null || cells.size < idxHolder.order) {
@@ -155,26 +156,49 @@ object SheetHelper {
                 if (i < frozenRowCount) {
                     idxHolder.setColumnIndices(rowData)
                 } else if (cells[idxHolder.order].formattedValue == null) {
-                  continue
+                    continue
                 } else if (cells[idxHolder.order].formattedValue == "0") {
-                    val lecture = getLecture(idxHolder, cells, subject.subjectId)
-                    val originLecture = remainedLectureMap[lecture.date]
-                    if (originLecture == null) {
-                        newLectures.add(lecture)
-                    } else {
-                        val updateLecture: DatabaseLecture = originLecture.copy(
-                            title = lecture.title,
-                            category = lecture.category,
-                            remoteUrl = lecture.remoteUrl,
-                            link1 = lecture.link1,
-                            link2 = lecture.link2,
-                        )
-                        updateLectures.add(updateLecture)
-                        remainedLectureMap.remove(lecture.date)
+                    if (prevLecture != null) {
+                        val originLecture = remainedLectureMap[prevLecture.date]
+                        if (originLecture == null) {
+                            newLectures.add(prevLecture)
+                        } else {
+                            val updateLecture: DatabaseLecture = originLecture.copy(
+                                title = prevLecture.title,
+                                category = prevLecture.category,
+                                remoteUrl = prevLecture.remoteUrl,
+                                link1 = prevLecture.link1,
+                                link2 = prevLecture.link2,
+                                quizCount = prevLecture.quizCount
+                            )
+                            updateLectures.add(updateLecture)
+                            remainedLectureMap.remove(prevLecture.date)
+                        }
                     }
+                    prevLecture = getLecture(idxHolder, cells, subject.subjectId)
                 } else {
                     val card = getCard(idxHolder, cells, subject.subjectId)
+                    if (card.isForQuiz > 0 && prevLecture != null && card.date == prevLecture.date) {
+                        prevLecture.quizCount += 1
+                    }
                     newCards.add(card)
+                }
+            }
+            if (prevLecture != null) {
+                val originLecture = remainedLectureMap[prevLecture.date]
+                if (originLecture == null) {
+                    newLectures.add(prevLecture)
+                } else {
+                    val updateLecture: DatabaseLecture = originLecture.copy(
+                        title = prevLecture.title,
+                        category = prevLecture.category,
+                        remoteUrl = prevLecture.remoteUrl,
+                        link1 = prevLecture.link1,
+                        link2 = prevLecture.link2,
+                        quizCount = prevLecture.quizCount
+                    )
+                    updateLectures.add(updateLecture)
+                    remainedLectureMap.remove(prevLecture.date)
                 }
             }
         }
@@ -218,7 +242,11 @@ object SheetHelper {
         )
     }
 
-    private fun getLecture(idx: IndexHolder, cells: List<CellData>, subjectId: Int): DatabaseLecture {
+    private fun getLecture(
+        idx: IndexHolder,
+        cells: List<CellData>,
+        subjectId: Int
+    ): DatabaseLecture {
         val category =
             if (idx.metaCategory > 0 && cells.size > idx.metaCategory) cells[idx.metaCategory].formattedValue else null
         val remoteUrl =
@@ -240,10 +268,14 @@ object SheetHelper {
     }
 
     private fun getCard(idx: IndexHolder, cells: List<CellData>, subjectId: Int): DatabaseCard {
-        val hint = if (idx.hint > 0 && cells.size > idx.hint) cells[idx.hint].formattedValue else null
-        val note = if (idx.note > 0 && cells.size > idx.note) cells[idx.note].formattedValue else null
-        val memo = if (idx.memo > 0 && cells.size > idx.memo) cells[idx.memo].formattedValue else null
-        val quizTemp = if (idx.quiz > 0 && cells.size > idx.quiz) cells[idx.quiz].formattedValue else null
+        val hint =
+            if (idx.hint > 0 && cells.size > idx.hint) cells[idx.hint].formattedValue else null
+        val note =
+            if (idx.note > 0 && cells.size > idx.note) cells[idx.note].formattedValue else null
+        val memo =
+            if (idx.memo > 0 && cells.size > idx.memo) cells[idx.memo].formattedValue else null
+        val quizTemp =
+            if (idx.quiz > 0 && cells.size > idx.quiz) cells[idx.quiz].formattedValue else null
         var quiz = 0
         if (quizTemp != null) {
             quiz = quizTemp.toInt()
@@ -261,7 +293,10 @@ object SheetHelper {
         )
     }
 
-    suspend fun updateRemoteUrl(subjectForUrl: String, lectures: List<DatabaseLecture>): List<DatabaseLecture> {
+    suspend fun updateRemoteUrl(
+        subjectForUrl: String,
+        lectures: List<DatabaseLecture>
+    ): List<DatabaseLecture> {
         if (!isInitialized()) {
             throw IOException("SheetHelper has not been initialized yet!!")
         }

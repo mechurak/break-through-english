@@ -35,7 +35,7 @@ data class DatabaseLecture(
     @ColumnInfo(defaultValue = "0")
     val studyPoint: Int = 0,
     @ColumnInfo(defaultValue = "0")
-    val quizCount: Int = 0,
+    var quizCount: Int = 0,
 )
 
 @Entity(tableName = "card_table", primaryKeys = ["subjectId", "date", "order"])
