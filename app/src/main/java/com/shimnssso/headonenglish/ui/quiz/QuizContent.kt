@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.network.Cell
@@ -154,10 +155,9 @@ fun QuizContent(
                                     Timber.d("onNext($wordIdx) from \"${it.second}\"")
                                     var nextIdx = wordIdx + 1
                                     if (nextIdx == wordsSize) {
-                                        success()
-                                    } else {
-                                        focusRequests[nextIdx].requestFocus()
+                                        nextIdx = 0
                                     }
+                                    focusRequests[nextIdx].requestFocus()
                                 }
                             )
                         } else {
@@ -183,6 +183,9 @@ fun QuizContent(
                     .size(200.dp)
                     .border(20.dp, Color.Red.copy(alpha = 0.3f), RoundedCornerShape(50))
             )
+
+            LocalFocusManager.current.clearFocus()
+            success()
         }
     }
 }

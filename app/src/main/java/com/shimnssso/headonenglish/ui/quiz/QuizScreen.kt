@@ -75,7 +75,6 @@ fun QuizScreen(
                     card = cards[curIdx],
                     success = {
                         Timber.i("success")
-                        viewModel.next()
                     },
                     fail = {
                         Timber.i("fail")

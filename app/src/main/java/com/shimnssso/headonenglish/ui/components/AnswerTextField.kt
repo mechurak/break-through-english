@@ -29,7 +29,7 @@ fun AnswerTextField(
 ) {
     val maxChar = expectedText.length
     val width = (maxChar * 8) + 40
-    val isError = value != "" && value != expectedText
+    val isError = value != expectedText
 
     LaunchedEffect(expectedText) {
         if (idx == 0) {
