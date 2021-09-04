@@ -90,7 +90,13 @@ fun QuizScreen(
                         viewModel.next()
                     }
                 )
-                Button(onClick = { viewModel.next() }) {
+                Button(onClick = {
+                    if (curIdx == cards.size - 1) {
+                        showDialog = true
+                    } else {
+                        viewModel.next()
+                    }
+                }) {
                     Text(
                         text = "Next",
                         modifier = Modifier.padding(30.dp)

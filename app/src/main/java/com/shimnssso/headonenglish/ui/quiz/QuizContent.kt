@@ -2,8 +2,10 @@ package com.shimnssso.headonenglish.ui.quiz
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -44,8 +46,10 @@ fun QuizContent(
     val hasHint = !card.hint.isNullOrEmpty()
     val hasNote = !card.note.isNullOrEmpty()
     val hasMemo = !card.memo.isNullOrEmpty()
+    val hasMemoContent = hasNote || hasMemo
 
     var showMemo by remember { mutableStateOf(false) }
+    var showAnswer by remember { mutableStateOf(false) }
     val focusRequests = remember { mutableStateListOf<FocusRequester>() }
     val values = remember { mutableStateListOf<String>() }
     val expects = remember { mutableStateListOf<String>() }
@@ -100,33 +104,51 @@ fun QuizContent(
 
             Spacer(Modifier.height(20.dp))
 
-            if (hasNote || hasMemo) {
-                if (showMemo) {
-                    Button(onClick = { showMemo = false }) {
-                        Text(text = "Hide Memo")
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                if (hasMemoContent) {
+                    if (showMemo) {
+                        Button(onClick = { showMemo = false }) {
+                            Text(text = "Hide Memo")
+                        }
+                    } else {
+                        Button(onClick = { showMemo = true }) {
+                            Text(text = "Show Memo")
+                        }
                     }
-                    Spacer(Modifier.height(10.dp))
-                    Column(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        if (hasNote) {
-                            Text(
-                                text = card.note!!,
-                                style = MaterialTheme.typography.overline,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                        }
-                        if (hasMemo) {
-                            Text(
-                                text = card.memo!!,
-                                style = MaterialTheme.typography.caption,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                        }
+                }
+
+                if (showAnswer) {
+                    Button(onClick = { showAnswer = false }) {
+                        Text(text = "Hide Answer")
                     }
                 } else {
-                    Button(onClick = { showMemo = true }) {
-                        Text(text = "Show Memo")
+                    Button(onClick = { showAnswer = true }) {
+                        Text(text = "Show Answer")
+                    }
+                }
+            }
+
+            if (showMemo && hasMemoContent) {
+                Spacer(Modifier.height(10.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (hasNote) {
+                        Text(
+                            text = card.note!!,
+                            style = MaterialTheme.typography.overline,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                    }
+                    if (hasMemo) {
+                        Text(
+                            text = card.memo!!,
+                            style = MaterialTheme.typography.caption,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
                     }
                 }
             }
@@ -147,6 +169,7 @@ fun QuizContent(
                             AnswerTextField(
                                 modifier = Modifier.padding(end = 6.dp),
                                 idx = curIdx,
+                                showAnswer = showAnswer,
                                 expectedText = it.second,
                                 value = values[curIdx],
                                 onValueChanged = { wordIdx, newStr ->
