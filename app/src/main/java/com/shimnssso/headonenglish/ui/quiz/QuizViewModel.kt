@@ -35,6 +35,12 @@ class QuizViewModel(
         }
     }
 
+    fun first() {
+        cards.value?.let {
+            _curIdx.value = 0
+        }
+    }
+
     class Factory(
         private val subjectId: Int,
         private val date: String,

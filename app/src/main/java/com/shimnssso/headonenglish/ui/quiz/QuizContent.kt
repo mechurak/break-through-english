@@ -35,8 +35,9 @@ import timber.log.Timber
 
 @Composable
 fun QuizContent(
+    idx: Int,
     card: DomainCard,
-    success: () -> Unit,
+    success: (Int) -> Unit,
     fail: () -> Unit,
 ) {
     val spellingCell: Cell = CellConverter.fromJson(card.text)
@@ -52,6 +53,7 @@ fun QuizContent(
     var wordsSize by remember { mutableStateOf(0) }
 
     LaunchedEffect(card) {
+        Timber.e("LaunchedEffect!!")
         showMemo = false
 
         quizAnswerPairs.clear()
@@ -176,22 +178,24 @@ fun QuizContent(
             Spacer(Modifier.height(50.dp))
         }
 
-        var tempSuccess = true
-        expects.forEachIndexed { idx, expect ->
-            tempSuccess = tempSuccess && (values[idx] == expect)
-        }
-        Timber.e("tempSuccess: $tempSuccess")
-        if (tempSuccess) {
-            showMemo = true
-            Box(
-                modifier = Modifier
-                    .padding(top = 100.dp)
-                    .size(200.dp)
-                    .border(20.dp, Color.Red.copy(alpha = 0.3f), RoundedCornerShape(50))
-            )
+        if (expects.isNotEmpty()) {
+            var tempSuccess = true
+            expects.forEachIndexed { idx, expect ->
+                tempSuccess = tempSuccess && (values[idx] == expect)
+            }
+            Timber.e("tempSuccess: $tempSuccess")
+            if (tempSuccess) {
+                showMemo = true
+                Box(
+                    modifier = Modifier
+                        .padding(top = 100.dp)
+                        .size(200.dp)
+                        .border(20.dp, Color.Red.copy(alpha = 0.3f), RoundedCornerShape(50))
+                )
 
-            LocalFocusManager.current.clearFocus()
-            success()
+                LocalFocusManager.current.clearFocus()
+                success(idx)
+            }
         }
     }
 }
