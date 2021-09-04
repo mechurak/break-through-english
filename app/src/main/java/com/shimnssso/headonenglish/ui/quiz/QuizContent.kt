@@ -55,9 +55,10 @@ fun QuizContent(
     val expects = remember { mutableStateListOf<String>() }
     val quizAnswerPairs = remember { mutableStateListOf<Pair<Boolean, String>>() }
     var wordsSize by remember { mutableStateOf(0) }
+    var curIdx by remember { mutableStateOf(0) }
 
     LaunchedEffect(card) {
-        Timber.e("LaunchedEffect!!")
+        Timber.d("LaunchedEffect!!")
         showMemo = false
 
         quizAnswerPairs.clear()
@@ -81,6 +82,9 @@ fun QuizContent(
             values.add("")
             focusRequests.add(FocusRequester())
         }
+
+        showAnswer = false
+        curIdx = idx
     }
 
     Box(
@@ -201,12 +205,12 @@ fun QuizContent(
             Spacer(Modifier.height(50.dp))
         }
 
-        if (expects.isNotEmpty()) {
+        if (curIdx == idx && expects.isNotEmpty()) {
             var tempSuccess = true
             expects.forEachIndexed { idx, expect ->
                 tempSuccess = tempSuccess && (values[idx] == expect)
             }
-            Timber.e("tempSuccess: $tempSuccess")
+            Timber.d("tempSuccess: $tempSuccess")
             if (tempSuccess) {
                 showMemo = true
                 Box(
@@ -217,6 +221,7 @@ fun QuizContent(
                 )
 
                 LocalFocusManager.current.clearFocus()
+                Timber.d("invoke success($idx)!!!")
                 success(idx)
             }
         }
