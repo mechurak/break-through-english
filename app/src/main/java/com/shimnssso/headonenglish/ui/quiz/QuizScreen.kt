@@ -82,7 +82,10 @@ fun QuizScreen(
                     }
                 )
                 Button(onClick = { viewModel.next() }) {
-                    Text(text = "Next")
+                    Text(
+                        text = "Next",
+                        modifier = Modifier.padding(30.dp)
+                    )
                 }
             } else {
                 Text(text = "no quiz")

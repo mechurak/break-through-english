@@ -149,6 +149,12 @@ fun QuizContent(
                                 value = values[curIdx],
                                 onValueChanged = { wordIdx, newStr ->
                                     values[wordIdx] = newStr
+                                    if (newStr == expects[wordIdx]) {
+                                        var nextIdx = wordIdx + 1
+                                        if (nextIdx < wordsSize) {
+                                            focusRequests[nextIdx].requestFocus()
+                                        }
+                                    }
                                 },
                                 focusRequester = focusRequests[curIdx],
                                 onNext = { wordIdx ->
