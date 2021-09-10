@@ -33,8 +33,8 @@ fun MultiLineRow(
                 tempWidthSum = placeable.width
             } else {
                 tempWidthSum += placeable.width
-                rowHeight = rowHeight.coerceAtLeast(placeable.height)
             }
+            rowHeight = rowHeight.coerceAtLeast(placeable.height)
             placeable
         }
 
