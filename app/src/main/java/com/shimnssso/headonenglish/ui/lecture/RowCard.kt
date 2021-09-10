@@ -126,7 +126,8 @@ fun RowCard(
                 cell = spellingCell,
                 mode = mode,
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
-                showKeyword = showKeyword
+                showKeyword = showKeyword,
+                isFocused = isFocused
             ) {
                 if (!isFocused) {
                     // Trigger ripple effect

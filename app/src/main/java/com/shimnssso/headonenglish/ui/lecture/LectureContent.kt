@@ -70,7 +70,6 @@ fun LectureContent(
         }
 
         var focusedIdx by remember { mutableStateOf(-1) }
-        val coroutineScope = rememberCoroutineScope()
         val lazyListState = rememberLazyListState()
 
         val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.walking_broccoli))
@@ -89,9 +88,6 @@ fun LectureContent(
                         index, card, defaultMode, defaultShowKeyword, index == focusedIdx
                     ) { newFocusedIdx ->
                         focusedIdx = newFocusedIdx
-                        coroutineScope.launch {
-                            lazyListState.animateScrollToItem(newFocusedIdx)
-                        }
                     }
                 }
 

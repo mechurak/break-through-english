@@ -28,6 +28,7 @@ fun FormattedText(
     mode: CardMode,
     modifier: Modifier = Modifier,
     showKeyword: Boolean = false,
+    isFocused: Boolean = false,
     toggleDescription: () -> Unit = {},
 ) {
     val (text, itemList) = CellConverter.getStyleItemPair(cell, mode)
@@ -44,7 +45,10 @@ fun FormattedText(
                             background = Color.Unspecified,
                             color = Color.Unspecified
                         )  // for all
-                        else -> it.spanStyle!!.copy(background = Color.Unspecified, color = Color.Red)  // 1, 3
+                        else -> it.spanStyle!!.copy(
+                            background = Color.Unspecified,
+                            color = Color.Red
+                        )  // 1, 3
                     }
                     addStyle(tempStyle, it.start, it.end)
                 } else {
@@ -69,14 +73,18 @@ fun FormattedText(
 
     val textStyle = when (mode) {
         CardMode.HideText -> MaterialTheme.typography.h5.copy(fontSize = 30.sp)
-        else -> MaterialTheme.typography.body1.copy(fontSize = 20.sp)
+        else -> {
+            if (isFocused) MaterialTheme.typography.h5.copy(fontSize = 27.sp)
+            else MaterialTheme.typography.body1.copy(fontSize = 20.sp)
+        }
     }
 
     ClickableText(
         text = annotatedText,
         style = textStyle,
         onClick = { offset ->
-            val selectedSection = annotatedText.getStringAnnotations("Section", offset, offset).firstOrNull()
+            val selectedSection =
+                annotatedText.getStringAnnotations("Section", offset, offset).firstOrNull()
             if (selectedSection != null) {
                 Timber.d(
                     "offset: $offset, text: ${
@@ -105,8 +113,14 @@ fun FormattedTextPreview() {
     val cell = Cell(
         formattedValue = "seasonal fruits",
         textFormatRuns = listOf(
-            TextFormatRun(startIndex = null, format = Format(underline = true, bold = null, italic = null)),
-            TextFormatRun(startIndex = 3, format = Format(underline = null, bold = null, italic = null))
+            TextFormatRun(
+                startIndex = null,
+                format = Format(underline = true, bold = null, italic = null)
+            ),
+            TextFormatRun(
+                startIndex = 3,
+                format = Format(underline = null, bold = null, italic = null)
+            )
         ),
         effectiveFormat = null
     )
