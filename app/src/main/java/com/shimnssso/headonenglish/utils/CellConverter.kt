@@ -52,7 +52,11 @@ object CellConverter {
                     if (textFormat.format.italic == true) {
                         color = LIGHT_PURPLE
                     }
-                    curItem = StyleItem(SpanStyle(background = backgroundColor, color = color), textFormat.startIndex ?: 0, -1)
+                    curItem = StyleItem(
+                        SpanStyle(background = backgroundColor, color = color),
+                        textFormat.startIndex ?: 0,
+                        -1
+                    )
                 }
                 curItem!!.end = cell.formattedValue!!.length
                 retList.add(curItem!!)
@@ -70,25 +74,46 @@ object CellConverter {
                         }
                     } else {
                         if (prevStartIndex != -1) {
-                            retList.add(StyleItem(SpanStyle(background = baseColor, color = baseColor), prevStartIndex, textFormat.startIndex!!, true))
+                            retList.add(
+                                StyleItem(
+                                    SpanStyle(
+                                        background = baseColor,
+                                        color = baseColor
+                                    ), prevStartIndex, textFormat.startIndex!!, true
+                                )
+                            )
                         }
                         prevStartIndex = -1
                         prevBold = false
                     }
                 }
                 if (prevStartIndex != -1) {
-                    retList.add(StyleItem(SpanStyle(background = baseColor, color = baseColor), prevStartIndex, cell.formattedValue!!.length, true))
+                    retList.add(
+                        StyleItem(
+                            SpanStyle(background = baseColor, color = baseColor),
+                            prevStartIndex,
+                            cell.formattedValue!!.length,
+                            true
+                        )
+                    )
                 }
             }
 
             if (cell.effectiveFormat?.textFormat?.bold == true) {
-                retList.add(StyleItem(SpanStyle(background = baseColor, color = baseColor), 0, cell.formattedValue!!.length, true))
+                retList.add(
+                    StyleItem(
+                        SpanStyle(background = baseColor, color = baseColor),
+                        0,
+                        cell.formattedValue!!.length,
+                        true
+                    )
+                )
             }
         }
 
         if (mode == CardMode.HideText) {
             var start = 0
-            var endSpace = tempStr.indexOfAny(listOf(" ", ",",  ".", "!", "?", "/"), start)
+            var endSpace = tempStr.indexOfAny(listOf(" ", ",", ".", "!", "?", "/"), start)
             while (endSpace > 0) {
                 if ((endSpace - start) > 2) {
                     retList.add(
@@ -101,7 +126,7 @@ object CellConverter {
                     )
                 }
                 start = endSpace + 1
-                endSpace = tempStr.indexOfAny(listOf(" ", ",",  ".", "!", "?", "/"), start)
+                endSpace = tempStr.indexOfAny(listOf(" ", ",", ".", "!", "?", "/"), start)
             }
             endSpace = tempStr.length
             if ((endSpace - start) > 2) {
@@ -119,6 +144,13 @@ object CellConverter {
     }
 
     fun getQuizAnswerPair(cell: Cell): List<Pair<Boolean, String>> {
+        // for whole bold cell
+        if (cell.effectiveFormat?.textFormat?.bold == true) {
+            val words = cell.formattedValue!!.split(" ")
+            return words.map {
+                Pair(true, it)
+            }
+        }
 
         val retList = mutableListOf<Pair<Boolean, String>>()
         val wordStartIndexSet = mutableSetOf<Int>()
@@ -136,7 +168,8 @@ object CellConverter {
                 }
             } else {
                 if (prevStartIndex != -1) {
-                    val curStr = cell.formattedValue!!.substring(prevStartIndex, textFormat.startIndex!!)
+                    val curStr =
+                        cell.formattedValue!!.substring(prevStartIndex, textFormat.startIndex!!)
                     println("curStr: $curStr")
                     val tempList = getStartIdxList(curStr)
                     println("tempList: $tempList")
@@ -182,7 +215,7 @@ object CellConverter {
         return retList
     }
 
-    private fun getStartIdxList(text: String) : List<Int> {
+    private fun getStartIdxList(text: String): List<Int> {
         val retList = mutableListOf(0)
         var offset = text.indexOf(" ")
         while (offset != -1) {
