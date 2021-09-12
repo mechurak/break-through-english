@@ -2,6 +2,7 @@ package com.shimnssso.headonenglish.ui.quiz
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -34,6 +36,8 @@ import com.shimnssso.headonenglish.network.Cell
 import com.shimnssso.headonenglish.ui.MainActivity
 import com.shimnssso.headonenglish.ui.components.AnswerTextField
 import com.shimnssso.headonenglish.ui.components.MultiLineRow
+import com.shimnssso.headonenglish.ui.lecture.CardMode
+import com.shimnssso.headonenglish.ui.lecture.FormattedText
 import com.shimnssso.headonenglish.utils.CellConverter
 import timber.log.Timber
 
@@ -60,6 +64,16 @@ fun QuizContent(
     var curIdx by remember { mutableStateOf(0) }
 
     val activity = LocalContext.current as MainActivity
+
+    var completed = curIdx == idx && expects.isNotEmpty()
+    if (completed) {
+        var tempSuccess = true
+        expects.forEachIndexed { idx, expect ->
+            tempSuccess = tempSuccess && (values[idx] == expect)
+        }
+        Timber.d("tempSuccess: $tempSuccess")
+        completed = tempSuccess
+    }
 
     LaunchedEffect(card) {
         Timber.d("LaunchedEffect!!")
@@ -112,29 +126,39 @@ fun QuizContent(
 
             Spacer(Modifier.height(20.dp))
 
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (hasMemoContent) {
-                    if (showMemo) {
-                        Button(onClick = { showMemo = false }) {
-                            Text(text = "Hide Memo")
+            if (completed) {
+                FormattedText(
+                    cell = spellingCell,
+                    mode = CardMode.Default,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                    showKeyword = true,
+                    isFocused = false
+                )
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    if (hasMemoContent) {
+                        if (showMemo) {
+                            Button(onClick = { showMemo = false }) {
+                                Text(text = "Hide Memo")
+                            }
+                        } else {
+                            Button(onClick = { showMemo = true }) {
+                                Text(text = "Show Memo")
+                            }
+                        }
+                    }
+
+                    if (showAnswer) {
+                        Button(onClick = { showAnswer = false }) {
+                            Text(text = "Hide Answer")
                         }
                     } else {
-                        Button(onClick = { showMemo = true }) {
-                            Text(text = "Show Memo")
+                        Button(onClick = { showAnswer = true }) {
+                            Text(text = "Show Answer")
                         }
-                    }
-                }
-
-                if (showAnswer) {
-                    Button(onClick = { showAnswer = false }) {
-                        Text(text = "Hide Answer")
-                    }
-                } else {
-                    Button(onClick = { showAnswer = true }) {
-                        Text(text = "Show Answer")
                     }
                 }
             }
@@ -213,25 +237,18 @@ fun QuizContent(
             Spacer(Modifier.height(50.dp))
         }
 
-        if (curIdx == idx && expects.isNotEmpty()) {
-            var tempSuccess = true
-            expects.forEachIndexed { idx, expect ->
-                tempSuccess = tempSuccess && (values[idx] == expect)
-            }
-            Timber.d("tempSuccess: $tempSuccess")
-            if (tempSuccess) {
-                showMemo = true
-                Box(
-                    modifier = Modifier
-                        .padding(top = 100.dp)
-                        .size(200.dp)
-                        .border(20.dp, Color.Red.copy(alpha = 0.3f), RoundedCornerShape(50))
-                )
+        if (completed) {
+            showMemo = true
+            Box(
+                modifier = Modifier
+                    .padding(top = 100.dp)
+                    .size(200.dp)
+                    .border(20.dp, Color.Red.copy(alpha = 0.3f), RoundedCornerShape(50))
+            )
 
-                LocalFocusManager.current.clearFocus()
-                Timber.d("invoke success($idx)!!!")
-                success(idx)
-            }
+            LocalFocusManager.current.clearFocus()
+            Timber.d("invoke success($idx)!!!")
+            success(idx)
         }
     }
 }
