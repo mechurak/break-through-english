@@ -53,7 +53,8 @@ class MainActivity : AppCompatActivity() {
         ViewModelProvider(activity).get(HomeViewModel::class.java)
     }
 
-    private val soundMap = mutableMapOf<Int, Int>()
+    private val typeSoundMap = mutableMapOf<Int, Int>()
+    private val positiveSoundMap = mutableMapOf<Int, Int>()
     private val soundPool by lazy {
         val attributes = AudioAttributes.Builder()
             .setUsage(AudioAttributes.USAGE_GAME)
@@ -61,12 +62,14 @@ class MainActivity : AppCompatActivity() {
             .build()
 
         SoundPool.Builder().setMaxStreams(5).setAudioAttributes(attributes).build().apply {
-            soundMap[0] = load(this@MainActivity, R.raw.type_0, 1)
-            soundMap[1] = load(this@MainActivity, R.raw.type_1, 1)
-            soundMap[2] = load(this@MainActivity, R.raw.type_2, 1)
-            soundMap[3] = load(this@MainActivity, R.raw.type_3, 1)
-            soundMap[4] = load(this@MainActivity, R.raw.type_4, 1)
-            soundMap[5] = load(this@MainActivity, R.raw.type_5, 1)
+            typeSoundMap[0] = load(this@MainActivity, R.raw.type_0, 1)
+            typeSoundMap[1] = load(this@MainActivity, R.raw.type_1, 1)
+            typeSoundMap[2] = load(this@MainActivity, R.raw.type_2, 1)
+            typeSoundMap[3] = load(this@MainActivity, R.raw.type_3, 1)
+            typeSoundMap[4] = load(this@MainActivity, R.raw.type_4, 1)
+            typeSoundMap[5] = load(this@MainActivity, R.raw.type_5, 1)
+
+            positiveSoundMap[0] = load(this@MainActivity, R.raw.positive0, 1)
         }
     }
 
@@ -267,8 +270,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun playKeySound() {
-        val idx = random.nextInt(soundMap.size)
-        val soundId = soundMap[idx]
+        val idx = random.nextInt(typeSoundMap.size)
+        val soundId = typeSoundMap[idx]
+        soundPool.play(soundId!!, 1f, 1f, 1, 0, 1f)
+    }
+
+    fun playPositiveSound() {
+        val idx = random.nextInt(positiveSoundMap.size)
+        val soundId = positiveSoundMap[idx]
         soundPool.play(soundId!!, 1f, 1f, 1, 0, 1f)
     }
 }

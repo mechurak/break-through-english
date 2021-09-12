@@ -2,7 +2,6 @@ package com.shimnssso.headonenglish.ui.quiz
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -194,16 +193,16 @@ fun QuizContent(
                     .padding(16.dp)
             ) {
                 MultiLineRow {
-                    var curIdx = -1
+                    var localIdx = -1
                     quizAnswerPairs.map {
                         if (it.first) {
-                            curIdx += 1
+                            localIdx += 1
                             AnswerTextField(
                                 modifier = Modifier.padding(end = 6.dp),
-                                idx = curIdx,
+                                idx = localIdx,
                                 showAnswer = showAnswer,
                                 expectedText = it.second,
-                                value = values[curIdx],
+                                value = values[localIdx],
                                 onValueChanged = { wordIdx, newStr ->
                                     if (values[wordIdx] != newStr) {
                                         activity.playKeySound()
@@ -211,13 +210,14 @@ fun QuizContent(
 
                                     values[wordIdx] = newStr
                                     if (newStr == expects[wordIdx]) {
-                                        var nextIdx = wordIdx + 1
+                                        activity.playPositiveSound()
+                                        val nextIdx = wordIdx + 1
                                         if (nextIdx < wordsSize) {
                                             focusRequests[nextIdx].requestFocus()
                                         }
                                     }
                                 },
-                                focusRequester = focusRequests[curIdx],
+                                focusRequester = focusRequests[localIdx],
                                 onNext = { wordIdx ->
                                     Timber.d("onNext($wordIdx) from \"${it.second}\"")
                                     var nextIdx = wordIdx + 1
