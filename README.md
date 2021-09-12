@@ -31,8 +31,10 @@ I hope it could be helpful for someone who is studying that subjects.
 ## 🙏 Credits
 - Icons made by [Freepik][51] from [www.flaticon.com][52]
 - Loading animation made by [Jeffrey Christopher][53] at [LottieFiles][54]
+- Keyboard sounds from [Fesliyan Studios][55]
 
 [51]: https://www.freepik.com
 [52]: https://www.flaticon.com/
 [53]: https://lottiefiles.com/zeffchris
 [54]: https://lottiefiles.com/
+[55]: https://www.fesliyanstudios.com/sound-effects-search.php?q=Mechanical+Keyboard+Single+Button

@@ -26,10 +26,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.network.Cell
+import com.shimnssso.headonenglish.ui.MainActivity
 import com.shimnssso.headonenglish.ui.components.AnswerTextField
 import com.shimnssso.headonenglish.ui.components.MultiLineRow
 import com.shimnssso.headonenglish.utils.CellConverter
@@ -56,6 +58,8 @@ fun QuizContent(
     val quizAnswerPairs = remember { mutableStateListOf<Pair<Boolean, String>>() }
     var wordsSize by remember { mutableStateOf(0) }
     var curIdx by remember { mutableStateOf(0) }
+
+    val activity = LocalContext.current as MainActivity
 
     LaunchedEffect(card) {
         Timber.d("LaunchedEffect!!")
@@ -177,6 +181,10 @@ fun QuizContent(
                                 expectedText = it.second,
                                 value = values[curIdx],
                                 onValueChanged = { wordIdx, newStr ->
+                                    if (values[wordIdx] != newStr) {
+                                        activity.playKeySound()
+                                    }
+
                                     values[wordIdx] = newStr
                                     if (newStr == expects[wordIdx]) {
                                         var nextIdx = wordIdx + 1

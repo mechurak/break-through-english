@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -41,6 +43,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.Random
 
 class MainActivity : AppCompatActivity() {
     private val viewmodel: HomeViewModel by lazy {
@@ -48,6 +51,27 @@ class MainActivity : AppCompatActivity() {
             "You can only access the viewModel after onActivityCreated()"
         }
         ViewModelProvider(activity).get(HomeViewModel::class.java)
+    }
+
+    private val soundMap = mutableMapOf<Int, Int>()
+    private val soundPool by lazy {
+        val attributes = AudioAttributes.Builder()
+            .setUsage(AudioAttributes.USAGE_GAME)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .build()
+
+        SoundPool.Builder().setMaxStreams(5).setAudioAttributes(attributes).build().apply {
+            soundMap[0] = load(this@MainActivity, R.raw.type_0, 1)
+            soundMap[1] = load(this@MainActivity, R.raw.type_1, 1)
+            soundMap[2] = load(this@MainActivity, R.raw.type_2, 1)
+            soundMap[3] = load(this@MainActivity, R.raw.type_3, 1)
+            soundMap[4] = load(this@MainActivity, R.raw.type_4, 1)
+            soundMap[5] = load(this@MainActivity, R.raw.type_5, 1)
+        }
+    }
+
+    private val random by lazy {
+        Random()
     }
 
     @ExperimentalAnimationApi
@@ -61,6 +85,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             viewmodel.setLogIn(false)
         }
+
+        Timber.i("soundPool: $soundPool")
 
         setContent {
             HeadOnEnglishApp()
@@ -80,7 +106,8 @@ class MainActivity : AppCompatActivity() {
                     // Here after all the permission are granted launch the gallery to select and image.
                     if (report!!.areAllPermissionsGranted()) {
                         currentLecture = lecture
-                        val intent = Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
+                        val intent =
+                            Intent(Intent.ACTION_PICK, MediaStore.Audio.Media.EXTERNAL_CONTENT_URI)
                         audioChooserLauncher.launch(intent)
                     }
                 }
@@ -173,7 +200,10 @@ class MainActivity : AppCompatActivity() {
         Timber.i("Requesting sign-in")
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .requestScopes(Scope(DriveScopes.DRIVE_METADATA_READONLY), Scope(SheetsScopes.SPREADSHEETS_READONLY))
+            .requestScopes(
+                Scope(DriveScopes.DRIVE_METADATA_READONLY),
+                Scope(SheetsScopes.SPREADSHEETS_READONLY)
+            )
             .build()
         val client = GoogleSignIn.getClient(this, signInOptions)
         GoogleSignIn.getLastSignedInAccount(this)
@@ -184,14 +214,17 @@ class MainActivity : AppCompatActivity() {
         Timber.i("Requesting sign-out")
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
-            .requestScopes(Scope(DriveScopes.DRIVE_METADATA_READONLY), Scope(SheetsScopes.SPREADSHEETS_READONLY))
+            .requestScopes(
+                Scope(DriveScopes.DRIVE_METADATA_READONLY),
+                Scope(SheetsScopes.SPREADSHEETS_READONLY)
+            )
             .build()
         val client = GoogleSignIn.getClient(this, signInOptions)
         client.signOut().addOnSuccessListener {
             Timber.i("signOut(). succeeded")
             viewmodel.setLogIn(false)
         }.addOnFailureListener {
-            Timber.e(it,"signOut(). failed")
+            Timber.e(it, "signOut(). failed")
             viewmodel.setError(Pair(true, "Failed to sign-in"))
         }
     }
@@ -204,7 +237,8 @@ class MainActivity : AppCompatActivity() {
 
                 // Use the authenticated account to sign in to the Drive service.
                 val credential = GoogleAccountCredential.usingOAuth2(
-                    this, listOf(DriveScopes.DRIVE_METADATA_READONLY, SheetsScopes.SPREADSHEETS_READONLY)
+                    this,
+                    listOf(DriveScopes.DRIVE_METADATA_READONLY, SheetsScopes.SPREADSHEETS_READONLY)
                 )
                 credential.selectedAccount = googleAccount.account
                 val googleDriveService = Drive.Builder(
@@ -230,5 +264,11 @@ class MainActivity : AppCompatActivity() {
                 viewmodel.setError(Pair(true, "Failed to sign-in"))
                 viewmodel.setLogIn(false)
             }
+    }
+
+    fun playKeySound() {
+        val idx = random.nextInt(soundMap.size)
+        val soundId = soundMap[idx]
+        soundPool.play(soundId!!, 1f, 1f, 1, 0, 1f)
     }
 }
