@@ -1,9 +1,12 @@
 package com.shimnssso.headonenglish.ui.lecture
 
 import android.app.Application
+import android.view.WindowManager
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -24,6 +27,7 @@ fun ExoPlayerView(
     val app = LocalContext.current.applicationContext as Application
     val activity = LocalContext.current as MainActivity
     val viewModel = ViewModelProvider(activity, MediaViewModel.Factory(app)).get(MediaViewModel::class.java)
+    val isPlaying by viewModel.isPlaying.observeAsState(false)
 
     val lifecycle = LocalLifecycleOwner.current.lifecycle
 
@@ -44,6 +48,17 @@ fun ExoPlayerView(
                 viewModel.pause()
             }
         })
+    }
+
+    // https://developer.android.com/training/scheduling/wakelock#screen
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            Timber.d("Add Keep screen on flag")
+        } else {
+            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            Timber.d("Clear keep screen on flag")
+        }
     }
 
     // TODO: Find proper way

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player.Listener
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.upstream.DataSource
@@ -23,7 +24,7 @@ class MediaViewModel(
 ) : AndroidViewModel(app) {
     val exoPlayer = SimpleExoPlayer.Builder(app).build()
 
-    var autoPlay: Boolean = true
+    private var autoPlay: Boolean = false
     var window: Int = 0
     var position: Long = 0L
 
@@ -31,10 +32,15 @@ class MediaViewModel(
     val speed: LiveData<Float>
         get() = _speed
 
+    private var _isPlaying: MutableLiveData<Boolean> = MutableLiveData(false)
+    val isPlaying: LiveData<Boolean>
+        get() = _isPlaying
+
     private fun updateState() {
         autoPlay = exoPlayer.isPlaying
         window = exoPlayer.currentWindowIndex
         position = 0L.coerceAtLeast(exoPlayer.contentPosition)
+        _isPlaying.value = exoPlayer.isPlaying
     }
 
     fun prepare(url: String) {
@@ -49,6 +55,12 @@ class MediaViewModel(
             exoPlayer.setMediaSource(source)
             exoPlayer.prepare()
             exoPlayer.playWhenReady = autoPlay
+
+            exoPlayer.addListener(object: Listener {
+                override fun onIsPlayingChanged(isPlaying: Boolean) {
+                    _isPlaying.value = isPlaying
+                }
+            })
         }
     }
 
@@ -100,6 +112,7 @@ class MediaViewModel(
     override fun onCleared() {
         Timber.i("onCleared()!!")
         exoPlayer.release()
+        _isPlaying.value = false
     }
 
     class Factory(
