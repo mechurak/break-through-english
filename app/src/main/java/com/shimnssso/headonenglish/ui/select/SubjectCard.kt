@@ -27,7 +27,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.glide.rememberGlidePainter
+import coil.compose.rememberImagePainter
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseSubject
 
@@ -89,9 +89,11 @@ private fun SubjectImage(
     if (subject.image != null) {
         Box {
             Image(
-                painter = rememberGlidePainter(
-                    request = subject.image,
-                    fadeIn = true
+                painter = rememberImagePainter(
+                    data = subject.image,
+                    builder = {
+                        crossfade(true)
+                    }
                 ),
                 contentDescription = "image",
                 contentScale = ContentScale.Crop,
