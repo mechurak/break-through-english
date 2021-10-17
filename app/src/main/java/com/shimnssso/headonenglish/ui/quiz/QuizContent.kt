@@ -25,16 +25,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.flowlayout.FlowCrossAxisAlignment
+import com.google.accompanist.flowlayout.FlowRow
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.network.Cell
 import com.shimnssso.headonenglish.ui.MainActivity
 import com.shimnssso.headonenglish.ui.components.AnswerTextField
-import com.shimnssso.headonenglish.ui.components.MultiLineRow
 import com.shimnssso.headonenglish.ui.lecture.CardMode
 import com.shimnssso.headonenglish.ui.lecture.FormattedText
 import com.shimnssso.headonenglish.utils.CellConverter
@@ -67,8 +67,8 @@ fun QuizContent(
     var completed = curIdx == idx && expects.isNotEmpty()
     if (completed) {
         var tempSuccess = true
-        expects.forEachIndexed { idx, expect ->
-            tempSuccess = tempSuccess && (values[idx] == expect)
+        expects.forEachIndexed { i, expect ->
+            tempSuccess = tempSuccess && (values[i] == expect)
         }
         Timber.d("tempSuccess: $tempSuccess")
         completed = tempSuccess
@@ -192,7 +192,9 @@ fun QuizContent(
                     .background(Color.White)
                     .padding(16.dp)
             ) {
-                MultiLineRow {
+                FlowRow(
+                    crossAxisAlignment = FlowCrossAxisAlignment.Center
+                ) {
                     var localIdx = -1
                     quizAnswerPairs.map {
                         if (it.first) {
