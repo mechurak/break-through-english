@@ -12,8 +12,8 @@ android {
         applicationId "com.shimnssso.headonenglish"
         minSdk 23
         targetSdk 31
-        versionCode 1_1_02  // X.X.XX
-        versionName "1.1.02"
+        versionCode 1_1_03  // X.X.XX
+        versionName "1.1.03"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
