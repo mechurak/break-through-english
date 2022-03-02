@@ -1,6 +1,5 @@
 package com.shimnssso.headonenglish.ui
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.Color
@@ -9,7 +8,6 @@ import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.shimnssso.headonenglish.ui.theme.HeadOnEnglishTheme
 
-@ExperimentalAnimationApi
 @Composable
 fun HeadOnEnglishApp() {
     HeadOnEnglishTheme {

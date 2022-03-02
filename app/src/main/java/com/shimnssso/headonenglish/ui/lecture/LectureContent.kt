@@ -1,6 +1,5 @@
 package com.shimnssso.headonenglish.ui.lecture
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.clickable
@@ -21,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,9 +35,7 @@ import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.room.DatabaseLecture
 import com.shimnssso.headonenglish.ui.MainActivity
-import kotlinx.coroutines.launch
 
-@ExperimentalAnimationApi
 @Composable
 fun LectureContent(
     lecture: DatabaseLecture,

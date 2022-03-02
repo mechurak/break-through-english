@@ -1,7 +1,6 @@
 package com.shimnssso.headonenglish.ui.quiz
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -50,7 +49,6 @@ import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import timber.log.Timber
 
-@ExperimentalAnimationApi
 @Composable
 fun QuizScreen(
     subject: String?,

@@ -3,8 +3,6 @@ package com.shimnssso.headonenglish.ui.lecture
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -66,7 +63,6 @@ import com.shimnssso.headonenglish.utils.supportWideScreen
  * @param date (state) item to display
  * @param onBack (event) request navigate back
  */
-@ExperimentalAnimationApi
 @Composable
 fun LectureScreen(
     subject: String?,
@@ -74,7 +70,10 @@ fun LectureScreen(
     onBack: () -> Unit
 ) {
     val subjectId = subject!!.toInt()
-    val viewModel = viewModel(LectureViewModel::class.java, factory = LectureViewModel.Factory(subjectId, date!!))
+    val viewModel = viewModel(
+        LectureViewModel::class.java,
+        factory = LectureViewModel.Factory(subjectId, date!!)
+    )
     val cards by viewModel.cards.observeAsState(listOf())
     val lecture by viewModel.lecture.observeAsState(FakeData.DEFAULT_LECTURE)
 
@@ -144,7 +143,6 @@ fun LectureScreen(
     }
 }
 
-@ExperimentalAnimationApi
 @Composable
 private fun BottomBar(
     defaultMode: CardMode,
@@ -158,7 +156,8 @@ private fun BottomBar(
 ) {
     val app = LocalContext.current.applicationContext as Application
     val activity = LocalContext.current as MainActivity
-    val viewModel = ViewModelProvider(activity, MediaViewModel.Factory(app)).get(MediaViewModel::class.java)
+    val viewModel =
+        ViewModelProvider(activity, MediaViewModel.Factory(app)).get(MediaViewModel::class.java)
 
     var showSetting by remember { mutableStateOf(showBackdrop) }
     val speed by viewModel.speed.observeAsState(initial = 1.0f)
@@ -173,8 +172,7 @@ private fun BottomBar(
                 .navigationBarsPadding()
                 .fillMaxWidth()
         ) {
-            AnimatedVisibility(showSetting)
-            {
+            if (showSetting) {
                 Column(
                     modifier = Modifier.clickable { }
                 ) {
@@ -195,8 +193,15 @@ private fun BottomBar(
                                     Box(
                                         modifier = Modifier
                                             .padding(8.dp)
-                                            .border(2.dp, MaterialTheme.colors.primaryVariant, RoundedCornerShape(4.dp))
-                                            .background(MaterialTheme.colors.primarySurface, RoundedCornerShape(4.dp))
+                                            .border(
+                                                2.dp,
+                                                MaterialTheme.colors.primaryVariant,
+                                                RoundedCornerShape(4.dp)
+                                            )
+                                            .background(
+                                                MaterialTheme.colors.primarySurface,
+                                                RoundedCornerShape(4.dp)
+                                            )
                                     ) {
                                         Text(
                                             "Remote",
@@ -223,8 +228,15 @@ private fun BottomBar(
                                     Box(
                                         modifier = Modifier
                                             .padding(8.dp)
-                                            .border(2.dp, MaterialTheme.colors.primaryVariant, RoundedCornerShape(4.dp))
-                                            .background(MaterialTheme.colors.primarySurface, RoundedCornerShape(4.dp))
+                                            .border(
+                                                2.dp,
+                                                MaterialTheme.colors.primaryVariant,
+                                                RoundedCornerShape(4.dp)
+                                            )
+                                            .background(
+                                                MaterialTheme.colors.primarySurface,
+                                                RoundedCornerShape(4.dp)
+                                            )
                                     ) {
                                         Text(
                                             "Local",
@@ -249,7 +261,8 @@ private fun BottomBar(
                                     }
                                 }
                             }
-                            val btnText = if (lecture.localUrl == null) "Set Local" else "Remove Local"
+                            val btnText =
+                                if (lecture.localUrl == null) "Set Local" else "Remove Local"
                             Button(onClick = {
                                 if (lecture.localUrl == null) activity.launchAudioChooser(lecture)
                                 else onRemoveLocal()
@@ -292,7 +305,8 @@ private fun BottomBar(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            val titleText = if (lecture.link1 != null || lecture.link2 != null) "links" else ""
+                            val titleText =
+                                if (lecture.link1 != null || lecture.link2 != null) "links" else ""
                             Text(
                                 titleText,
                                 modifier = Modifier.padding(16.dp)
@@ -301,7 +315,8 @@ private fun BottomBar(
                             if (lecture.link1 != null) {
                                 Button(
                                     onClick = {
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(lecture.link1))
+                                        val intent =
+                                            Intent(Intent.ACTION_VIEW, Uri.parse(lecture.link1))
                                         activity.startActivity(intent)
                                     },
                                     modifier = Modifier.padding(bottom = 4.dp)
@@ -315,7 +330,8 @@ private fun BottomBar(
                             if (lecture.link2 != null) {
                                 Button(
                                     onClick = {
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(lecture.link2))
+                                        val intent =
+                                            Intent(Intent.ACTION_VIEW, Uri.parse(lecture.link2))
                                         activity.startActivity(intent)
                                     }
                                 ) {
@@ -391,9 +407,7 @@ private fun BottomBar(
                     showSetting = !showSetting
                     setShowBackdrop(showSetting)
                 }) {
-                    Box(
-                        modifier = Modifier.fillMaxHeight()
-                    ) {
+                    Box(modifier = Modifier.size(60.dp)) {
                         val iconVector =
                             if (showSetting) Icons.Filled.KeyboardArrowDown else Icons.Filled.KeyboardArrowUp
                         Icon(
@@ -401,7 +415,7 @@ private fun BottomBar(
                             contentDescription = "temp settings",
                             modifier = Modifier
                                 .size(16.dp)
-                                .align(Alignment.TopStart)
+                                .align(Alignment.TopCenter)
                         )
                     }
                     Text(text = "${speed}x")

@@ -15,7 +15,6 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -77,7 +76,6 @@ class MainActivity : AppCompatActivity() {
         Random()
     }
 
-    @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_HeadOnEnglish_Splash)
         super.onCreate(savedInstanceState)

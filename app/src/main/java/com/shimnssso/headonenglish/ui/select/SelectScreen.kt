@@ -2,7 +2,6 @@ package com.shimnssso.headonenglish.ui.select
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,7 +58,6 @@ import com.shimnssso.headonenglish.ui.daylist.HomeViewModel
 import com.shimnssso.headonenglish.utils.supportWideScreen
 import kotlinx.coroutines.launch
 
-@ExperimentalAnimationApi
 @Composable
 fun SelectScreen(
     navigateToDayList: () -> Unit

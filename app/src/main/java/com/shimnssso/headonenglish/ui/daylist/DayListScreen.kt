@@ -1,6 +1,6 @@
 package com.shimnssso.headonenglish.ui.daylist
 
-import androidx.compose.animation.ExperimentalAnimationApi
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -34,7 +34,8 @@ import com.shimnssso.headonenglish.utils.supportWideScreen
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-@ExperimentalAnimationApi
+// TODO: Remove Lint error
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun DayListScreen(
     navigateToLecture: (Int, String) -> Unit,
@@ -120,7 +121,6 @@ fun DayListScreen(
  * @param navigateToLecture (event) request navigation to Article screen
  * @param modifier modifier for the root element
  */
-@ExperimentalAnimationApi
 @Composable
 private fun LectureList(
     lectures: List<DatabaseLecture>,

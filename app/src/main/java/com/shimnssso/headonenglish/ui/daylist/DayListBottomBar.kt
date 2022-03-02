@@ -1,6 +1,5 @@
 package com.shimnssso.headonenglish.ui.daylist
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +23,7 @@ import com.google.accompanist.insets.navigationBarsPadding
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.ui.MainActivity
 
-@ExperimentalAnimationApi
+
 @Composable
 fun DayListBottomBar(
     onRefresh: () -> Unit,

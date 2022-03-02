@@ -1,6 +1,5 @@
 package com.shimnssso.headonenglish.ui
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -27,7 +26,6 @@ object MainDestinations {
     const val DATE_KEY = "date"
 }
 
-@ExperimentalAnimationApi
 @Composable
 fun HeadOnEnglishNavGraph(
     navController: NavHostController = rememberNavController(),

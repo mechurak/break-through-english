@@ -1,7 +1,6 @@
 package com.shimnssso.headonenglish.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -27,7 +26,6 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.shimnssso.headonenglish.R
 
-@ExperimentalAnimationApi
 @Composable
 fun LoadingAwareBox(
     isLoading: Boolean,
