@@ -2,10 +2,9 @@ package com.shimnssso.headonenglish.ui.daylist
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -39,7 +38,7 @@ import timber.log.Timber
 @Composable
 fun DayListScreen(
     navigateToLecture: (Int, String) -> Unit,
-    navigateToQuiz:  (Int, String) -> Unit,
+    navigateToQuiz: (Int, String) -> Unit,
     onBack: () -> Unit,
 ) {
 
@@ -47,10 +46,17 @@ fun DayListScreen(
     val viewModel = ViewModelProvider(activity).get(HomeViewModel::class.java)
 
     val lectures by viewModel.lectures.observeAsState(listOf())
+    val recentLecture by viewModel.recentLecture.observeAsState(FakeData.DEFAULT_LECTURE)
+
     val isLoading by viewModel.isLoading.observeAsState(false)
     val subject by viewModel.subject.observeAsState(FakeData.DEFAULT_SUBJECTS[0])
 
-    val errorPair by viewModel.errorPair.observeAsState(Pair(false, ""))  // first: hasError, second: msg
+    val errorPair by viewModel.errorPair.observeAsState(
+        Pair(
+            false,
+            ""
+        )
+    )  // first: hasError, second: msg
 
 
     LaunchedEffect(Unit) {
@@ -103,6 +109,7 @@ fun DayListScreen(
         val modifier = Modifier.padding(innerPadding)
         LectureList(
             lectures = lectures,
+            recentLecture = recentLecture,
             navigateToLecture = navigateToLecture,
             navigateToQuiz = navigateToQuiz,
             loading = isLoading,
@@ -124,22 +131,23 @@ fun DayListScreen(
 @Composable
 private fun LectureList(
     lectures: List<DatabaseLecture>,
+    recentLecture: DatabaseLecture,
     navigateToLecture: (Int, String) -> Unit,
-    navigateToQuiz:  (Int, String) -> Unit,
+    navigateToQuiz: (Int, String) -> Unit,
     loading: Boolean,
     modifier: Modifier = Modifier
 ) {
     LoadingAwareBox(isLoading = loading) {
-        Column(
+        LazyColumn(
             modifier = modifier
                 .background(MaterialTheme.colors.surface)
-                .verticalScroll(rememberScrollState()),
         ) {
-            lectures.forEach { lecture ->
-                val isDateBase = DateConverter.isDateBase(lecture.date)
-                LectureCard(lecture, navigateToLecture, navigateToQuiz)
+            items(lectures) {
+                val isDateBase = DateConverter.isDateBase(it.date)
+                val isRecent = it.date == recentLecture.date
+                LectureCard(it, navigateToLecture, navigateToQuiz, isRecent)
                 val color = if (isDateBase) {
-                    if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {
+                    if (DateConverter.weekInYear(it.date) % 2 == 0 || DateConverter.isMonday(it.date)) {
                         MaterialTheme.colors.surface
                     } else {
                         MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
@@ -153,5 +161,29 @@ private fun LectureList(
                 )
             }
         }
+
+        // Column(
+        //     modifier = modifier
+        //         .background(MaterialTheme.colors.surface)
+        //         .verticalScroll(rememberScrollState()),
+        // ) {
+        //     lectures.forEach { lecture ->
+        //         val isDateBase = DateConverter.isDateBase(lecture.date)
+        //         LectureCard(lecture, navigateToLecture, navigateToQuiz)
+        //         val color = if (isDateBase) {
+        //             if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {
+        //                 MaterialTheme.colors.surface
+        //             } else {
+        //                 MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
+        //             }
+        //         } else {
+        //             MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
+        //         }
+        //         Divider(
+        //             modifier = Modifier.padding(horizontal = 14.dp),
+        //             color = color
+        //         )
+        //     }
+        // }
     }
 }

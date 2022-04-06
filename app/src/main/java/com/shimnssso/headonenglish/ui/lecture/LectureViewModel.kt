@@ -17,9 +17,10 @@ class LectureViewModel(
     private val date: String,
     private val repository: LectureRepository = Graph.lectureRepository,
 ) : ViewModel() {
-    val cards: LiveData<List<DomainCard>> = Transformations.map(repository.getCards(subjectId, date)) {
-        it.asDomainCard()
-    }
+    val cards: LiveData<List<DomainCard>> =
+        Transformations.map(repository.getCards(subjectId, date)) {
+            it.asDomainCard()
+        }
     val lecture = repository.getLecture(subjectId, date)
 
     fun updateLocalUrl(localUrl: String?) {
@@ -27,6 +28,16 @@ class LectureViewModel(
             val newLecture = lecture.value!!.copy(localUrl = localUrl)
             Timber.i("newLecture: %s", newLecture)
             repository.updateLecture(newLecture)
+        }
+    }
+
+    fun updateLastStudyTime() {
+        viewModelScope.launch {
+            lecture.value?.let {
+                val newLecture = it.copy(lastStudyDate = System.currentTimeMillis())
+                Timber.i("recent lecture: %s", newLecture)
+                repository.updateLecture(newLecture)
+            }
         }
     }
 

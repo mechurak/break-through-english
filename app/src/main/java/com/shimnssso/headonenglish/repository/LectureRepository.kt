@@ -41,6 +41,11 @@ class LectureRepository(
             database.lectureDao.getLectures(it.subjectId)
         }
 
+    val recentLecture: LiveData<DatabaseLecture> =
+        Transformations.switchMap(currentGlobal) {
+            database.lectureDao.getRecentLecture(it.subjectId)
+        }
+
     suspend fun changeSubject(newSubjectId: Int) {
         withContext(Dispatchers.IO) {
             val newGlobalInfo = currentGlobal.value!!.copy(subjectId = newSubjectId)

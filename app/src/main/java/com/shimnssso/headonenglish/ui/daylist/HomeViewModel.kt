@@ -22,6 +22,7 @@ class HomeViewModel(
     val subject = repository.currentSubject
     val subjects = repository.subjects
     val global = repository.currentGlobal
+    val recentLecture = repository.recentLecture
 
     private var _isLoading = MutableLiveData<Boolean>(false)
     val isLoading: LiveData<Boolean>

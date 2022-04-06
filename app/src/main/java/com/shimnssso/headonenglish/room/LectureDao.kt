@@ -18,6 +18,9 @@ interface LectureDao {
     @Query("select * from lecture_table where date = :date and subjectId = :subjectId limit 1")
     fun getLecture(subjectId: Int, date: String): LiveData<DatabaseLecture>
 
+    @Query("select * from lecture_table where subjectId = :subjectId order by lastStudyDate desc limit 1")
+    fun getRecentLecture(subjectId: Int): LiveData<DatabaseLecture>
+
     @Query("select * from card_table where date = :date and subjectId = :subjectId")
     fun getCards(subjectId: Int, date: String): LiveData<List<DatabaseCard>>
 

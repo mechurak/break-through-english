@@ -56,6 +56,8 @@ import com.shimnssso.headonenglish.room.FakeData
 import com.shimnssso.headonenglish.ui.MainActivity
 import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import com.shimnssso.headonenglish.utils.supportWideScreen
+import kotlinx.coroutines.delay
+import timber.log.Timber
 
 /**
  * Stateless Article Screen that displays a single post.
@@ -81,6 +83,13 @@ fun LectureScreen(
     var defaultShowKeyword by remember { mutableStateOf(false) }
 
     var showBackdrop by remember { mutableStateOf(false) }
+
+    // TODO: Find proper way to update lastStudyDate
+    LaunchedEffect(Unit) {
+        Timber.i("LaunchedEffect by lecture")
+        delay(2000)
+        viewModel.updateLastStudyTime()
+    }
 
     Scaffold(
         topBar = {

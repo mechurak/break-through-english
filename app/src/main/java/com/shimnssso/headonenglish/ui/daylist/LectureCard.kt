@@ -15,7 +15,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.shimnssso.headonenglish.R
 import com.shimnssso.headonenglish.room.DatabaseLecture
@@ -26,6 +28,7 @@ fun LectureCard(
     lecture: DatabaseLecture,
     navigateToArticle: (Int, String) -> Unit,
     navigateToQuiz: (Int, String) -> Unit,
+    isRecent: Boolean = false,
 ) {
     val isDateBase = DateConverter.isDateBase(lecture.date)
     val backgroundColor = if (isDateBase) {
@@ -54,9 +57,12 @@ fun LectureCard(
             } else {
                 lecture.date
             }
+
             Text(
                 text = dateStr,
                 style = MaterialTheme.typography.overline,
+                color = if (isRecent) Color.Blue else Color.Unspecified,
+                fontWeight = if (isRecent) FontWeight.ExtraBold else FontWeight.Normal,
             )
             Text(lecture.title, style = MaterialTheme.typography.subtitle1)
             Text(
