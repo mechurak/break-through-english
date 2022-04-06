@@ -1,4 +1,4 @@
-package com.shimnssso.headonenglish.ui.quiz
+package com.shimnssso.headonenglish.ui.quiz.bold
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +10,7 @@ import com.shimnssso.headonenglish.model.DomainCard
 import com.shimnssso.headonenglish.repository.LectureRepository
 import com.shimnssso.headonenglish.room.asDomainCard
 
-class QuizViewModel(
+class BoldQuizViewModel(
     private val subjectId: Int,
     private val date: String,
     private val repository: LectureRepository = Graph.lectureRepository,
@@ -46,9 +46,9 @@ class QuizViewModel(
         private val date: String,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(QuizViewModel::class.java)) {
+            if (modelClass.isAssignableFrom(BoldQuizViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return QuizViewModel(subjectId, date) as T
+                return BoldQuizViewModel(subjectId, date) as T
             }
             throw IllegalArgumentException("Unable to construct viewmodel")
         }

@@ -1,4 +1,4 @@
-package com.shimnssso.headonenglish.ui.select
+package com.shimnssso.headonenglish.ui.subject
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

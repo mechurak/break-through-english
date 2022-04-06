@@ -1,4 +1,4 @@
-package com.shimnssso.headonenglish.ui.quiz
+package com.shimnssso.headonenglish.ui.quiz.bold
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutLinearInEasing
@@ -50,14 +50,17 @@ import com.shimnssso.headonenglish.ui.components.InsetAwareTopAppBar
 import timber.log.Timber
 
 @Composable
-fun QuizScreen(
+fun BoldQuizScreen(
     subject: String?,
     date: String?,
     onBack: () -> Unit
 ) {
     val subjectId = subject!!.toInt()
     val viewModel =
-        viewModel(QuizViewModel::class.java, factory = QuizViewModel.Factory(subjectId, date!!))
+        viewModel(
+            BoldQuizViewModel::class.java,
+            factory = BoldQuizViewModel.Factory(subjectId, date!!)
+        )
     val cards by viewModel.cards.observeAsState(listOf())
     val lecture by viewModel.lecture.observeAsState(FakeData.DEFAULT_LECTURE)
     val curIdx by viewModel.curIdx.observeAsState(0)
@@ -100,7 +103,7 @@ fun QuizScreen(
                         style = MaterialTheme.typography.overline,
                         modifier = Modifier.padding(vertical = 16.dp)
                     )
-                    QuizContent(
+                    BoldQuizContent(
                         idx = curIdx,
                         card = cards[curIdx],
                         success = { quizIdx ->

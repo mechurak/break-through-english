@@ -1,4 +1,4 @@
-package com.shimnssso.headonenglish.ui.quiz
+package com.shimnssso.headonenglish.ui.quiz.bold
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +41,7 @@ import com.shimnssso.headonenglish.utils.CellConverter
 import timber.log.Timber
 
 @Composable
-fun QuizContent(
+fun BoldQuizContent(
     idx: Int,
     card: DomainCard,
     success: (Int) -> Unit,

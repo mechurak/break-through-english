@@ -1,4 +1,4 @@
-package com.shimnssso.headonenglish.ui.select
+package com.shimnssso.headonenglish.ui.subject
 
 import android.content.Intent
 import android.net.Uri
@@ -59,7 +59,7 @@ import com.shimnssso.headonenglish.utils.supportWideScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun SelectScreen(
+fun SubjectScreen(
     navigateToDayList: () -> Unit
 ) {
     val activity = LocalContext.current as MainActivity
@@ -73,7 +73,12 @@ fun SelectScreen(
     val sheetFiles by viewModel.sheetFiles.observeAsState(listOf())
 
     val isLoading by viewModel.isLoading.observeAsState(false)
-    val errorPair by viewModel.errorPair.observeAsState(Pair(false, ""))  // first: hasError, second: msg
+    val errorPair by viewModel.errorPair.observeAsState(
+        Pair(
+            false,
+            ""
+        )
+    )  // first: hasError, second: msg
 
 
     if (showDialog) {
@@ -123,7 +128,10 @@ fun SelectScreen(
         },
         snackbarHost = {
             SnackbarHost(it) { data ->
-                androidx.compose.material.Snackbar(snackbarData = data, modifier = Modifier.navigationBarsPadding())
+                androidx.compose.material.Snackbar(
+                    snackbarData = data,
+                    modifier = Modifier.navigationBarsPadding()
+                )
             }
         },
     ) { innerPadding ->
@@ -231,7 +239,10 @@ fun SelectScreen(
                     progress = progress,
                 )
 
-                Text("Google sign-in is required to access your google sheets.", textAlign = TextAlign.Center)
+                Text(
+                    "Google sign-in is required to access your google sheets.",
+                    textAlign = TextAlign.Center
+                )
                 Button(
                     onClick = { activity.requestSignIn() },
                     modifier = Modifier.padding(24.dp)

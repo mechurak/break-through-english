@@ -10,8 +10,8 @@ import com.shimnssso.headonenglish.ui.MainDestinations.DATE_KEY
 import com.shimnssso.headonenglish.ui.MainDestinations.SUBJECT_KEY
 import com.shimnssso.headonenglish.ui.daylist.DayListScreen
 import com.shimnssso.headonenglish.ui.lecture.LectureScreen
-import com.shimnssso.headonenglish.ui.quiz.QuizScreen
-import com.shimnssso.headonenglish.ui.select.SelectScreen
+import com.shimnssso.headonenglish.ui.quiz.bold.BoldQuizScreen
+import com.shimnssso.headonenglish.ui.subject.SubjectScreen
 
 /**
  * Destinations used in the ([HeadOnEnglishApp]).
@@ -38,7 +38,7 @@ fun HeadOnEnglishNavGraph(
         startDestination = startDestination
     ) {
         composable(MainDestinations.SELECT_ROUTE) {
-            SelectScreen(
+            SubjectScreen(
                 navigateToDayList = actions.navigateToDayList,
             )
         }
@@ -57,7 +57,7 @@ fun HeadOnEnglishNavGraph(
             )
         }
         composable("${MainDestinations.QUIZ_ROUTE}?$DATE_KEY={$DATE_KEY}&$SUBJECT_KEY={$SUBJECT_KEY}") { backStackEntry ->
-            QuizScreen(
+            BoldQuizScreen(
                 subject = backStackEntry.arguments?.getString(SUBJECT_KEY),
                 date = backStackEntry.arguments?.getString(DATE_KEY),
                 onBack = actions.upPress,
