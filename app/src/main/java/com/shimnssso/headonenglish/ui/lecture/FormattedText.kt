@@ -28,7 +28,6 @@ fun FormattedText(
     mode: CardMode,
     modifier: Modifier = Modifier,
     showKeyword: Boolean = false,
-    isFocused: Boolean = false,
     toggleDescription: () -> Unit = {},
 ) {
     val (text, itemList) = CellConverter.getStyleItemPair(cell, mode)
@@ -73,10 +72,7 @@ fun FormattedText(
 
     val textStyle = when (mode) {
         CardMode.HideText -> MaterialTheme.typography.h5.copy(fontSize = 30.sp)
-        else -> {
-            if (isFocused) MaterialTheme.typography.h5.copy(fontSize = 27.sp)
-            else MaterialTheme.typography.body1.copy(fontSize = 20.sp)
-        }
+        else -> MaterialTheme.typography.body1.copy(fontSize = 20.sp)
     }
 
     ClickableText(

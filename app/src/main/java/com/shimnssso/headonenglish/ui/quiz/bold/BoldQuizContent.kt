@@ -131,7 +131,6 @@ fun BoldQuizContent(
                     mode = CardMode.Default,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
                     showKeyword = true,
-                    isFocused = false
                 )
             } else {
                 Row(

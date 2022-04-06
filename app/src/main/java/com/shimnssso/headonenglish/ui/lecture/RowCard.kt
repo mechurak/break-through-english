@@ -52,7 +52,6 @@ fun RowCard(
     if (isFirst && card.order != 1) {
         Spacer(Modifier.height(48.dp))
     }
-    val topPadding = if (isFirst && !isFocused) 16.dp else 0.dp
 
     var mode by remember { mutableStateOf(defaultMode) }
     var showKeyword by remember { mutableStateOf(defaultShowKeyword) }
@@ -103,31 +102,13 @@ fun RowCard(
                         mode = CardMode.Default
                     }
                 }
-                .padding(bottom = 16.dp, top = topPadding)
+                .padding(bottom = 16.dp, top = 16.dp)
         ) {
-            if (isFocused) {
-                FocusedHeader(
-                    showKeyword = showKeyword,
-                    mode = mode,
-                    hasDescription = hasDescription,
-                    surfaceColor = surfaceColor,
-                    onValueChanged = { newShowkeyword, newCardMode ->
-                        // Trigger ripple effect
-                        val press = PressInteraction.Press(Offset.Zero)
-                        interactionSource.tryEmit(press)
-                        interactionSource.tryEmit(PressInteraction.Release(press))
-                        showKeyword = newShowkeyword
-                        mode = newCardMode
-                    }
-                )
-            }
-
             FormattedText(
                 cell = spellingCell,
                 mode = mode,
                 modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
                 showKeyword = showKeyword,
-                isFocused = isFocused
             ) {
                 if (!isFocused) {
                     // Trigger ripple effect
@@ -189,7 +170,7 @@ fun RowCard(
         Text(
             text = card.order.toString(),
             style = MaterialTheme.typography.caption,
-            modifier = Modifier.padding(top = topPadding)
+            modifier = Modifier.padding(top = 16.dp)
         )
     }
 }
