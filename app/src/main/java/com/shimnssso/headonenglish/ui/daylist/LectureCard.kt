@@ -45,26 +45,30 @@ fun LectureCard(
         Column(
             modifier = Modifier.weight(0.95f)
         ) {
-            Text(
-                text = lecture.date,
-                style = MaterialTheme.typography.overline,
-                color = if (isRecent) Color.Blue else Color.Unspecified,
-                fontWeight = if (isRecent) FontWeight.ExtraBold else FontWeight.Normal,
-            )
+            Row {
+                Text(
+                    text = lecture.date,
+                    style = MaterialTheme.typography.overline,
+                    color = if (isRecent) Color.Blue else Color.Unspecified,
+                    fontWeight = if (isRecent) FontWeight.ExtraBold else FontWeight.Normal,
+                    modifier = Modifier.alignByBaseline(),
+                )
+                val lastStudyDateStr = if (lecture.lastStudyDate == 0L) "" else {
+                    "   (last study: ${DateConverter.getDateStrFromLong(lecture.lastStudyDate)})"
+                }
+                Text(
+                    text = lastStudyDateStr,
+                    style = MaterialTheme.typography.caption,
+                    fontSize = 8.sp,
+                    color = if (isRecent) Color.Blue else Color.Unspecified,
+                    fontWeight = if (isRecent) FontWeight.ExtraBold else FontWeight.Normal,
+                    modifier = Modifier.alignByBaseline(),
+                )
+            }
             Text(lecture.title, style = MaterialTheme.typography.subtitle1)
             Text(
                 text = lecture.category ?: "",
                 style = MaterialTheme.typography.overline,
-            )
-
-            val lastStudyDateStr = if (lecture.lastStudyDate == 0L) "" else {
-                "(last study: ${DateConverter.getDateStrFromLong(lecture.lastStudyDate)})"
-            }
-
-            Text(
-                text = lastStudyDateStr,
-                style = MaterialTheme.typography.caption,
-                fontSize = 8.sp,
             )
         }
 
