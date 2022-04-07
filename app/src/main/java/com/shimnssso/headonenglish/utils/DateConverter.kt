@@ -1,6 +1,7 @@
 package com.shimnssso.headonenglish.utils
 
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 object DateConverter {
@@ -30,5 +31,10 @@ object DateConverter {
     private val dateRegex = Regex("^\\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$")
     fun isDateBase(inputStr: String): Boolean {
         return dateRegex.matches(inputStr)
+    }
+
+    fun getDateStrFromLong(dateTimeInMs: Long): String {
+        val date = Date(dateTimeInMs)
+        return formatter.format(date)
     }
 }

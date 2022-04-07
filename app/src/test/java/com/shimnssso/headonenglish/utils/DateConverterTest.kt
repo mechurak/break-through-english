@@ -41,4 +41,12 @@ class DateConverterTest {
         println(ret2)
         Assert.assertEquals(false, ret2)
     }
+
+    @Test
+    fun getDateStrFromLongTest() {
+        val systemTime = 1649297470436L  // 2022-04-07
+        val ret2 = DateConverter.getDateStrFromLong(systemTime)
+        println(ret2)
+        Assert.assertEquals("2022-04-07", ret2)
+    }
 }
