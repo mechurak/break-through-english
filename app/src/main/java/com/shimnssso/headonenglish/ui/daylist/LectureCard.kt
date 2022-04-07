@@ -32,16 +32,7 @@ fun LectureCard(
     navigateToQuiz: (Int, String) -> Unit = { _, _ -> },
     isRecent: Boolean = false,
 ) {
-    val isDateBase = DateConverter.isDateBase(lecture.date)
-    val backgroundColor = if (isDateBase) {
-        if (DateConverter.weekInYear(lecture.date) % 2 == 0) {
-            MaterialTheme.colors.background
-        } else {
-            MaterialTheme.colors.surface
-        }
-    } else {
-        MaterialTheme.colors.surface
-    }
+    val backgroundColor = MaterialTheme.colors.surface
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
@@ -54,14 +45,8 @@ fun LectureCard(
         Column(
             modifier = Modifier.weight(0.95f)
         ) {
-            val dateStr = if (isDateBase) {
-                DateConverter.withDayName(lecture.date)
-            } else {
-                lecture.date
-            }
-
             Text(
-                text = dateStr,
+                text = lecture.date,
                 style = MaterialTheme.typography.overline,
                 color = if (isRecent) Color.Blue else Color.Unspecified,
                 fontWeight = if (isRecent) FontWeight.ExtraBold else FontWeight.Normal,

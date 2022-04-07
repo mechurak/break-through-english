@@ -143,47 +143,13 @@ private fun LectureList(
                 .background(MaterialTheme.colors.surface)
         ) {
             items(lectures) {
-                val isDateBase = DateConverter.isDateBase(it.date)
                 val isRecent = it.date == recentLecture.date
                 LectureCard(it, navigateToLecture, navigateToQuiz, isRecent)
-                val color = if (isDateBase) {
-                    if (DateConverter.weekInYear(it.date) % 2 == 0 || DateConverter.isMonday(it.date)) {
-                        MaterialTheme.colors.surface
-                    } else {
-                        MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
-                    }
-                } else {
-                    MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
-                }
                 Divider(
                     modifier = Modifier.padding(horizontal = 14.dp),
-                    color = color
+                    color = MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
                 )
             }
         }
-
-        // Column(
-        //     modifier = modifier
-        //         .background(MaterialTheme.colors.surface)
-        //         .verticalScroll(rememberScrollState()),
-        // ) {
-        //     lectures.forEach { lecture ->
-        //         val isDateBase = DateConverter.isDateBase(lecture.date)
-        //         LectureCard(lecture, navigateToLecture, navigateToQuiz)
-        //         val color = if (isDateBase) {
-        //             if (DateConverter.weekInYear(lecture.date) % 2 == 0 || DateConverter.isMonday(lecture.date)) {
-        //                 MaterialTheme.colors.surface
-        //             } else {
-        //                 MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
-        //             }
-        //         } else {
-        //             MaterialTheme.colors.onSurface.copy(alpha = 0.08f)
-        //         }
-        //         Divider(
-        //             modifier = Modifier.padding(horizontal = 14.dp),
-        //             color = color
-        //         )
-        //     }
-        // }
     }
 }
