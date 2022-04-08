@@ -103,7 +103,9 @@ fun FormattedText(
     )
 }
 
-@Preview("FormattedText", widthDp = 360, heightDp = 120, showBackground = true)
+
+// TODO: Make it works on editor as well (For now, it works on real device only)
+@Preview("FormattedTextPreview", widthDp = 360, heightDp = 120, showBackground = true)
 @Composable
 fun FormattedTextPreview() {
     val cell = Cell(
@@ -123,7 +125,7 @@ fun FormattedTextPreview() {
     FormattedText(cell, mode = CardMode.Default)
 }
 
-@Preview("FormattedText", widthDp = 360, heightDp = 120, showBackground = true)
+@Preview("TargetFormattedTextPreview", widthDp = 360, heightDp = 120, showBackground = true)
 @Composable
 fun TargetFormattedTextPreview() {
     Text(buildAnnotatedString {
@@ -143,7 +145,7 @@ fun TargetFormattedTextPreview() {
     })
 }
 
-@Preview("FormattedText2", widthDp = 360, heightDp = 120, showBackground = true)
+@Preview("TargetFormattedTextPreview2", widthDp = 360, heightDp = 120, showBackground = true)
 @Composable
 fun TargetFormattedTextPreview2() {
 

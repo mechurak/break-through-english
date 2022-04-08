@@ -1,7 +1,5 @@
 package com.shimnssso.headonenglish.utils
 
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import com.shimnssso.headonenglish.model.StyleItem
@@ -33,35 +31,35 @@ object CellConverter {
             else -> Color.DarkGray
         }
 
-        if (mode != CardMode.HideText) {
-            cell.textFormatRuns?.let {
-                var curItem: StyleItem? = null
-                cell.textFormatRuns.forEachIndexed { index, textFormat ->
-                    if (curItem != null) {
-                        val prevEndIndex = textFormat.startIndex!!
-                        curItem!!.end = prevEndIndex
-                        retList.add(curItem!!)
-                    }
-
-                    var backgroundColor = Color.Unspecified
-                    var color = Color.Unspecified
-
-                    if (textFormat.format.underline == true) {
-                        backgroundColor = Color.Yellow
-                    }
-                    if (textFormat.format.italic == true) {
-                        color = LIGHT_PURPLE
-                    }
-                    curItem = StyleItem(
-                        SpanStyle(background = backgroundColor, color = color),
-                        textFormat.startIndex ?: 0,
-                        -1
-                    )
+        cell.textFormatRuns?.let {
+            var curItem: StyleItem? = null
+            cell.textFormatRuns.forEachIndexed { index, textFormat ->
+                if (curItem != null) {
+                    val prevEndIndex = textFormat.startIndex!!
+                    curItem!!.end = prevEndIndex
+                    retList.add(curItem!!)
                 }
-                curItem!!.end = cell.formattedValue!!.length
-                retList.add(curItem!!)
 
-                // for bold
+                var backgroundColor = Color.Unspecified
+                var color = Color.Unspecified
+
+                if (textFormat.format.underline == true) {
+                    backgroundColor = Color.Yellow
+                }
+                if (textFormat.format.italic == true) {
+                    color = LIGHT_PURPLE
+                }
+                curItem = StyleItem(
+                    SpanStyle(background = backgroundColor, color = color),
+                    textFormat.startIndex ?: 0,
+                    -1
+                )
+            }
+            curItem!!.end = cell.formattedValue!!.length
+            retList.add(curItem!!)
+
+            // for bold
+            if (mode != CardMode.HideText) {
                 var prevStartIndex = -1
                 var prevBold = false
                 cell.textFormatRuns.forEachIndexed { index, textFormat ->
@@ -98,17 +96,17 @@ object CellConverter {
                     )
                 }
             }
+        }
 
-            if (cell.effectiveFormat?.textFormat?.bold == true) {
-                retList.add(
-                    StyleItem(
-                        SpanStyle(background = baseColor, color = baseColor),
-                        0,
-                        cell.formattedValue!!.length,
-                        true
-                    )
+        if (mode != CardMode.HideText && cell.effectiveFormat?.textFormat?.bold == true) {
+            retList.add(
+                StyleItem(
+                    SpanStyle(background = baseColor, color = baseColor),
+                    0,
+                    cell.formattedValue!!.length,
+                    true
                 )
-            }
+            )
         }
 
         if (mode == CardMode.HideText) {
