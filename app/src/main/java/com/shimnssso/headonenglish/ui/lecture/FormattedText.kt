@@ -70,9 +70,15 @@ fun FormattedText(
         }
     }
 
-    val textStyle = when (mode) {
-        CardMode.HideText -> MaterialTheme.typography.h5.copy(fontSize = 30.sp)
-        else -> MaterialTheme.typography.body1.copy(fontSize = 20.sp)
+    val textStyle = if (text.startsWith("##")) {
+        MaterialTheme.typography.body2
+    } else {
+        when (mode) {
+            CardMode.HideText -> {
+                MaterialTheme.typography.h5.copy(fontSize = 30.sp)
+            }
+            else -> MaterialTheme.typography.body1.copy(fontSize = 20.sp)
+        }
     }
 
     ClickableText(
@@ -102,7 +108,6 @@ fun FormattedText(
         modifier = modifier
     )
 }
-
 
 // TODO: Make it works on editor as well (For now, it works on real device only)
 @Preview("FormattedTextPreview", widthDp = 360, heightDp = 120, showBackground = true)

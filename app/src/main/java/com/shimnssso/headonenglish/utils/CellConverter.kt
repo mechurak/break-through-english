@@ -21,14 +21,26 @@ object CellConverter {
 
     fun getStyleItemPair(cell: Cell, mode: CardMode): Pair<String, List<StyleItem>> {
 
-        val LIGHT_PURPLE = Color(0xFF7e57c2)
+        val lightPurple = Color(0xFF7e57c2)
+        val orange = Color(0xFFFF9800)
 
-        var tempStr = cell.formattedValue!!
+        val tempStr = cell.formattedValue!!
         val retList = mutableListOf<StyleItem>()
 
         val baseColor = when (mode) {
             CardMode.HideText -> Color.LightGray
             else -> Color.DarkGray
+        }
+
+        if (tempStr.startsWith("##")) {
+            retList.add(
+                StyleItem(
+                    SpanStyle(
+                        color = orange,
+                    ), 0, cell.formattedValue!!.length
+                )
+            )
+            return Pair(tempStr, retList)
         }
 
         cell.textFormatRuns?.let {
@@ -47,7 +59,7 @@ object CellConverter {
                     backgroundColor = Color.Yellow
                 }
                 if (textFormat.format.italic == true) {
-                    color = LIGHT_PURPLE
+                    color = lightPurple
                 }
                 curItem = StyleItem(
                     SpanStyle(background = backgroundColor, color = color),
@@ -168,13 +180,10 @@ object CellConverter {
                 if (prevStartIndex != -1) {
                     val curStr =
                         cell.formattedValue!!.substring(prevStartIndex, textFormat.startIndex!!)
-                    println("curStr: $curStr")
                     val tempList = getStartIdxList(curStr)
-                    println("tempList: $tempList")
                     tempList.forEach {
                         wordStartIndexSet.add(prevStartIndex + it)
                     }
-                    println("wordStartIndexSet: $wordStartIndexSet")
                 }
                 prevStartIndex = -1
                 prevBold = false
@@ -187,8 +196,6 @@ object CellConverter {
                 wordStartIndexSet.add(prevStartIndex + it)
             }
         }
-
-        println("wordStartIndexSet: $wordStartIndexSet")
 
         var curStartIdx = 0
         var curSpaceIdx = cell.formattedValue!!.indexOf(" ")
