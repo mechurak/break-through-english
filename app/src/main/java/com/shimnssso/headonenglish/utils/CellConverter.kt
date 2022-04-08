@@ -43,6 +43,18 @@ object CellConverter {
             return Pair(tempStr, retList)
         }
 
+        val firstColonIndex = tempStr.indexOf(":")
+        val hasSpeaker = firstColonIndex in 1..9
+        if (hasSpeaker) {
+            retList.add(
+                StyleItem(
+                    SpanStyle(
+                        color = orange,
+                    ), 0, firstColonIndex + 1
+                )
+            )
+        }
+
         cell.textFormatRuns?.let {
             var curItem: StyleItem? = null
             cell.textFormatRuns.forEachIndexed { index, textFormat ->
@@ -122,7 +134,7 @@ object CellConverter {
         }
 
         if (mode == CardMode.HideText) {
-            var start = 0
+            var start = if (hasSpeaker) firstColonIndex + 1 else 0
             var endSpace = tempStr.indexOfAny(listOf(" ", ",", ".", "!", "?", "/"), start)
             while (endSpace > 0) {
                 if ((endSpace - start) > 2) {
